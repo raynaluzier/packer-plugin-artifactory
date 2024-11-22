@@ -1,4 +1,4 @@
-module github.com/hashicorp/packer-plugin-scaffolding
+module packer-plugin-artifactory
 
 go 1.21.0
 
