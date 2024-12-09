@@ -6,13 +6,8 @@ package main
 import (
 	"fmt"
 	"os"
-	"packer-plugin-artifactory/datasource/image"
 
-	//"github.com/hashicorp/packer-plugin-scaffolding/builder/scaffolding"
-	//scaffoldingData "github.com/hashicorp/packer-plugin-scaffolding/datasource/scaffolding"
-	//scaffoldingPP "github.com/hashicorp/packer-plugin-scaffolding/post-processor/scaffolding"
-	//scaffoldingProv "github.com/hashicorp/packer-plugin-scaffolding/provisioner/scaffolding"
-	//scaffoldingVersion "github.com/hashicorp/packer-plugin-scaffolding/version"
+	artifactImage "packer-plugin-artifactory/datasource/source_image"
 
 	"github.com/hashicorp/packer-plugin-sdk/plugin"
 	"github.com/hashicorp/packer-plugin-sdk/version"
@@ -37,7 +32,7 @@ func main() {
 	//pps.RegisterBuilder("my-builder", new(scaffolding.Builder))
 	//pps.RegisterProvisioner("my-provisioner", new(scaffoldingProv.Provisioner))
 	//pps.RegisterPostProcessor("my-post-processor", new(scaffoldingPP.PostProcessor))
-	pps.RegisterDatasource("image", new(image.Datasource))
+	pps.RegisterDatasource("artifactory-image", new(artifactImage.Datasource))
 	pps.SetVersion(PluginVersion)
 	err := pps.Run()
 	if err != nil {
