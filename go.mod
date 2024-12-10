@@ -5,7 +5,7 @@ go 1.23.1
 require (
 	github.com/hashicorp/hcl/v2 v2.19.1
 	github.com/hashicorp/packer-plugin-sdk v0.5.4
-	github.com/raynaluzier/go-artifactory v0.0.7
+	github.com/raynaluzier/artifactory-go-sdk v0.0.10
 	github.com/zclconf/go-cty v1.13.3
 )
 
