@@ -12,7 +12,7 @@ import (
 type FlatConfig struct {
 	AritfactoryToken     *string           `mapstructure:"artifactory_token" required:"true" cty:"artifactory_token" hcl:"artifactory_token"`
 	ArtifactoryServer    *string           `mapstructure:"artifactory_server" required:"true" cty:"artifactory_server" hcl:"artifactory_server"`
-	ArtifactoryOutputDir *string           `mapstructure:"artifactory_output_dir" required:"false" cty:"artifactory_output_dir" hcl:"artifactory_output_dir"`
+	ArtifactoryOutputDir *string           `mapstructure:"artifactory_outputdir" required:"false" cty:"artifactory_outputdir" hcl:"artifactory_outputdir"`
 	ArtifactoryLogging   *string           `mapstructure:"artifactory_logging" required:"false" cty:"artifactory_logging" hcl:"artifactory_logging"`
 	ArtifactName         *string           `mapstructure:"artifact_name" required:"true" cty:"artifact_name" hcl:"artifact_name"`
 	ArtifactFileType     *string           `mapstructure:"file_type" required:"true" cty:"file_type" hcl:"file_type"`
@@ -32,14 +32,14 @@ func (*Config) FlatMapstructure() interface{ HCL2Spec() map[string]hcldec.Spec }
 // The decoded values from this spec will then be applied to a FlatConfig.
 func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 	s := map[string]hcldec.Spec{
-		"artifactory_token":      &hcldec.AttrSpec{Name: "artifactory_token", Type: cty.String, Required: false},
-		"artifactory_server":     &hcldec.AttrSpec{Name: "artifactory_server", Type: cty.String, Required: false},
-		"artifactory_output_dir": &hcldec.AttrSpec{Name: "artifactory_output_dir", Type: cty.String, Required: false},
-		"artifactory_logging":    &hcldec.AttrSpec{Name: "artifactory_logging", Type: cty.String, Required: false},
-		"artifact_name":          &hcldec.AttrSpec{Name: "artifact_name", Type: cty.String, Required: false},
-		"file_type":              &hcldec.AttrSpec{Name: "file_type", Type: cty.String, Required: false},
-		"channel":                &hcldec.AttrSpec{Name: "channel", Type: cty.String, Required: false},
-		"filter":                 &hcldec.AttrSpec{Name: "filter", Type: cty.Map(cty.String), Required: false},
+		"artifactory_token":     &hcldec.AttrSpec{Name: "artifactory_token", Type: cty.String, Required: false},
+		"artifactory_server":    &hcldec.AttrSpec{Name: "artifactory_server", Type: cty.String, Required: false},
+		"artifactory_outputdir": &hcldec.AttrSpec{Name: "artifactory_outputdir", Type: cty.String, Required: false},
+		"artifactory_logging":   &hcldec.AttrSpec{Name: "artifactory_logging", Type: cty.String, Required: false},
+		"artifact_name":         &hcldec.AttrSpec{Name: "artifact_name", Type: cty.String, Required: false},
+		"file_type":             &hcldec.AttrSpec{Name: "file_type", Type: cty.String, Required: false},
+		"channel":               &hcldec.AttrSpec{Name: "channel", Type: cty.String, Required: false},
+		"filter":                &hcldec.AttrSpec{Name: "filter", Type: cty.Map(cty.String), Required: false},
 	}
 	return s
 }

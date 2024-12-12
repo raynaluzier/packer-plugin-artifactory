@@ -16,7 +16,7 @@ type Config struct {
 	AritfactoryToken       string `mapstructure:"artifactory_token" required:"true"`
 	ArtifactoryServer      string `mapstructure:"artifactory_server" required:"true"`
 	// Defaults to user's home dir if blank
-	ArtifactoryOutputDir   string `mapstructure:"artifactory_output_dir" required:"false"`
+	ArtifactoryOutputDir   string `mapstructure:"artifactory_outputdir" required:"false"`
 	// Defaults to 'INFO'
 	ArtifactoryLogging     string `mapstructure:"artifactory_logging" required:"false"`
 
