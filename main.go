@@ -29,9 +29,6 @@ var (
 
 func main() {
 	pps := plugin.NewSet()
-	//pps.RegisterBuilder("my-builder", new(scaffolding.Builder))
-	//pps.RegisterProvisioner("my-provisioner", new(scaffoldingProv.Provisioner))
-	//pps.RegisterPostProcessor("my-post-processor", new(scaffoldingPP.PostProcessor))
 	pps.RegisterDatasource(plugin.DEFAULT_NAME, new(artifactImage.Datasource))
 	pps.SetVersion(PluginVersion)
 	err := pps.Run()
