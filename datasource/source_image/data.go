@@ -148,8 +148,8 @@ func (d *Datasource) Execute() (cty.Value, error) {
 	artifactUri, artifactName, createDate, downloadUri := tasks.GetImageDetails(d.config.ArtifactoryServer, d.config.AritfactoryToken, d.config.ArtifactoryLogging, artifName, ext, kvProperties)
 	
 	output := DatasourceOutput{
-		Name: 			artifactName,
-		Created: 		createDate,
+		Name: 	artifactName,
+		Created: 	createDate,
 		ArtifactUri: 	artifactUri,
 		DownloadUri: 	downloadUri,
 	}
