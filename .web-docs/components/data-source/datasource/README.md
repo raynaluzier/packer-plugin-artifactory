@@ -1,63 +1,56 @@
-  Include a short description about the data source. This is a good place
-  to call out what the data source does, and any requirements for the given
-  data source environment. See https://www.packer.io/docs/data-source/amazon-ami
--->
+The Artifactory data source is used to identify the name of an artifact image stored in JFrog Artifactory, which can then be passed to the builder. The use of property key(s)/value(s) as filter parameters can further assist in identifying the correct image. If more than one artifact matches the input parameters, the latest artifact will be returned.
 
-The scaffolding data source is used to create endless Packer plugins using
-a consistent plugin structure.
-
-
-<!-- Data source Configuration Fields -->
 
 **Required**
 
-- `mock` (string) - The name of the mock to use for the Scaffolding API.
+- `artifactory_server` (string) - The API address of the Artifactory server (ex: https://server.com:8081/artifactory/api).
+- `artifactory_token` (string) - The Artifactory account Identity Token used to authenticate with the Artifactory server and perform operations. Results are limited to whatever the account has access to. If the account can only "see" a single repository, then the results will only include content from that single repository. 
+- `artifact_name` (string) - The full or partial name of the artifact/image to search for (ex: win-22).
+- `file_type` (string) - The file extension of the desired artifact (ex: vmxt). If left blank, this will default to 'vmtx'.
 
-
-<!--
-  Optional Configuration Fields
-
-  Configuration options that are not required or have reasonable defaults
-  should be listed under the optionals section. Defaults values should be
-  noted in the description of the field
--->
 
 **Optional**
 
-- `mock_api_url` (string) - The Scaffolding API endpoint to connect to.
-  Defaults to https://example.com
+- `artifactory_logging` (string) - The logging level to use (INFO, WARN, ERROR, DEBUG). This defaults to 'INFO' if left blank.
+- `artifactory_outputdir` (string) - The output directory that should be used if/when downloading artifacts. If left blank, this will default to the user's home directory.
+- `channel` (string) - Similar concept to HCP Packer; the channel name assigned to a given artifact. This is simply a property VALUE to the key 'channel'. To be valid, an artifact must have a property named 'channel' assigned with the desired value (ex: 'windows-iis-prod').
+- `filter` (map[string]string) - The key/value pairs of properties to filter the artifact by.
+
+**NOTE**
+A `.env` file can also be used to pass in the following environment variables:
+- ARTIFACTORY_SERVER
+- ARTIFACTORY_TOKEN
+- ARTIFACTORY_LOGGING
+- ARTIFACTORY_OUTPUTDIR
 
 
+### Output
 
-<!--
-  A basic example on the usage of the data source. Multiple examples
-  can be provided to highlight various build configurations.
+- `artifactName` (string) - The name of the artifact.
+- `createdDate` (string) - The date the artifact was created.
+- `artifactUri` (string) - The URI of the artifact.
+- `downloadUri` (string) - The download URI of the artifact.
 
--->
 
-### OutPut
-
-- `foo` (string) - The Scaffolding output foo value.
-- `bar` (string) - The Scaffolding output bar value.
-
-<!--
-  A basic example on the usage of the data source. Multiple examples
-  can be provided to highlight various build configurations.
-
--->
 
 ### Example Usage
 
 
 ```hcl
-data "scaffolding" "example" {
-   mock = "bird"
- }
- source "scaffolding" "example" {
-   mock = data.scaffolding.example.foo
- }
+data "artifactory" "basic-example" {
+    # --> Provide creds via environment variables
+    artifactory_token     = "1234567890abcdefghijkl1234567890mnopqrstuv"
+    artifactory_server    = "https://myserver.com:8081/artifactory/api"
+    artifactory_outputdir = "C:\\lab\\output-directory"
+    artifactory_logging   = "INFO"
 
- build {
-   sources = ["source.scaffolding.example"]
- }
+    artifact_name = "test-artifact"
+    file_type     = "txt"
+    channel       = "windows-iis-prod"
+    
+    filter = {
+        release = "latest-stable"
+        testing = "passed"
+    }
+}
 ```
