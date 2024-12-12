@@ -17,5 +17,4 @@ data "artifactory" "basic-example" {
         release = "latest-stable"
         testing = "passed"
     }
-
 }

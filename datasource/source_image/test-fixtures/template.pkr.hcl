@@ -3,7 +3,6 @@ data "artifactory" "basic-example" {
     # Provide via environment variables
     //artifactory_token     = ""
     //artifactory_server    = ""      // https://myserver.com:8081/artifactory/api
-    
     artifactory_logging   = "INFO"
 
     artifact_name = "test-artifact"
@@ -12,7 +11,6 @@ data "artifactory" "basic-example" {
     filter = {
         release = "latest-stable"
     }
-
 }
 
 locals {
