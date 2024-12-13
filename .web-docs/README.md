@@ -47,7 +47,6 @@ Static credentials can be provided using the server API address and identity tok
 data "artifactory" "basic-example" {
   artifactory_server = "https://server.com:8081/artifactory/api"
   artifactory_token  = "1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t"
-
 }
 ```
 #### Environment Variables
@@ -71,8 +70,7 @@ ARTIFACTORY_TOKEN=1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t
 To gather additional information about the processes happening, change the logging level to 'DEBUG'. This can be done by setting Logging in the data source configuration or via an environment variable.
 
 Data Source Example:
-```
-hcl
+```hcl
 data "artifactory" "basic-example" {
   artifactory_server  = "https://server.com:8081/artifactory/api"
   artifactory_token   = "1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t"
