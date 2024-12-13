@@ -37,7 +37,7 @@ A `.env` file can also be used to pass in the following environment variables:
 
 ## Basic Example Usage
 
-**Search for Image By Name Only**
+**Search for Image by Name Only**
 ```hcl
 data "artifactory" "basic-example" {
     artifactory_token     = "artifactory_token"
