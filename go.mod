@@ -1,6 +1,6 @@
 module packer-plugin-artifactory
 
-go 1.23.1
+go 1.23
 
 require (
 	github.com/hashicorp/hcl/v2 v2.19.1
