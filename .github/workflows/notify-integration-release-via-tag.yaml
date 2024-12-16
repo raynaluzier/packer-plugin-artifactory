@@ -35,9 +35,10 @@ jobs:
           date > generated.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout main
           git add .
           git commit -m "commit any updated files"
-          git push
+          git push origin main
       - shell: bash
         run: |
           uncommitted="$(git status -s)"
