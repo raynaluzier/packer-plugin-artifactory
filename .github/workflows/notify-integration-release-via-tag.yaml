@@ -30,14 +30,14 @@ jobs:
           go-version: '>=1.20.0'
       - shell: bash
         run: make generate
-      - name: Add & Commit
-        uses: EndBug/add-and-commit@v9.1.4
-        with:
-          new_branch: 'main'
-          add: '.'
-          commit: --signoff
-          message: 'Commit any recently updated compiled docs'
-          push: origin main --set-upstream --force
+      - uses: actions/checkout@v4.2.2
+      - run: |
+          date > generated.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "commit any updated files"
+          git push
       - shell: bash
         run: |
           uncommitted="$(git status -s)"
