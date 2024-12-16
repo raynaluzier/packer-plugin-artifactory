@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout this repo
-        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+        uses: actions/checkout@v4.2.2
         with:
           ref: ${{ github.ref }}
       # Ensure that Docs are Compiled
@@ -33,7 +33,10 @@ jobs:
       - name: Add & Commit
         uses: EndBug/add-and-commit@v9.1.4
         with:
-          push: origin main --force
+          add: '.'
+          commit: --signoff
+          message: 'Commit any recently updated compiled docs'
+          push: origin main --set-upstream --force
       - shell: bash
         run: |
           uncommitted="$(git status -s)"
