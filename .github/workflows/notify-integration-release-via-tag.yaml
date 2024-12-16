@@ -30,6 +30,8 @@ jobs:
           go-version: '>=1.20.0'
       - shell: bash
         run: make generate
+      - name: Add & Commit
+        uses: EndBug/add-and-commit@v9.1.4
       - shell: bash
         run: |
           uncommitted="$(git status -s)"
