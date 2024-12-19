@@ -58,56 +58,50 @@ const testDatasourceHCL2Basic = `
 	}
 	`
 
+var artifactUri string
+var statusCode  string
+
 const testDirName      = "test-directory"
 const testArtifactName = "test-artifact.txt"
 const artifactSuffix   = ""
 const artifactContents = "Just some test content."
-
-const testRepoName       = "test-packer-plugin"
-const testRepoConfigName = "repository-config.json"
-const repoConfigContents = "{ \"key\": \"" + testRepoName + "\",\"rclass\": \"local\", \"description\": \"temporary; test repo for packer plugin acceptance testing\"}"
-
-var artifactUri string
-var statusCode  string
+var kvProps []string
 
 // Run with: PACKER_ACC=1 go test -count 1 -v ./datasource/source_image/data_acc_test.go -timeout=120
 func TestAccDatasource_Artifactory(t *testing.T) {
 	datasource := Datasource{
 		config: Config{},
 	}
+
 	// Prep test artifact
 	testDirPath  := common.CreateTestDirectory(testDirName)
-	testArtifact := common.CreateTestFile(testDirPath, testArtifactName, artifactContents)
-	var kvProps []string
+	testArtifactPath := common.CreateTestFile(testDirPath, testArtifactName, artifactContents)
 	kvProps = append(kvProps,"release=latest-stable")
-		
-	// Prep Repo Config File
-	configFilePath := common.CreateTestFile(testDirPath, testRepoConfigName, repoConfigContents)
+
+	log.Println("Test Directory Created: " + testDirPath)
+	log.Println("Test Artifact Created: " + testArtifactPath)
 
 	testCase := &acctest.PluginTestCase{
 		Name: "artifactory_datasource_basic_test",
 		Setup: func() error {
-			artifactUri, err := tasks.SetupTest(datasource.config.ArtifactoryServer, datasource.config.AritfactoryToken, testRepoName, configFilePath, testArtifact, artifactSuffix, kvProps)
+			artifactUri, err := tasks.SetupTest(datasource.config.ArtifactoryServer, datasource.config.AritfactoryToken, testArtifactPath, artifactSuffix, kvProps)
 			if err != nil {
 				log.Fatal(err)
 			}
 			log.Println("Test Artifact Created: " + artifactUri)
-			return nil
+			return nil  // move prep back to this function
 		},
 		Teardown: func() error {
-			// Delete local test files
-			common.DeleteTestFile(configFilePath)
-			common.DeleteTestFile(testArtifact)
-
-			// Delete locat test directory
+			// Deletes locally created test artifact and test directory
+			common.DeleteTestFile(testArtifactPath)
 			common.DeleteTestDirectory(testDirPath)
 
-			// Delete test artifact from test repo, then delete test repo
-			statusCode := tasks.TeardownTest(datasource.config.ArtifactoryServer, datasource.config.AritfactoryToken, testRepoName, artifactUri)
-			if statusCode == "204" {
-				fmt.Println("Test environment successfully torn down.")
+			// Deletes test artifact and repo from Artifactory
+			statusCode := tasks.TeardownTest(datasource.config.ArtifactoryServer, datasource.config.AritfactoryToken)
+			if statusCode == "200" {
+				log.Println("Test environment successfully torn down.")
 			} else {
-				fmt.Println("Unable to delete test artifact and/or test repo.")
+				log.Println("Unable to teardown test environment.")
 			}
 			log.Println("Status code of teardown operation: " + statusCode)
 			return nil
