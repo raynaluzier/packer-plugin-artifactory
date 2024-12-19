@@ -26,8 +26,11 @@ jobs:
           go-version: '>=1.22'
       - shell: bash
         run: make generate
+      # Ensure compiled docs get committed, otherwise uncommitted check fails
+      # Delete previous generated.txt file or release fails
       - uses: actions/checkout@v4.2.2
       - run: |
+          git rm generated.txt
           date > generated.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
