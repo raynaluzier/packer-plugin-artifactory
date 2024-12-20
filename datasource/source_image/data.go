@@ -37,7 +37,7 @@ type Datasource struct {
 type DatasourceOutput struct {
 	Name        string `mapstructure:"name"`
 	Created     string `mapstructure:"creation_date"`
-	ArtifactUri	string `mapstructure:"artifcat_uri"`
+	ArtifactUri	string `mapstructure:"artifact_uri"`
 	DownloadUri string `mapstructure:"download_uri"`
 }
 
@@ -146,7 +146,7 @@ func (d *Datasource) Execute() (cty.Value, error) {
 
 	// Search for artifact and return details
 	artifactUri, artifactName, createDate, downloadUri := tasks.GetImageDetails(d.config.ArtifactoryServer, d.config.AritfactoryToken, d.config.ArtifactoryLogging, artifName, ext, kvProperties)
-	
+
 	output := DatasourceOutput{
 		Name: 	artifactName,
 		Created: 	createDate,
