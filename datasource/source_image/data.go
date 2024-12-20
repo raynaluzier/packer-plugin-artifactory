@@ -37,7 +37,7 @@ type Datasource struct {
 type DatasourceOutput struct {
 	Name        string `mapstructure:"name"`
 	Created     string `mapstructure:"creation_date"`
-	ArtifactUri	string `mapstructure:"artifact_uri"` 
+	ArtifactUri	string `mapstructure:"artifact_uri"`
 	DownloadUri string `mapstructure:"download_uri"`
 }
 
