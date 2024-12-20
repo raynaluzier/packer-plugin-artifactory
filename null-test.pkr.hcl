@@ -11,8 +11,8 @@ packer {
 
 data "artifactory" "basic-example" {
     # Provide via environment variables
-    artifactory_token     = "eyJ2ZXIiOiIyIiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYiLCJraWQiOiJ2V3V1Tm9uZE0wVVBtRVdtR3cwMEpXTnYzUW9fc2N4WW92WGcwVm15cHdzIn0.eyJzdWIiOiJqZmFjQDAxamY5eTN4cnFhbmFuMWo1anIwZ3Awa2MxL3VzZXJzL3BhY2tlciIsInNjcCI6ImFwcGxpZWQtcGVybWlzc2lvbnMvYWRtaW4iLCJhdWQiOiIqQCoiLCJpc3MiOiJqZmZlQDAxamY5eTN4cnFhbmFuMWo1anIwZ3Awa2MxIiwiaWF0IjoxNzM0NDYyOTUyLCJqdGkiOiIzNzliOThlNy0yNWZiLTQ2ZTgtOGFjYy04N2NhM2Y2MmQ4OTIiLCJ0aWQiOiJhMGZ0emZqNHgwOTRpIn0.jOff5zBZ70cb_8uJZWWaPnUO4Ub0JqFYrY57JHmqRHy-gqsZRxtBjCNpNATFkjzvuEtoN_qUbRaEXC2FSHKgjiA7boCOjCI_Hu1_Nsls2RyRsCzbYlLdHvfGMiQoh2DjFYZ49YWNQ8QfGuQ6TpUWR5FxT0Dl-R2hkemzVVxOG-lRFC_QIEJSSKR53zvhRBELMcYbJqSJ4NIRdJoOsON-NZCqLP4pOcV3U3u1-JFpndgewlq6jZk5z9eppSbtItmin8LYlb56QCtgNG9DH41wrHJUmuwlQXRDPcZF6gr0y1yi4M5QPtj5BB5IPeYKUchC-T-W6xKnUvXhMDCS5SbpRw"
-    artifactory_server    = "https://riverpointtechnology.jfrog.io/artifactory/api"
+    //artifactory_token     = ""
+    //artifactory_server    = ""
     artifactory_logging   = "INFO"
 
     artifact_name = "test-artifact"
