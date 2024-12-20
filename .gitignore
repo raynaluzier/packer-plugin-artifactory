@@ -9,5 +9,5 @@ dist/*
 docs.zip
 
 .env
-packer-plugin-artifactory
+packer-plugin-artifactory*
 null-test-pkr.hcl
