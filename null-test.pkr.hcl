@@ -13,7 +13,7 @@ data "artifactory" "basic-example" {
     # Provide via environment variables
     //artifactory_token     = ""
     //artifactory_server    = ""
-    artifactory_logging   = "INFO"
+    //artifactory_logging   = "INFO"
 
     artifact_name = "test-artifact"
     file_type     = "txt"

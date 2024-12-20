@@ -10,4 +10,4 @@ docs.zip
 
 .env
 packer-plugin-artifactory*
-null-test-pkr.hcl
+*null-test*
