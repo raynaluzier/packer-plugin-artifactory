@@ -9,5 +9,6 @@ dist/*
 docs.zip
 
 .env
-packer-plugin-artifactory*
 *null-test*
+*packer-plugin-artifactory*
+data_acc_test-orig.txt

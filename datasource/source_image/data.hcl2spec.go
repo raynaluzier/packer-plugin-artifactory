@@ -49,7 +49,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 type FlatDatasourceOutput struct {
 	Name        *string `mapstructure:"name" cty:"name" hcl:"name"`
 	Created     *string `mapstructure:"creation_date" cty:"creation_date" hcl:"creation_date"`
-	ArtifactUri *string `mapstructure:"artifcat_uri" cty:"artifcat_uri" hcl:"artifcat_uri"`
+	ArtifactUri *string `mapstructure:"artifact_uri" cty:"artifact_uri" hcl:"artifact_uri"`
 	DownloadUri *string `mapstructure:"download_uri" cty:"download_uri" hcl:"download_uri"`
 }
 
@@ -67,7 +67,7 @@ func (*FlatDatasourceOutput) HCL2Spec() map[string]hcldec.Spec {
 	s := map[string]hcldec.Spec{
 		"name":          &hcldec.AttrSpec{Name: "name", Type: cty.String, Required: false},
 		"creation_date": &hcldec.AttrSpec{Name: "creation_date", Type: cty.String, Required: false},
-		"artifcat_uri":  &hcldec.AttrSpec{Name: "artifcat_uri", Type: cty.String, Required: false},
+		"artifact_uri":  &hcldec.AttrSpec{Name: "artifact_uri", Type: cty.String, Required: false},
 		"download_uri":  &hcldec.AttrSpec{Name: "download_uri", Type: cty.String, Required: false},
 	}
 	return s
