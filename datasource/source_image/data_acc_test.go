@@ -29,13 +29,13 @@ const testDatasourceHCL2Basic = `
 	variable "artif_token" {
 		type        = string
 		description = "Identity token of the Artifactory account with access to execute commands"
-		default     = env("ARTIFACTORY_TOKEN")
+		default     = ""
 	}
 
 	variable "artif_server" {
 		type        = string
 		description = "The Artifactory API server address"
-		default     = env("ARTIFACTORY_SERVER")   // https://mydomain.jfrog.io/artifactory/api or https://server.domain.com:8081/artifactory/api
+		default     = ""
 	}
 
 	data "artifactory" "basic-example" {
@@ -88,11 +88,14 @@ const artifactSuffix   = ""
 const artifactContents = "Just some test content."
 var kvProps []string
 
-// Run with: PACKER_ACC=1 go test -count 1 -v ./datasource/source_image/data_acc_test.go -timeout=120
+var token = ""
+var server = ""
+
+// Run with: PACKER_ACC=1 go test -count 1 -v ./... -timeout=120
 func TestAccDatasource_Artifactory(t *testing.T) {
-	datasource := Datasource{
-		config: Config{},
-	}
+	//datasource := Datasource{
+	//	config: Config{},
+	//}
 
 	// Prep test artifact
 	testDirPath  := common.CreateTestDirectory(testDirName)
@@ -101,30 +104,31 @@ func TestAccDatasource_Artifactory(t *testing.T) {
 
 	log.Println("Test Directory Created: " + testDirPath)
 	log.Println("Test Artifact Created: " + testArtifactPath)
-
+ 
 	testCase := &acctest.PluginTestCase{
 		Name: "artifactory_datasource_basic_test",
 		Setup: func() error {
-			artifactUri, err := tasks.SetupTest(datasource.config.ArtifactoryServer, datasource.config.AritfactoryToken, testArtifactPath, artifactSuffix, kvProps)
+			artifactUri, err := tasks.SetupTest(server, token, testArtifactPath, artifactSuffix, kvProps)
 			if err != nil {
 				log.Fatal(err)
 			}
 			log.Println("Test Artifact Created: " + artifactUri)
-			return nil  // move prep back to this function
+			return nil
 		},
 		Teardown: func() error {
 			// Deletes locally created test artifact and test directory
 			common.DeleteTestFile(testArtifactPath)
 			common.DeleteTestDirectory(testDirPath)
-
+	
 			// Deletes test artifact and repo from Artifactory
-			statusCode := tasks.TeardownTest(datasource.config.ArtifactoryServer, datasource.config.AritfactoryToken)
+			statusCode := tasks.TeardownTest(server, token)
 			if statusCode == "200" {
 				log.Println("Test environment successfully torn down.")
 			} else {
 				log.Println("Unable to teardown test environment.")
 			}
 			log.Println("Status code of teardown operation: " + statusCode)
+
 			return nil
 		},
 		Template: testDatasourceHCL2Basic,

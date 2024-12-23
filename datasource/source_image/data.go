@@ -12,6 +12,7 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
+// --> If making changes to this section, make sure the hcl2spec gets updated as well!
 type Config struct {
 	AritfactoryToken       string `mapstructure:"artifactory_token" required:"true"`
 	ArtifactoryServer      string `mapstructure:"artifactory_server" required:"true"`
@@ -34,6 +35,7 @@ type Datasource struct {
 	config Config
 }
 
+// --> If making changes to this section, make sure the hcl2spec gets updated as well!
 type DatasourceOutput struct {
 	Name        string `mapstructure:"name"`
 	Created     string `mapstructure:"creation_date"`
