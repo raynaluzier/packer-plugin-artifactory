@@ -17,10 +17,31 @@ import (
 
 // go:embed test-fixtures/template.pkr.hcl
 const testDatasourceHCL2Basic = `
+	packer {
+		required_plugins {
+			artifactory = {
+				version = ">= 0.0.2"
+				source  = "github.com/raynaluzier/artifactory"
+			}
+		}
+	}
+
+	variable "artif_token" {
+		type        = string
+		description = "Identity token of the Artifactory account with access to execute commands"
+		default     = env("ARTIFACTORY_TOKEN")
+	}
+
+	variable "artif_server" {
+		type        = string
+		description = "The Artifactory API server address"
+		default     = env("ARTIFACTORY_SERVER")   // https://mydomain.jfrog.io/artifactory/api or https://server.domain.com:8081/artifactory/api
+	}
+
 	data "artifactory" "basic-example" {
 		# Provide via environment variables
-		//artifactory_token     = ""
-		//artifactory_server    = ""      // https://myserver.com:8081/artifactory/api
+		artifactory_token     = var.artif_token  
+		artifactory_server    = var.artif_server
 		artifactory_logging   = "INFO"
 
 		artifact_name = "test-artifact"

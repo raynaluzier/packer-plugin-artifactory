@@ -7,7 +7,7 @@ The use of property key(s)/value(s) as filter parameters can further assist in i
 
 ## Configuration Reference
 
-- `artifactory_server` (string) - Required; The API address of the Artifactory server (ex: https://server.com:8081/artifactory/api).
+- `artifactory_server` (string) - Required; The API address of the Artifactory server (ex: https://server.domain.com:8081/artifactory/api). The URL will differ slightly between cloud-hosted and self-hosted instanced.
 - `artifactory_token` (string) - Required; The Artifactory account Identity Token used to authenticate with the Artifactory server and perform operations. Results are limited to whatever the account has access to. If the account can only "see" a single repository, then the results will only include content from that single repository.
 
 - `artifact_name` (string) - Required; The full or partial name of the artifact/image to search for (ex: win-22).
@@ -43,7 +43,7 @@ A `.env` file can also be used to pass in the following environment variables:
 ```hcl
 data "artifactory" "basic-example" {
     artifactory_token     = "artifactory_token"
-    artifactory_server    = "https://myserver.com:8081/artifactory/api"
+    artifactory_server    = "https://server.domain.com:8081/artifactory/api"
 
     artifact_name = "test-artifact"
     file_type     = "txt"
@@ -54,7 +54,7 @@ data "artifactory" "basic-example" {
 ```hcl
 data "artifactory" "basic-example" {
     artifactory_token     = "artifactory_token"
-    artifactory_server    = "https://myserver.com:8081/artifactory/api"
+    artifactory_server    = "https://server.domain.com:8081/artifactory/api"
 
     artifact_name = "test-artifact"
     file_type     = "txt"
@@ -70,7 +70,7 @@ data "artifactory" "basic-example" {
 ```hcl
 data "artifactory" "basic-example" {
     artifactory_token     = "artifactory_token"
-    artifactory_server    = "https://myserver.com:8081/artifactory/api"
+    artifactory_server    = "https://server.domain.com:8081/artifactory/api"
 
     artifact_name = "test-artifact"
     file_type     = "txt"
