@@ -19,22 +19,12 @@ The use of property key(s)/value(s) as filter parameters can further assist in i
 - `artifactory_outputdir` (string) - Optional; The output directory that should be used if/when downloading artifacts. If left blank, this will default to the user's home directory.
 
 
-
-**NOTE**
-A `.env` file can also be used to pass in the following environment variables:
-- ARTIFACTORY_SERVER
-- ARTIFACTORY_TOKEN
-- ARTIFACTORY_LOGGING
-- ARTIFACTORY_OUTPUTDIR
-
-
 ## Output Data
 
 - `artifactName` (string) - The name of the artifact.
 - `createdDate` (string) - The date the artifact was created.
 - `artifactUri` (string) - The URI of the artifact.
 - `downloadUri` (string) - The download URI of the artifact.
-
 
 
 ## Basic Example Usage

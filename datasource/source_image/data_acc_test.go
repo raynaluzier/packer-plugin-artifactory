@@ -18,7 +18,7 @@ const testDatasourceHCL2Basic = `
 	packer {
 		required_plugins {
 			artifactory = {
-				version = ">= 0.0.3"
+				version = ">= 1.0.0"
 				source  = "github.com/raynaluzier/artifactory"
 			}
 		}
@@ -27,11 +27,13 @@ const testDatasourceHCL2Basic = `
 	variable "artif_token" {
 		type        = string
 		description = "Identity token of the Artifactory account with access to execute commands"
+		default     = env("ARTIFACTORY_TOKEN")
 	}
 
 	variable "artif_server" {
 		type        = string
 		description = "The Artifactory API server address"
+		default     = env("ARTIFACTORY_SERVER")
 	}
 
 	data "artifactory" "basic-example" {

@@ -9,10 +9,9 @@ To install this plugin, copy and paste this code into your Packer configuration,
 ```hcl
 packer {
   required_plugins {
-    name = {
-      # source represents the GitHub URI to the plugin repository without the `packer-plugin-` prefix.
+    artifactory = {
       source  = "github.com/raynaluzier/artifactory"
-      version = ">=0.0.1"
+      version = ">=1.0.0"
     }
   }
 }
@@ -30,7 +29,7 @@ $ packer plugins install github.com/raynaluzier/artifactory
 
 #### Data Sources
 
-- [data source](/packer/integrations/hashicorp/artifactory/latest/components/data-source/datasource) - Filter and locate target artifacts and retrieve information necessary to work with them.
+- [data source](/packer/integrations/jfrog/artifactory/latest/components/data-source/datasource) - Filter and locate target artifacts and retrieve information necessary to work with them.
 
 ### Authentication
 There are several ways to provide credentials for JFrog Artifactory authentication, which uses a bearer token when making each underlying request. The following authentication methods are supported:

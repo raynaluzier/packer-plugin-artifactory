@@ -18,7 +18,7 @@ Then, run [`packer init`](https://www.packer.io/docs/commands/init).
 packer {
   required_plugins {
     artifactory = {
-      version = ">= 0.0.2"
+      version = ">= 1.0.0"
       source  = "github.com/raynaluzier/artifactory"
     }
   }
@@ -27,7 +27,7 @@ packer {
 
 #### Manual installation
 
-You can find pre-built binary releases of the plugin [here](https://github.com/hashicorp/packer-plugin-artifactory/releases).
+You can find pre-built binary releases of the plugin [here](https://github.com/raynaluzier/packer-plugin-artifactory/releases).
 Once you have downloaded the latest archive corresponding to your target OS,
 uncompress it to retrieve the plugin binary file corresponding to your platform.
 To install the plugin, please follow the Packer documentation on
