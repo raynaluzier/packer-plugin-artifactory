@@ -1,7 +1,6 @@
 package artifactImage
 
 import (
-	_ "embed"
 	"fmt"
 	"io"
 	"log"
@@ -15,12 +14,11 @@ import (
 	"github.com/raynaluzier/artifactory-go-sdk/tasks"
 )
 
-// go:embed test-fixtures/template.pkr.hcl
 const testDatasourceHCL2Basic = `
 	packer {
 		required_plugins {
 			artifactory = {
-				version = ">= 0.0.2"
+				version = ">= 0.0.3"
 				source  = "github.com/raynaluzier/artifactory"
 			}
 		}
@@ -29,13 +27,11 @@ const testDatasourceHCL2Basic = `
 	variable "artif_token" {
 		type        = string
 		description = "Identity token of the Artifactory account with access to execute commands"
-		default     = ""
 	}
 
 	variable "artif_server" {
 		type        = string
 		description = "The Artifactory API server address"
-		default     = ""
 	}
 
 	data "artifactory" "basic-example" {
@@ -88,14 +84,11 @@ const artifactSuffix   = ""
 const artifactContents = "Just some test content."
 var kvProps []string
 
-var token = ""
-var server = ""
+var token = ""    // Update for testing
+var server = ""   // Update for testing
 
 // Run with: PACKER_ACC=1 go test -count 1 -v ./... -timeout=120
 func TestAccDatasource_Artifactory(t *testing.T) {
-	//datasource := Datasource{
-	//	config: Config{},
-	//}
 
 	// Prep test artifact
 	testDirPath  := common.CreateTestDirectory(testDirName)
@@ -151,7 +144,8 @@ func TestAccDatasource_Artifactory(t *testing.T) {
 				return fmt.Errorf("Unable to read %s", logfile)
 			}
 			logsString := string(logsBytes)
-			
+			log.Println(logsString)
+
 			artifactUriLog := fmt.Sprintf("null.basic-example: artifact URI: %s", artifactUri)
 			if matched, _ := regexp.MatchString(artifactUriLog+".*", logsString); !matched {
 				t.Fatalf("logs doesn't contain expected output %q", logsString)
