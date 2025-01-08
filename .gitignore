@@ -12,4 +12,6 @@ docs.zip
 *null-test*
 *packer-plugin-artifactory*
 data_acc_test-test-ready*
-artifactory_datasource_basic*
+artifactory_datasource*
+artifactory_postprocessor*
+post-processor_acc_test-test-ready*

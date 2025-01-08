@@ -96,6 +96,7 @@ func TestAccDatasource_Artifactory(t *testing.T) {
 	testDirPath  := common.CreateTestDirectory(testDirName)
 	testArtifactPath := common.CreateTestFile(testDirPath, testArtifactName, artifactContents)
 	kvProps = append(kvProps,"release=latest-stable")
+	uploadTestArtifact := true
 
 	log.Println("Test Directory Created: " + testDirPath)
 	log.Println("Test Artifact Created: " + testArtifactPath)
@@ -103,7 +104,7 @@ func TestAccDatasource_Artifactory(t *testing.T) {
 	testCase := &acctest.PluginTestCase{
 		Name: "artifactory_datasource_basic_test",
 		Setup: func() error {
-			artifactUri, err := tasks.SetupTest(server, token, testArtifactPath, artifactSuffix, kvProps)
+			artifactUri, err := tasks.SetupTest(server, token, testArtifactPath, artifactSuffix, kvProps, uploadTestArtifact)
 			if err != nil {
 				log.Fatal(err)
 			}
