@@ -85,15 +85,27 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source
 		fileSuffix = p.config.FileSuffix
 	}
 
+	// Troubleshooting:
+	log.Println("token: " + token)
+	log.Println("serverapi: " + serverApi)
+	log.Println("source path: " + sourcePath)
+	log.Println("target path: " + targetPath)
+	log.Println("file suffix: " + fileSuffix)
+
 	downloadUri, artifactUri, err := tasks.UploadArtifact(serverApi, token, sourcePath, targetPath, fileSuffix)
+
+	log.Println("download uri: " + downloadUri)
+	log.Println("artifact uri: " + artifactUri)
 	
 	if err != nil {
 		log.Fatal("Unable to upload the artifact - ", err)
+		return source, false, false, err
+
 	} else {
 		ui.Say("Artifact upload completed.")
 		log.Println("Download URI for new artifact: " + downloadUri)
 		log.Println("Artifact URI for new artifact: " + artifactUri)
+		return source, true, true, nil
 	}
 
-	return source, true, true, nil
 }
