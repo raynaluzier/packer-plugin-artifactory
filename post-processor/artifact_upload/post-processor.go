@@ -22,10 +22,10 @@ type Config struct {
 	FileSuffix			   string `mapstructure:"file_suffix" required:"false"`
 	ExistingUriTarget	   string `mapstructure:"existing_uri_target" required:"false"`
 
-	common.PackerConfig	  `mapstructure:",squash"`
+	common.PackerConfig	  `mapstructure:",squash"`                                    // remove if using token/server, update hcl2 config
 
-	AritfactoryToken       string `mapstructure:"artifactory_token" required:"true"`
-	ArtifactoryServer      string `mapstructure:"artifactory_server" required:"true"`
+	AritfactoryToken       string `mapstructure:"artifactory_token" required:"false"`  // update to true if using
+	ArtifactoryServer      string `mapstructure:"artifactory_server" required:"false"` // update to true if using
 }
 
 type PostProcessor struct {
@@ -61,11 +61,11 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 
 func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source packersdk.Artifact) (packersdk.Artifact, bool, bool, error) {
 	var sourcePath, targetPath, fileSuffix string
-	//token     := p.config.PackerConfig.PackerUserVars["artifactory_token"]
-	//serverApi := p.config.PackerConfig.PackerUserVars["artifactory_server"]
+	token     := p.config.PackerConfig.PackerUserVars["artifactory_token"]    // remove if using the below
+	serverApi := p.config.PackerConfig.PackerUserVars["artifactory_server"]	  //
 
-	token := p.config.AritfactoryToken			// testing
-	serverApi := p.config.ArtifactoryServer		// testing
+	//token := p.config.AritfactoryToken			// testing
+	//serverApi := p.config.ArtifactoryServer		// testing
 
 	if p.config.SourcePath != "" {
 		sourcePath = p.config.SourcePath
@@ -86,16 +86,9 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source
 	}
 
 	// Troubleshooting:
-	log.Println("token: " + token)
 	log.Println("serverapi: " + serverApi)
-	log.Println("source path: " + sourcePath)
-	log.Println("target path: " + targetPath)
-	log.Println("file suffix: " + fileSuffix)
 
 	downloadUri, artifactUri, err := tasks.UploadArtifact(serverApi, token, sourcePath, targetPath, fileSuffix)
-
-	log.Println("download uri: " + downloadUri)
-	log.Println("artifact uri: " + artifactUri)
 	
 	if err != nil {
 		log.Fatal("Unable to upload the artifact - ", err)
