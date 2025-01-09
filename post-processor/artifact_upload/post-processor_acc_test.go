@@ -161,7 +161,7 @@ func SetTemplate(testArtifactPath string) string {
 			]
 		}
 		
-		post-provisioner "artifact-upload" {
+		post-processor "artifact-upload" {
 			source_path = "` + testArtifactPath + `"
 			target_path = "/test-packer-plugin"
 			file_suffix = "acc-test1"

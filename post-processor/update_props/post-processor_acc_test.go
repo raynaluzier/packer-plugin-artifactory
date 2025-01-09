@@ -161,7 +161,7 @@ func SetTemplate(testArtifactPath string) string {
 			]
 		}
 		
-		post-provisioner "artifact-update-properties" {
+		post-processor "artifact-update-properties" {
 			artifact_uri = local.artifact_uri
 			properties   = {
 				release = "latest-stable"
