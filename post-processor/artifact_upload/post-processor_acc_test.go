@@ -89,7 +89,7 @@ func TestAccPostProcessorUpload_Artifactory(t *testing.T) {
 			logsString := string(logsBytes)
 			log.Println(logsString)
 
-			downloadUriLog := fmt.Sprintf("Download URI for new artifact: " + downloadUri)
+			downloadUriLog := "Download URI for new artifact: " + downloadUri
 			if matched, _ := regexp.MatchString(downloadUriLog+".*", logsString); !matched {
 				t.Fatalf("logs doesn't contain expected output %q", logsString)
 			}
@@ -104,7 +104,7 @@ func SetTemplate(testArtifactPath string) string {
 	packer {
 		required_plugins {
 			artifactory = {
-				version = ">= 1.0.0"
+				version = ">= 1.0.3"
 				source  = "github.com/raynaluzier/artifactory"
 			}
 		}

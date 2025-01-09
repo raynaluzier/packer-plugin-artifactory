@@ -104,7 +104,7 @@ func SetTemplate(testArtifactPath string) string {
 	packer {
 		required_plugins {
 			artifactory = {
-				version = ">= 1.0.0"
+				version = ">= 1.0.3"
 				source  = "github.com/raynaluzier/artifactory"
 			}
 		}

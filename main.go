@@ -17,7 +17,7 @@ import (
 
 var (
 	// Version is the main version number that is being run at the moment.
-	Version = "1.0.2"
+	Version = "1.0.3"
 
 	// VersionPrerelease is A pre-release marker for the Version. If this is ""
 	// (empty string) then it means that it is a final release. Otherwise, this
@@ -32,8 +32,8 @@ var (
 func main() {
 	pps := plugin.NewSet()
 	pps.RegisterDatasource(plugin.DEFAULT_NAME, new(artifactImage.Datasource))
-	pps.RegisterPostProcessor("artifact-upload", new(artifactUpload.PostProcessor))
-	pps.RegisterPostProcessor("artifact-update-properties", new(artifactUpdateProps.PostProcessor))
+	pps.RegisterPostProcessor("upload", new(artifactUpload.PostProcessor))
+	pps.RegisterPostProcessor("update-props", new(artifactUpdateProps.PostProcessor))
 	pps.SetVersion(PluginVersion)
 	err := pps.Run()
 	if err != nil {
