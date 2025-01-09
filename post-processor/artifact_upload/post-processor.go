@@ -23,6 +23,9 @@ type Config struct {
 	ExistingUriTarget	   string `mapstructure:"existing_uri_target" required:"false"`
 
 	common.PackerConfig	  `mapstructure:",squash"`
+
+	AritfactoryToken       string `mapstructure:"artifactory_token" required:"true"`
+	ArtifactoryServer      string `mapstructure:"artifactory_server" required:"true"`
 }
 
 type PostProcessor struct {
@@ -58,8 +61,11 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 
 func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source packersdk.Artifact) (packersdk.Artifact, bool, bool, error) {
 	var sourcePath, targetPath, fileSuffix string
-	token     := p.config.PackerConfig.PackerUserVars["artifactory_token"]
-	serverApi := p.config.PackerConfig.PackerUserVars["artifactory_server"]
+	//token     := p.config.PackerConfig.PackerUserVars["artifactory_token"]
+	//serverApi := p.config.PackerConfig.PackerUserVars["artifactory_server"]
+
+	token := p.config.AritfactoryToken			// testing
+	serverApi := p.config.ArtifactoryServer		// testing
 
 	if p.config.SourcePath != "" {
 		sourcePath = p.config.SourcePath
