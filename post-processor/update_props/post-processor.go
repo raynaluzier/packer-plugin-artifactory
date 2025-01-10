@@ -6,14 +6,14 @@ import (
 	"log"
 
 	"github.com/hashicorp/hcl/v2/hcldec"
-	"github.com/hashicorp/packer-plugin-sdk/common"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/hashicorp/packer-plugin-sdk/template/config"
 	"github.com/raynaluzier/artifactory-go-sdk/tasks"
 )
 
 type Config struct {
-	common.PackerConfig	  `mapstructure:",squash"`
+	AritfactoryToken       string `mapstructure:"artifactory_token" required:"true"`
+	ArtifactoryServer      string `mapstructure:"artifactory_server" required:"true"`
 	ArtifactUri			   string `mapstructure:"artifact_uri" required:"true"`
 	ArtifactProperties	   map[string]string `mapstructure:"properties" required:"true"`
 }
@@ -28,6 +28,14 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 	err := config.Decode(&p.config, nil, raws...)
 	if err != nil {
 		return err
+	}
+
+	if p.config.AritfactoryToken == "" {
+		log.Fatal("Missing Artifactory identity token. The token is required to complete tasks against Artifactory.")
+	}
+
+	if p.config.ArtifactoryServer == "" {
+		log.Fatal("Missing Artifactory server API address. The server API address is required to communicate with Artifactory.")
 	}
 
 	if p.config.ArtifactUri == "" {
@@ -53,10 +61,16 @@ func BuildProps(kvInput map[string]string) ([]string) {
 }
 
 func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source packersdk.Artifact) (packersdk.Artifact, bool, bool, error) {
-	token     := p.config.PackerConfig.PackerUserVars["artifactory_token"]
-	serverApi := p.config.PackerConfig.PackerUserVars["artifactory_server"]
 	var kvProperties []string
-	var artifactUri string
+	var token, serverApi, artifactUri string
+
+	if p.config.AritfactoryToken != "" {
+		token = p.config.AritfactoryToken
+	}
+	
+	if p.config.ArtifactoryServer != "" {
+		serverApi = p.config.ArtifactoryServer
+	}
 
 	if p.config.ArtifactUri != "" {
 		artifactUri = p.config.ArtifactUri

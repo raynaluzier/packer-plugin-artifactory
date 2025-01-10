@@ -104,7 +104,7 @@ func SetTemplate(testArtifactPath string) string {
 	packer {
 		required_plugins {
 			artifactory = {
-				version = ">= 1.0.3"
+				version = ">= 1.0.8"
 				source  = "github.com/raynaluzier/artifactory"
 			}
 		}
@@ -162,6 +162,9 @@ func SetTemplate(testArtifactPath string) string {
 		}
 		
 		post-processor "artifact-update-properties" {
+		    artifactory_token     = var.artif_token  
+        	artifactory_server    = var.artif_server 
+
 			artifact_uri = local.artifact_uri
 			properties   = {
 				release = "latest-stable"

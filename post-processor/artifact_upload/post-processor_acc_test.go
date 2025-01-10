@@ -104,7 +104,7 @@ func SetTemplate(testArtifactPath string) string {
 	packer {
 		required_plugins {
 			artifactory = {
-				version = ">= 1.0.3"
+				version = ">= 1.0.8"
 				source  = "github.com/raynaluzier/artifactory"
 			}
 		}
@@ -162,6 +162,9 @@ func SetTemplate(testArtifactPath string) string {
 		}
 		
 		post-processor "artifact-upload" {
+		    artifactory_token     = var.artif_token  
+        	artifactory_server    = var.artif_server 
+			
 			source_path = "` + testArtifactPath + `"
 			target_path = "/test-packer-plugin"
 			file_suffix = "acc-test1"

@@ -6,7 +6,6 @@ import (
 	"log"
 
 	"github.com/hashicorp/hcl/v2/hcldec"
-	"github.com/hashicorp/packer-plugin-sdk/common"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/hashicorp/packer-plugin-sdk/template/config"
 	artifactorysdk "github.com/raynaluzier/artifactory-go-sdk/common"
@@ -14,6 +13,8 @@ import (
 )
 
 type Config struct {
+	AritfactoryToken       string `mapstructure:"artifactory_token" required:"true"`
+	ArtifactoryServer      string `mapstructure:"artifactory_server" required:"true"`
 	SourcePath			   string `mapstructure:"source_path" required:"true"`
 	// If not provided, then can reference an existing artifact URI to parse for the target
 	TargetPath			   string `mapstructure:"target_path" required:"false"`  // either this or existing uri target
@@ -21,11 +22,6 @@ type Config struct {
 	// Will use '-' as a separator; if blank, will be ignored
 	FileSuffix			   string `mapstructure:"file_suffix" required:"false"`
 	ExistingUriTarget	   string `mapstructure:"existing_uri_target" required:"false"`
-
-	common.PackerConfig	  `mapstructure:",squash"`                                    // remove if using token/server, update hcl2 config
-
-	AritfactoryToken       string `mapstructure:"artifactory_token" required:"false"`  // update to true if using
-	ArtifactoryServer      string `mapstructure:"artifactory_server" required:"false"` // update to true if using
 }
 
 type PostProcessor struct {
@@ -38,6 +34,14 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 	err := config.Decode(&p.config, nil, raws...)
 	if err != nil {
 		return err
+	}
+
+	if p.config.AritfactoryToken == "" {
+		log.Fatal("Missing Artifactory identity token. The token is required to complete tasks against Artifactory.")
+	}
+
+	if p.config.ArtifactoryServer == "" {
+		log.Fatal("Missing Artifactory server API address. The server API address is required to communicate with Artifactory.")
 	}
 
 	if p.config.SourcePath == "" {
@@ -60,12 +64,15 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 }
 
 func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source packersdk.Artifact) (packersdk.Artifact, bool, bool, error) {
-	var sourcePath, targetPath, fileSuffix string
-	token     := p.config.PackerConfig.PackerUserVars["artifactory_token"]    // remove if using the below
-	serverApi := p.config.PackerConfig.PackerUserVars["artifactory_server"]	  //
+	var token, serverApi, sourcePath, targetPath, fileSuffix string
 
-	//token := p.config.AritfactoryToken			// testing
-	//serverApi := p.config.ArtifactoryServer		// testing
+	if p.config.AritfactoryToken != "" {
+		token = p.config.AritfactoryToken
+	}
+	
+	if p.config.ArtifactoryServer != "" {
+		serverApi = p.config.ArtifactoryServer
+	}
 
 	if p.config.SourcePath != "" {
 		sourcePath = p.config.SourcePath

@@ -10,20 +10,12 @@ import (
 // FlatConfig is an auto-generated flat version of Config.
 // Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
 type FlatConfig struct {
+	AritfactoryToken    *string           `mapstructure:"artifactory_token" required:"true" cty:"artifactory_token" hcl:"artifactory_token"`
+	ArtifactoryServer   *string           `mapstructure:"artifactory_server" required:"true" cty:"artifactory_server" hcl:"artifactory_server"`
 	SourcePath          *string           `mapstructure:"source_path" required:"true" cty:"source_path" hcl:"source_path"`
 	TargetPath          *string           `mapstructure:"target_path" required:"false" cty:"target_path" hcl:"target_path"`
 	FileSuffix          *string           `mapstructure:"file_suffix" required:"false" cty:"file_suffix" hcl:"file_suffix"`
 	ExistingUriTarget   *string           `mapstructure:"existing_uri_target" required:"false" cty:"existing_uri_target" hcl:"existing_uri_target"`
-	PackerBuildName     *string           `mapstructure:"packer_build_name" cty:"packer_build_name" hcl:"packer_build_name"`
-	PackerBuilderType   *string           `mapstructure:"packer_builder_type" cty:"packer_builder_type" hcl:"packer_builder_type"`
-	PackerCoreVersion   *string           `mapstructure:"packer_core_version" cty:"packer_core_version" hcl:"packer_core_version"`
-	PackerDebug         *bool             `mapstructure:"packer_debug" cty:"packer_debug" hcl:"packer_debug"`
-	PackerForce         *bool             `mapstructure:"packer_force" cty:"packer_force" hcl:"packer_force"`
-	PackerOnError       *string           `mapstructure:"packer_on_error" cty:"packer_on_error" hcl:"packer_on_error"`
-	PackerUserVars      map[string]string `mapstructure:"packer_user_variables" cty:"packer_user_variables" hcl:"packer_user_variables"`
-	PackerSensitiveVars []string          `mapstructure:"packer_sensitive_variables" cty:"packer_sensitive_variables" hcl:"packer_sensitive_variables"`
-	AritfactoryToken    *string           `mapstructure:"artifactory_token" required:"true" cty:"artifactory_token" hcl:"artifactory_token"`
-	ArtifactoryServer   *string           `mapstructure:"artifactory_server" required:"true" cty:"artifactory_server" hcl:"artifactory_server"`
 }
 
 // FlatMapstructure returns a new FlatConfig.
@@ -38,20 +30,12 @@ func (*Config) FlatMapstructure() interface{ HCL2Spec() map[string]hcldec.Spec }
 // The decoded values from this spec will then be applied to a FlatConfig.
 func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 	s := map[string]hcldec.Spec{
+		"artifactory_token":          &hcldec.AttrSpec{Name: "artifactory_token", Type: cty.String, Required: true},
+		"artifactory_server":         &hcldec.AttrSpec{Name: "artifactory_server", Type: cty.String, Required: true},
 		"source_path":                &hcldec.AttrSpec{Name: "source_path", Type: cty.String, Required: false},
 		"target_path":                &hcldec.AttrSpec{Name: "target_path", Type: cty.String, Required: false},
 		"file_suffix":                &hcldec.AttrSpec{Name: "file_suffix", Type: cty.String, Required: false},
 		"existing_uri_target":        &hcldec.AttrSpec{Name: "existing_uri_target", Type: cty.String, Required: false},
-		"packer_build_name":          &hcldec.AttrSpec{Name: "packer_build_name", Type: cty.String, Required: false},
-		"packer_builder_type":        &hcldec.AttrSpec{Name: "packer_builder_type", Type: cty.String, Required: false},
-		"packer_core_version":        &hcldec.AttrSpec{Name: "packer_core_version", Type: cty.String, Required: false},
-		"packer_debug":               &hcldec.AttrSpec{Name: "packer_debug", Type: cty.Bool, Required: false},
-		"packer_force":               &hcldec.AttrSpec{Name: "packer_force", Type: cty.Bool, Required: false},
-		"packer_on_error":            &hcldec.AttrSpec{Name: "packer_on_error", Type: cty.String, Required: false},
-		"packer_user_variables":      &hcldec.AttrSpec{Name: "packer_user_variables", Type: cty.Map(cty.String), Required: false},
-		"packer_sensitive_variables": &hcldec.AttrSpec{Name: "packer_sensitive_variables", Type: cty.List(cty.String), Required: false},
-		"artifactory_token":          &hcldec.AttrSpec{Name: "artifactory_token", Type: cty.String, Required: false},
-		"artifactory_server":         &hcldec.AttrSpec{Name: "artifactory_server", Type: cty.String, Required: false},
 	}
 	return s
 }
