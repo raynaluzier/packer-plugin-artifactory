@@ -37,4 +37,14 @@ integration {
     name = "JFrog Artifactory"
     slug = "artifactory"
   }
+  component {
+    type = "post-processor"
+    name = "JFrog Artifactory Artifact Upload"
+    slug = "artifactory-upload"
+  }
+  component {
+    type = "post-processor"
+    name = "JFrog Artifactory Property Update"
+    slug = "artifactory-update-props"
+  }
 }

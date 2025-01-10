@@ -1,6 +1,6 @@
-The JFrog Artifactory plugin can be used with HashiCorp Packer to identify, retrieve, and work with artifacts. This plugin currently comes with a data source to locate target artifacts and retrieve information necessary to work with them depending on the strategy you want to use. 
+The JFrog Artifactory plugin can be used with HashiCorp Packer to identify, retrieve, and work with artifacts. This plugin comes with a data source to locate target artifacts and retrieve information necessary to work with them depending on the strategy you want to use, as well as two post-processors. One post-processor enables the upload of a newly created artifact into Artifactory and the other enables the assignment of one or more properties to an artifact.
 
-Future components will include functionality to download artifacts, and create and manipulate artifacts and their properties after build time.
+Future components will include functionality to download artifacts.
 
 ### Installation
 
@@ -11,7 +11,7 @@ packer {
   required_plugins {
     artifactory = {
       source  = "github.com/raynaluzier/artifactory"
-      version = ">=1.0.0"
+      version = ">=1.0.8"
     }
   }
 }
@@ -29,7 +29,11 @@ $ packer plugins install github.com/raynaluzier/artifactory
 
 #### Data Sources
 
-- [data source](/packer/integrations/jfrog/artifactory/latest/components/data-source/datasource) - Filter and locate target artifacts and retrieve information necessary to work with them.
+- [artifactory](/packer/integrations/jfrog/artifactory/latest/components/data-source/source_image/README.md) - Filter and locate target artifacts and retrieve information necessary to work with them.
+
+#### Post-Processors
+- [artifactory-upload](/packer/integrations/jfrog/artifactory/latest/components/post-processors/artifact_upload/README.md) - Upload artifact to Artifactory.
+- [artifactory-update-props](/packer/integrations/jfrog/artifactory/latest/components/post-processors/update_props/README.md) - Assign one or more properties to an artifact in Artifactory.
 
 ### Authentication
 There are several ways to provide credentials for JFrog Artifactory authentication, which uses a bearer token when making each underlying request. The following authentication methods are supported:

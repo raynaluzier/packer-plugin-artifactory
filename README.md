@@ -1,5 +1,5 @@
 # Packer Plugin JFrog Artifactory
-The `Artifactory` plugin can be used with HashiCorp [Packer](https://www.packer.io) to locate and retrieve custom images. For the list of available functionality for this plugin, see [docs](docs).
+The `Artifactory` plugin can be used with HashiCorp [Packer](https://www.packer.io) to locate, retrieve, upload, and update custom images. For the list of available functionality for this plugin, see [docs](docs).
 
 ## Installation
 
@@ -18,7 +18,7 @@ Then, run [`packer init`](https://www.packer.io/docs/commands/init).
 packer {
   required_plugins {
     artifactory = {
-      version = ">= 1.0.0"
+      version = ">= 1.0.8"
       source  = "github.com/raynaluzier/artifactory"
     }
   }

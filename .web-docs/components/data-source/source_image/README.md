@@ -1,5 +1,7 @@
 # JFrog Artifactory Data Source
 
+Type:  `artifactory`
+
 The Artifactory data source is used to filter and identify an artifact image stored in JFrog Artifactory, and then output the artifact's name, URI, created date, and download URI. 
 
 The use of property key(s)/value(s) as filter parameters can further assist in identifying the correct image. If more than one artifact matches the input parameters, the latest artifact will be returned.

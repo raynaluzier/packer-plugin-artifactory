@@ -89,9 +89,9 @@ func TestAccPostProcessorUpdate_Artifactory(t *testing.T) {
 			logsString := string(logsBytes)
 			log.Println(logsString)
 
-			propLog := "{release latest-stable}"
+			propLog := "Property assignment to artifact was successful."
 			if matched, _ := regexp.MatchString(propLog+".*", logsString); !matched {
-				t.Fatalf("logs doesn't contain expected output %q", logsString)
+				t.Fatalf("logs do not contain expected output %q", logsString)
 			}
 			return nil
 		},
@@ -122,27 +122,6 @@ func SetTemplate(testArtifactPath string) string {
 		default     = env("ARTIFACTORY_SERVER")
 	}
 
-	data "artifactory" "basic-example" {
-		# Provide via environment variables
-		artifactory_token     = var.artif_token  
-		artifactory_server    = var.artif_server
-		artifactory_logging   = "INFO"
-
-		artifact_name = "test-artifact"
-		file_type     = "txt"
-		
-		filter = {
-			release = "stable"
-		}
-	}
-
-	locals {
-		name         = data.artifactory.basic-example.name
-		create_date  = data.artifactory.basic-example.creation_date
-		artifact_uri = data.artifactory.basic-example.artifact_uri
-		download_uri = data.artifactory.basic-example.download_uri
-	}
-
 	source "null" "basic-example" {
 		communicator = "none"
 	}
@@ -152,20 +131,11 @@ func SetTemplate(testArtifactPath string) string {
 			"source.null.basic-example"
 		]
 
-		provisioner "shell-local" {
-			inline = [
-				"echo artifact name: ${local.name}",
-				"echo artifact creation date: ${local.create_date}",
-				"echo artifact URI: ${local.artifact_uri}",
-				"echo artifact download URI: ${local.download_uri}"
-			]
-		}
-		
-		post-processor "artifact-update-properties" {
+		post-processor "artifactory-update-props" {
 		    artifactory_token     = var.artif_token  
         	artifactory_server    = var.artif_server 
 
-			artifact_uri = local.artifact_uri
+			artifact_uri = "${var.artif_server}/storage/test-packer-plugin/test-artifact.txt"
 			properties   = {
 				release = "latest-stable"
 			}

@@ -100,6 +100,8 @@ func TestAccPostProcessorUpload_Artifactory(t *testing.T) {
 }
 
 func SetTemplate(testArtifactPath string) string {
+	newPath := common.EscapeSpecialChars(testArtifactPath)
+
 	template := `
 	packer {
 		required_plugins {
@@ -122,27 +124,6 @@ func SetTemplate(testArtifactPath string) string {
 		default     = env("ARTIFACTORY_SERVER")
 	}
 
-	data "artifactory" "basic-example" {
-		# Provide via environment variables
-		artifactory_token     = var.artif_token  
-		artifactory_server    = var.artif_server
-		artifactory_logging   = "INFO"
-
-		artifact_name = "test-artifact"
-		file_type     = "txt"
-		
-		filter = {
-			release = "latest-stable"
-		}
-	}
-
-	locals {
-		name         = data.artifactory.basic-example.name
-		create_date  = data.artifactory.basic-example.creation_date
-		artifact_uri = data.artifactory.basic-example.artifact_uri
-		download_uri = data.artifactory.basic-example.download_uri
-	}
-
 	source "null" "basic-example" {
 		communicator = "none"
 	}
@@ -151,21 +132,12 @@ func SetTemplate(testArtifactPath string) string {
 		sources = [
 			"source.null.basic-example"
 		]
-
-		provisioner "shell-local" {
-			inline = [
-				"echo artifact name: ${local.name}",
-				"echo artifact creation date: ${local.create_date}",
-				"echo artifact URI: ${local.artifact_uri}",
-				"echo artifact download URI: ${local.download_uri}"
-			]
-		}
 		
-		post-processor "artifact-upload" {
+		post-processor "artifactory-upload" {
 		    artifactory_token     = var.artif_token  
         	artifactory_server    = var.artif_server 
 			
-			source_path = "` + testArtifactPath + `"
+			source_path = "` + newPath + `"
 			target_path = "/test-packer-plugin"
 			file_suffix = "acc-test1"
 		}
