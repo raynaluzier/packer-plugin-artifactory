@@ -23,7 +23,7 @@ type Config struct {
 
 	// Full or partial name of the artifact
 	ArtifactName           string `mapstructure:"artifact_name" required:"true"`
-	// File extension; defaults to '.vmxt' if left blank
+	// File extension; defaults to '.vmtx' if left blank
 	ArtifactFileType       string `mapstructure:"file_type" required:"true"`
 	// Channel is technically a property; if it exists, will be appended to the kvProperties []string
 	ArtifactChannel        string `mapstructure:"channel" required:"false"`
@@ -72,7 +72,7 @@ func (d *Datasource) Configure(raws ...interface{}) error {
 	}
 
 	if d.config.ArtifactFileType == "" {
-		log.Fatal("Please provide the source image's extension type; for example .vmxt.")
+		log.Fatal("Please provide the source image's extension type; for example .vmtx.")
 	}
 	return nil
 }
