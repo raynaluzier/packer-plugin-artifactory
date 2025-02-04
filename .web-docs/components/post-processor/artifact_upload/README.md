@@ -2,18 +2,24 @@
 
 Type:  `artifactory-upload`
 
-The Artifactory post-provisioner `artifactory-upload` is used to upload a newly created artifact into JFrog Artifactory and displays the artifact's download URI and the artifact URI in the UI.
+The Artifactory post-provisioner `artifactory-upload` is used to upload a newly created artifact image (of type OVA, OVF, or VMTX), and it's associated image files, into JFrog Artifactory.
 
 
 ## Configuration Reference
 
 - `artifactory_server` (string) - Required; The API address of the Artifactory server (ex: https://server.domain.com:8081/artifactory/api). The URL will differ slightly between cloud-hosted and self-hosted instanced.
+    * Environment variable: `ARTIFACTORY_SERVER`
 - `artifactory_token` (string) - Required; The Artifactory account Identity Token used to authenticate with the Artifactory server and perform operations. Results are limited to whatever the account has access to. If the account can only "see" a single repository, then the results will only include content from that single repository.
+    * Environment variable: `ARTIFACTORY_TOKEN`
 
-- `source_path` (string) - Required; The full directory path with filename where the source artifact is located (for ex. "C:\\lab\\artifact.txt" or "/lab/artifact.txt")
-- `target_path` (string) - *Optional; The target path (/repo/folder/path) within Artifactory where the artifact should be uploaded to. If NOT populated, you MUST use `existing_uri_target` instead.
+- `source_path` (string) - Required; The directory path where the source image file(s) are located (for ex. "C:\\lab" or "/lab")
+- `target_path` (string) - *Optional; The target path (/repo/folder/) within Artifactory where the artifact should be uploaded to. If NOT populated, you MUST use `existing_uri_target` instead. The image files will automatically be placed within a subfolder in this path named after the image. For example: /repo/folder --> /repo/folder/image1111/image1111.ova
 - `file_suffix` (string) - Optional; Distinguishing file name suffix to use such as version, date, ect. where the base image name is always the same.
+- `image_type` (string) - Required; The type of image that will be uploaded; supported types are 'ova', 'ovf', and 'vmtx'.
+- `image_name` (string) - Required; The base image name without any file suffix or extension appended.
 - `existing_uri_target` (string) - *Optional; The URI address of an existing artifact. The plugin will parse this address to determine the /repo/folder/path and set this as the `target_path` for the new artifact.
+- `logging` (string) - Optional; The logging level to use (INFO, WARN, ERROR, DEBUG). This defaults to 'INFO' if left blank.
+    * Environment variable: `LOGGING`
 
 ## Output Data
 
@@ -28,8 +34,10 @@ None
 		artifactory_token     = var.artif_token  
         artifactory_server    = var.artif_server 
 			
-		source_path = "c:\\lab\\artifact.txt"
+		source_path = "c:\\lab"
 		target_path = "/test-packer-plugin/win"
+		image_type  = "ova"
+		image_name  = "test-artifact"
 	}
 ```
 
@@ -39,9 +47,11 @@ None
 		artifactory_token     = var.artif_token  
         artifactory_server    = var.artif_server 
 			
-		source_path = "c:\\lab\\artifact.txt"
+		source_path = "c:\\lab"
 		target_path = "/test-packer-plugin/win"
 		file_suffix = "acc-test1"
+		image_type  = "ova"
+		image_name  = "test-artifact"
 	}
 ```
 
@@ -51,7 +61,9 @@ None
 		artifactory_token     = var.artif_token  
         artifactory_server    = var.artif_server 
 			
-		source_path         = "c:\\lab\\artifact.txt"
+		source_path         = "c:\\lab"
 		existing_uri_target = "https://server.domain.com/artifactory/api/storage/test-packer-plugin/existing-artifact.txt"
+		image_type  = "ova"
+		image_name  = "test-artifact"
 	}
 ```

@@ -10,12 +10,15 @@ import (
 // FlatConfig is an auto-generated flat version of Config.
 // Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
 type FlatConfig struct {
-	AritfactoryToken    *string           `mapstructure:"artifactory_token" required:"true" cty:"artifactory_token" hcl:"artifactory_token"`
-	ArtifactoryServer   *string           `mapstructure:"artifactory_server" required:"true" cty:"artifactory_server" hcl:"artifactory_server"`
-	SourcePath          *string           `mapstructure:"source_path" required:"true" cty:"source_path" hcl:"source_path"`
-	TargetPath          *string           `mapstructure:"target_path" required:"false" cty:"target_path" hcl:"target_path"`
-	FileSuffix          *string           `mapstructure:"file_suffix" required:"false" cty:"file_suffix" hcl:"file_suffix"`
-	ExistingUriTarget   *string           `mapstructure:"existing_uri_target" required:"false" cty:"existing_uri_target" hcl:"existing_uri_target"`
+	AritfactoryToken  *string `mapstructure:"artifactory_token" required:"true" cty:"artifactory_token" hcl:"artifactory_token"`
+	ArtifactoryServer *string `mapstructure:"artifactory_server" required:"true" cty:"artifactory_server" hcl:"artifactory_server"`
+	SourcePath        *string `mapstructure:"source_path" required:"true" cty:"source_path" hcl:"source_path"`
+	TargetPath        *string `mapstructure:"target_path" required:"false" cty:"target_path" hcl:"target_path"`
+	FileSuffix        *string `mapstructure:"file_suffix" required:"false" cty:"file_suffix" hcl:"file_suffix"`
+	ImageType         *string `mapstructure:"image_type" required:"true" cty:"image_type" hcl:"image_type"`
+	ImageName         *string `mapstructure:"image_name" required:"true" cty:"image_name" hcl:"image_name"`
+	ExistingUriTarget *string `mapstructure:"existing_uri_target" required:"false" cty:"existing_uri_target" hcl:"existing_uri_target"`
+	Logging           *string `mapstructure:"logging" required:"false" cty:"logging" hcl:"logging"`
 }
 
 // FlatMapstructure returns a new FlatConfig.
@@ -30,12 +33,15 @@ func (*Config) FlatMapstructure() interface{ HCL2Spec() map[string]hcldec.Spec }
 // The decoded values from this spec will then be applied to a FlatConfig.
 func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 	s := map[string]hcldec.Spec{
-		"artifactory_token":          &hcldec.AttrSpec{Name: "artifactory_token", Type: cty.String, Required: true},
-		"artifactory_server":         &hcldec.AttrSpec{Name: "artifactory_server", Type: cty.String, Required: true},
-		"source_path":                &hcldec.AttrSpec{Name: "source_path", Type: cty.String, Required: false},
-		"target_path":                &hcldec.AttrSpec{Name: "target_path", Type: cty.String, Required: false},
-		"file_suffix":                &hcldec.AttrSpec{Name: "file_suffix", Type: cty.String, Required: false},
-		"existing_uri_target":        &hcldec.AttrSpec{Name: "existing_uri_target", Type: cty.String, Required: false},
+		"artifactory_token":   &hcldec.AttrSpec{Name: "artifactory_token", Type: cty.String, Required: false},
+		"artifactory_server":  &hcldec.AttrSpec{Name: "artifactory_server", Type: cty.String, Required: false},
+		"source_path":         &hcldec.AttrSpec{Name: "source_path", Type: cty.String, Required: false},
+		"target_path":         &hcldec.AttrSpec{Name: "target_path", Type: cty.String, Required: false},
+		"file_suffix":         &hcldec.AttrSpec{Name: "file_suffix", Type: cty.String, Required: false},
+		"image_type":          &hcldec.AttrSpec{Name: "image_type", Type: cty.String, Required: false},
+		"image_name":          &hcldec.AttrSpec{Name: "image_name", Type: cty.String, Required: false},
+		"existing_uri_target": &hcldec.AttrSpec{Name: "existing_uri_target", Type: cty.String, Required: false},
+		"logging":             &hcldec.AttrSpec{Name: "logging", Type: cty.String, Required: false},
 	}
 	return s
 }

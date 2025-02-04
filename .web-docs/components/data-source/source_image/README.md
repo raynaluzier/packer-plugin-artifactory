@@ -10,15 +10,16 @@ The use of property key(s)/value(s) as filter parameters can further assist in i
 ## Configuration Reference
 
 - `artifactory_server` (string) - Required; The API address of the Artifactory server (ex: https://server.domain.com:8081/artifactory/api). The URL will differ slightly between cloud-hosted and self-hosted instanced.
+    * Environment variable: `ARTIFACTORY_SERVER`
 - `artifactory_token` (string) - Required; The Artifactory account Identity Token used to authenticate with the Artifactory server and perform operations. Results are limited to whatever the account has access to. If the account can only "see" a single repository, then the results will only include content from that single repository.
+    * Environment variable: `ARTIFACTORY_TOKEN`
 
 - `artifact_name` (string) - Required; The full or partial name of the artifact/image to search for (ex: win-22).
 - `file_type` (string) - Required; The file extension of the desired artifact (ex: vmtx). If left blank, this will default to 'vmtx'.
 - `filter` (map[string]string) - Optional; The key/value pairs of artifact properties to filter the artifact by.
 - `channel` (string) - Optional; Similar concept to HCP Packer; the channel name assigned to a given artifact. This is simply a property VALUE to the key 'channel'. To be valid, an artifact must have a property named 'channel' assigned with the desired value (ex: 'windows-iis-prod').
-
-- `artifactory_logging` (string) - Optional; The logging level to use (INFO, WARN, ERROR, DEBUG). This defaults to 'INFO' if left blank.
-- `artifactory_outputdir` (string) - Optional; The output directory that should be used if/when downloading artifacts. If left blank, this will default to the user's home directory.
+- `logging` (string) - Optional; The logging level to use (INFO, WARN, ERROR, DEBUG). This defaults to 'INFO' if left blank.
+    * Environment variable: `LOGGING`
 
 
 ## Output Data

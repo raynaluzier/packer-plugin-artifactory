@@ -2,7 +2,7 @@
 packer {
     required_plugins {
         artifactory = {
-            version = ">= 1.0.8"
+            version = ">= 1.0.9"
             source  = "github.com/raynaluzier/artifactory"
         }
     }
@@ -24,10 +24,10 @@ data "artifactory" "basic-example" {
     # Provide via environment variables
     artifactory_token     = var.artif_token  
     artifactory_server    = var.artif_server 
-    artifactory_logging   = "INFO" 
+    logging               = "INFO" 
 
     artifact_name = "test-artifact"
-    file_type     = "txt"
+    file_type     = "ova"
 
 }
 
@@ -60,8 +60,10 @@ build {
         artifactory_token     = var.artif_token  
         artifactory_server    = var.artif_server 
 
-		source_path = "c:\\lab\\test-artifact.txt"
+		source_path = "c:\\lab\\"
 		target_path = "/test-packer-plugin/win/"
 		file_suffix = "1.0.0"
+        image_name  = "test-artifact"
+        image_type  = "ova"
 	}
 }

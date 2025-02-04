@@ -2,7 +2,7 @@
 packer {
     required_plugins {
         artifactory = {
-            version = ">= 1.0.0"
+            version = ">= 1.0.8"
             source  = "github.com/raynaluzier/artifactory"
         }
     }
@@ -24,7 +24,7 @@ data "artifactory" "basic-example" {
     # Provide via environment variables
     artifactory_token     = var.artif_token  
     artifactory_server    = var.artif_server 
-    artifactory_logging   = "INFO" 
+    logging               = "INFO" 
 
     artifact_name = "test-artifact"
     file_type     = "txt"

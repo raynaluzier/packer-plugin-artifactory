@@ -16,11 +16,8 @@ import (
 type Config struct {
 	AritfactoryToken       string `mapstructure:"artifactory_token" required:"true"`
 	ArtifactoryServer      string `mapstructure:"artifactory_server" required:"true"`
-	// Defaults to user's home dir if blank
-	ArtifactoryOutputDir   string `mapstructure:"artifactory_outputdir" required:"false"`
 	// Defaults to 'INFO'
-	ArtifactoryLogging     string `mapstructure:"artifactory_logging" required:"false"`
-
+	Logging                string `mapstructure:"logging" required:"false"`
 	// Full or partial name of the artifact
 	ArtifactName           string `mapstructure:"artifact_name" required:"true"`
 	// File extension; defaults to '.vmtx' if left blank
@@ -113,17 +110,10 @@ func (d *Datasource) Execute() (cty.Value, error) {
 		}
 	}
 
-	if d.config.ArtifactoryOutputDir == "" {
-		outputDir := os.Getenv("ARTIFACTORY_OUTPUTDIR")
-		if outputDir != "" {
-			d.config.ArtifactoryOutputDir = outputDir
-		}
-	} // If outputDir is still "", the user's home dir will be used
-
-	if d.config.ArtifactoryLogging == "" {
-		logLevel := os.Getenv("ARTIFACTORY_LOGGING")
+	if d.config.Logging == "" {
+		logLevel := os.Getenv("LOGGING")
 		if logLevel != "" {
-			d.config.ArtifactoryLogging = logLevel
+			d.config.Logging = logLevel
 		}
 	}
 
@@ -147,7 +137,7 @@ func (d *Datasource) Execute() (cty.Value, error) {
 	}
 
 	// Search for artifact and return details
-	artifactUri, artifactName, createDate, downloadUri := tasks.GetImageDetails(d.config.ArtifactoryServer, d.config.AritfactoryToken, d.config.ArtifactoryLogging, artifName, ext, kvProperties)
+	artifactUri, artifactName, createDate, downloadUri := tasks.GetImageDetails(d.config.ArtifactoryServer, d.config.AritfactoryToken, d.config.Logging, artifName, ext, kvProperties)
 	
 	output := DatasourceOutput{
 		Name: 	artifactName,

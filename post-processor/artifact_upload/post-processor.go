@@ -3,7 +3,9 @@ package artifactUpload
 
 import (
 	"context"
+	"errors"
 	"log"
+	"os"
 
 	"github.com/hashicorp/hcl/v2/hcldec"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
@@ -21,7 +23,12 @@ type Config struct {
 	// Optional for potential distinguishing values such as version, date, etc where the image name is always the same
 	// Will use '-' as a separator; if blank, will be ignored
 	FileSuffix			   string `mapstructure:"file_suffix" required:"false"`
+	// Valid values are "ova", "ovf", and "vmtx"
+	ImageType              string `mapstructure:"image_type" required:"true"`
+	// Base image name without any file suffix appended (ex: win2022 or rhel9)
+	ImageName              string `mapstructure:"image_name" required:"true"`
 	ExistingUriTarget	   string `mapstructure:"existing_uri_target" required:"false"`
+	Logging                string `mapstructure:"logging" required:"false"`
 }
 
 type PostProcessor struct {
@@ -37,11 +44,17 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 	}
 
 	if p.config.AritfactoryToken == "" {
-		log.Fatal("Missing Artifactory identity token. The token is required to complete tasks against Artifactory.")
+		token := os.Getenv("ARTIFACTORY_TOKEN")
+		if token == "" {
+			log.Fatal("Missing Artifactory identity token. The token is required to complete tasks against Artifactory.")
+		}	
 	}
 
 	if p.config.ArtifactoryServer == "" {
-		log.Fatal("Missing Artifactory server API address. The server API address is required to communicate with Artifactory.")
+		serverApi := os.Getenv("ARTIFACTORY_SERVER")
+		if serverApi == "" {
+			log.Fatal("Missing Artifactory server API address. The server API address is required to communicate with Artifactory.")	
+		}
 	}
 
 	if p.config.SourcePath == "" {
@@ -60,18 +73,30 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 		log.Println("The value provided in the target path will be used.")
 	}
 
+	if p.config.ImageType == "" {
+		log.Fatal("Please provide the image file type that will be uploaded: 'ova', 'ovf', or 'vmtx'.")
+	}
+
+	if p.config.ImageName == "" {
+		log.Fatal("Please provide the name of the image; examples: win2022, rhel9, win22_25_01_25...")
+	}
+
 	return nil
 }
 
 func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source packersdk.Artifact) (packersdk.Artifact, bool, bool, error) {
-	var token, serverApi, sourcePath, targetPath, fileSuffix string
+	var token, serverApi, sourcePath, targetPath, fileSuffix, logLevel, imageType, imageName string
 
 	if p.config.AritfactoryToken != "" {
 		token = p.config.AritfactoryToken
+	} else {
+		token = os.Getenv("ARTIFACTORY_TOKEN")
 	}
 	
 	if p.config.ArtifactoryServer != "" {
 		serverApi = p.config.ArtifactoryServer
+	} else {
+		serverApi = os.Getenv("ARTIFACTORY_SERVER")
 	}
 
 	if p.config.SourcePath != "" {
@@ -92,19 +117,33 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source
 		fileSuffix = p.config.FileSuffix
 	}
 
-	// Troubleshooting:
-	log.Println("serverapi: " + serverApi)
+	if p.config.Logging == "" {
+		logLevel := os.Getenv("LOGGING")
+		if logLevel != "" {
+			p.config.Logging = logLevel
+		}
+	}
 
-	downloadUri, artifactUri, err := tasks.UploadArtifact(serverApi, token, sourcePath, targetPath, fileSuffix)
-	
-	if err != nil {
-		log.Fatal("Unable to upload the artifact - ", err)
+	if p.config.ImageType != "" {
+		imageType = p.config.ImageType
+	}
+
+	if p.config.ImageName != "" {
+		imageName = p.config.ImageName
+	}
+
+	// Troubleshooting:
+	//log.Println("serverapi: " + serverApi)
+
+	result := tasks.UploadArtifacts(serverApi, token, logLevel, imageType, imageName, sourcePath, targetPath, fileSuffix)
+
+	if result != "End of upload process" {
+		log.Fatal("Unable to upload artifacts - " + result)
+		err := errors.New("Unable to upload artifacts")
 		return source, false, false, err
 
 	} else {
-		ui.Say("Artifact upload completed.")
-		log.Println("Download URI for new artifact: " + downloadUri)
-		log.Println("Artifact URI for new artifact: " + artifactUri)
+		ui.Say("Artifact uploads completed.")
 		return source, true, true, nil
 	}
 

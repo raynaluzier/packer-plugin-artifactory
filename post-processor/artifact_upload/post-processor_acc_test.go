@@ -18,7 +18,7 @@ var artifactUri string
 var statusCode  string
 
 const testDirName      = "test-directory"
-const testArtifactName = "test-artifact.txt"
+const testArtifactName = "test-artifact.txt"  // this gets renamed to an ova file later
 const artifactSuffix   = ""
 const artifactContents = "Just some test content."
 var kvProps []string
@@ -32,7 +32,8 @@ func TestAccPostProcessorUpload_Artifactory(t *testing.T) {
 
 	// Prep test artifact
 	testDirPath        := common.CreateTestDirectory(testDirName)
-	testArtifactPath   := common.CreateTestFile(testDirPath, testArtifactName, artifactContents)
+	// Returns $HOME_DIR/test-directory/test-artifact.ova
+	testArtifactPath   := common.CreateTestFile(testDirPath, testArtifactName, artifactContents)  // the artifact will be renamed to test-artifact.ova
 	uploadTestArtifact := false  // Don't need to upload artifact as part of test setup; test itself will do this.
 	testArtifactUpload := SetTemplate(testArtifactPath)
 	kvProps = append(kvProps,"release=latest-stable")
@@ -99,14 +100,14 @@ func TestAccPostProcessorUpload_Artifactory(t *testing.T) {
 	acctest.TestPlugin(t, testCase)
 }
 
-func SetTemplate(testArtifactPath string) string {
-	newPath := common.EscapeSpecialChars(testArtifactPath)
+func SetTemplate(testDirPath string) string {
+	newPath := common.EscapeSpecialChars(testDirPath)  // $HOME_DIR/test-directory/
 
 	template := `
 	packer {
 		required_plugins {
 			artifactory = {
-				version = ">= 1.0.8"
+				version = ">= 1.0.9"
 				source  = "github.com/raynaluzier/artifactory"
 			}
 		}
@@ -140,6 +141,8 @@ func SetTemplate(testArtifactPath string) string {
 			source_path = "` + newPath + `"
 			target_path = "/test-packer-plugin"
 			file_suffix = "acc-test1"
+			image_name  = "test-artifact"
+			image_type  = "ova"
 		}
 	}
 	`

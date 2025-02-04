@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 
+	artifactImport "packer-plugin-artifactory/datasource/artifact_import"
 	artifactImage "packer-plugin-artifactory/datasource/source_image"
 	artifactUpload "packer-plugin-artifactory/post-processor/artifact_upload"
 	artifactUpdateProps "packer-plugin-artifactory/post-processor/update_props"
@@ -31,7 +32,8 @@ var (
 
 func main() {
 	pps := plugin.NewSet()
-	pps.RegisterDatasource(plugin.DEFAULT_NAME, new(artifactImage.Datasource))
+	pps.RegisterDatasource("artifactory", new(artifactImage.Datasource))
+	pps.RegisterDatasource("import", new(artifactImport.Datasource))
 	pps.RegisterPostProcessor("upload", new(artifactUpload.PostProcessor))
 	pps.RegisterPostProcessor("update-props", new(artifactUpdateProps.PostProcessor))
 	pps.SetVersion(PluginVersion)

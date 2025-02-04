@@ -1,6 +1,5 @@
-The JFrog Artifactory plugin can be used with HashiCorp Packer to identify, retrieve, and work with artifacts. This plugin currently comes with a data source to locate target artifacts and retrieve information necessary to work with them depending on the strategy you want to use. 
+The JFrog Artifactory plugin can be used with HashiCorp Packer to identify, retrieve, and work with artifacts. This plugin comes with a data source to locate target artifacts and retrieve information necessary to work with them; a data source to download them to an accessible target datastore, convert the image type (if needed), import into vCenter, and mark it as a template; and post-processors to upload a newly created image (OVA, OVF, or VMTX) and it's supporting file(s) and update it's properties within Artifactory,  depending on the strategy you want to use. 
 
-Future components will include functionality to download artifacts, and create and manipulate artifacts and their properties after build time.
 
 ### Installation
 
@@ -11,7 +10,7 @@ packer {
   required_plugins {
     artifactory = {
       source  = "github.com/raynaluzier/artifactory"
-      version = ">=1.0.0"
+      version = ">=1.0.8"
     }
   }
 }
@@ -25,11 +24,18 @@ $ packer plugins install github.com/raynaluzier/artifactory
 
 ### Components
 
-
+The following components are available with the Artifactory plugin.
 
 #### Data Sources
 
-- [data source](/packer/integrations/jfrog/artifactory/latest/components/data-source/datasource) - Filter and locate target artifacts and retrieve information necessary to work with them.
+- [artifactory](https://github.com/raynaluzier/packer-plugin-artifactory/blob/main/docs/datasources/datasource.mdx) - Filter and locate target artifacts and retrieve information necessary to work with them.
+- [artifactory-import](https://github.com/raynaluzier/packer-plugin-artifactory/blob/main/docs/datasources/artifact_import.mdx) - Download image artifacts (OVA, OVF, or VMTX) and import into vCenter as a template (for use with vsphere-clone builder plugin).
+
+#### Post-Processors
+
+- [artifactory-upload](https://github.com/raynaluzier/packer-plugin-artifactory/blob/main/docs/post-processors/artifact_upload.mdx) - Upload newly built image artifacts (OVA, OVF, or VMTX) to JFrog Artifactory.
+
+- [artifactory-update-props](https://github.com/raynaluzier/packer-plugin-artifactory/blob/main/docs/post-processors/update_props.mdx) - Update the properties of an existing or newly created image artifact stored in Jfrog Artifactory.
 
 ### Authentication
 There are several ways to provide credentials for JFrog Artifactory authentication, which uses a bearer token when making each underlying request. The following authentication methods are supported:
@@ -45,8 +51,17 @@ Static credentials, though not recommended, can be provided using the server API
 
 ```hcl
 data "artifactory" "basic-example" {
-  artifactory_server = "https://server.com:8081/artifactory/api"
+  artifactory_server = "https://server.domain.com:8081/artifactory/api"
   artifactory_token  = "1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t"
+}
+
+data "artifactory-import" "basic-example" {
+  artifactory_server = "https://server.domain.com:8081/artifactory/api"
+  artifactory_token  = "1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t"
+
+  vcenter_server     = "vc01.domain.com"
+  vcenter_user       = "auser@domain.com"
+  vcenter_password   = "MyP@$$w0rd!"
 }
 ```
 #### Variables File
@@ -68,11 +83,33 @@ variable "artif_server" {
   description = "The Artifactory API server address"
   default     = env("ARTIFACTORY_SERVER")
 }
+
+variable "vc_server" {
+  type        = string
+  description = "vCenter Server FQDN/IP address"
+  default     = env("VCENTER_SERVER")
+}
+
+variable "vc_user" {
+  type        = string
+  description = "vCenter User account"
+  default     = env("VCENTER_USER")
+}
+
+variable "vc_password" {
+  type        = string
+  description = "vCenter User account password"
+  default     = env("VCENTER_PASSWORD")
+}
 ```
 Set the Variables in a .auto.pkrvars.hcl File:
 ```
-$ artif_server = "https://server.domain.com:8081/artifactory/api"
-$ artif_token  = "1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t"
+artif_server = "https://server.domain.com:8081/artifactory/api"
+artif_token  = "1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t"
+vc_server    = "vc01.domain.com"
+vc_user      = "auser@domain.com"
+vc_password  = "MyP@$$w0rd!"
+
 ```
 
 #### Environment Variables
@@ -95,11 +132,31 @@ variable "artif_server" {
   default     = env("ARTIFACTORY_SERVER")
 }
 
+variable "vc_server" {
+  type        = string
+  description = "vCenter Server FQDN/IP address"
+  default     = env("VCENTER_SERVER")
+}
+
+variable "vc_user" {
+  type        = string
+  description = "vCenter User account"
+  default     = env("VCENTER_USER")
+}
+
+variable "vc_password" {
+  type        = string
+  description = "vCenter User account password"
+  default     = env("VCENTER_PASSWORD")
+}
 ```
 Set the Environment Variables:
 ```
-$ export ARTIFACTORY_SERVER=https://server.domain.com:8081/artifactory/api
-$ export ARTIFACTORY_TOKEN=1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t
+export ARTIFACTORY_SERVER=https://server.domain.com:8081/artifactory/api
+export ARTIFACTORY_TOKEN=1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t
+export vc_server    = "vc01.domain.com"
+export vc_user      = "auser@domain.com"
+export vc_password  = "MyP@$$w0rd!"
 ```
 
 **Usage:  .env**
@@ -120,11 +177,32 @@ variable "artif_server" {
   description = "The Artifactory API server address"
   default     = env("ARTIFACTORY_SERVER")
 }
+
+variable "vc_server" {
+  type        = string
+  description = "vCenter Server FQDN/IP address"
+  default     = env("VCENTER_SERVER")
+}
+
+variable "vc_user" {
+  type        = string
+  description = "vCenter User account"
+  default     = env("VCENTER_USER")
+}
+
+variable "vc_password" {
+  type        = string
+  description = "vCenter User account password"
+  default     = env("VCENTER_PASSWORD")
+}
 ```
 Set the Environment Variables in the .env File:
 ```
 ARTIFACTORY_SERVER=https://server.domain.com:8081/artifactory/api
 ARTIFACTORY_TOKEN=1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t
+VCENTER_SERVER=vc01.domain.com
+VCENTER_USER=auser@domain.com
+VCENTER_PASSWORD=MyP@$$w0rd!
 ```
 
 ### Troubleshooting
@@ -135,20 +213,20 @@ Data Source Example:
 data "artifactory" "basic-example" {
   artifactory_server  = "https://server.domain.com:8081/artifactory/api"
   artifactory_token   = "1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t"
-  artifactory_logging = "DEBUG"
+  logging = "DEBUG"
 }
 ```
 
 Exported Environment Variable:
 ```
-$ export ARTIFACTORY_SERVER=https://server.domain.com:8081/artifactory/api
-$ export ARTIFACTORY_TOKEN=1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t
-$ export ARTIFACTORY_LOGGING=DEBUG
+export ARTIFACTORY_SERVER=https://server.domain.com:8081/artifactory/api
+export ARTIFACTORY_TOKEN=1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t
+export LOGGING=DEBUG
 ```
 
 Environment Variable in .env:
 ```
 ARTIFACTORY_SERVER=https://server.domain.com:8081/artifactory/api
 ARTIFACTORY_TOKEN=1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t
-ARTIFACTORY_LOGGING=DEBUG
+LOGGING=DEBUG
 ```
