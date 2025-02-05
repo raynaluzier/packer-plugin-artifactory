@@ -107,7 +107,7 @@ func SetTemplate(testDirPath string) string {
 	packer {
 		required_plugins {
 			artifactory = {
-				version = ">= 1.0.9"
+				version = ">= 1.0.10"
 				source  = "github.com/raynaluzier/artifactory"
 			}
 		}
@@ -116,6 +116,7 @@ func SetTemplate(testDirPath string) string {
 	variable "artif_token" {
 		type        = string
 		description = "Identity token of the Artifactory account with access to execute commands"
+		sensitive   = true
 		default     = env("ARTIFACTORY_TOKEN")
 	}
 

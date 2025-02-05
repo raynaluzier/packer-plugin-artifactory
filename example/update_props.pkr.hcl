@@ -11,6 +11,7 @@ packer {
 variable "artif_token" {
     type        = string
     description = "Identity token of the Artifactory account with access to execute commands"
+    sensitive   = true
     default     = env("ARTIFACTORY_TOKEN")
 }
 

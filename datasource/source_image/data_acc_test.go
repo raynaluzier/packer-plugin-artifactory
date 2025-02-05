@@ -18,7 +18,7 @@ const testDatasourceHCL2Basic = `
 	packer {
 		required_plugins {
 			artifactory = {
-				version = ">= 1.0.9"
+				version = ">= 1.0.10"
 				source  = "github.com/raynaluzier/artifactory"
 			}
 		}
@@ -27,6 +27,7 @@ const testDatasourceHCL2Basic = `
 	variable "artif_token" {
 		type        = string
 		description = "Identity token of the Artifactory account with access to execute commands"
+		sensitive   = true
 		default     = env("ARTIFACTORY_TOKEN")
 	}
 
@@ -85,6 +86,7 @@ const testArtifactName = "test-artifact.txt"
 const artifactSuffix   = ""
 const artifactContents = "Just some test content."
 var kvProps []string
+const uploadTestArtifact = true
 
 var token = ""    // Update for testing
 var server = ""   // Update for testing

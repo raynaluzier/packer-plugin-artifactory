@@ -1,7 +1,10 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // Reads the relative .env file with required environment variables
 // Ensures the file doesn't include invalid characters
 // For each listed variable, sets the key/value pair as an environment variable so it can be pulled
-// into the project for use 
+// into the project for use
 
 package main
 

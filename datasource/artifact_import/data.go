@@ -11,7 +11,10 @@ import (
 	"github.com/hashicorp/packer-plugin-sdk/template/config"
 	artifCommon "github.com/raynaluzier/artifactory-go-sdk/common"
 	artifTasks "github.com/raynaluzier/artifactory-go-sdk/tasks"
-	vsphereTasks "github.com/raynaluzier/vsphere-go-sdk/tasks"
+	vsCommon "github.com/raynaluzier/vsphere-go-sdk/common"
+	vsGov "github.com/raynaluzier/vsphere-go-sdk/govmomi"
+	_ "github.com/raynaluzier/vsphere-go-sdk/tasks"
+	vsVm "github.com/raynaluzier/vsphere-go-sdk/vm"
 	"github.com/zclconf/go-cty/cty"
 )
 
@@ -218,6 +221,7 @@ func (d *Datasource) Execute() (cty.Value, error) {
 		downloadUri = d.config.DownloadUri
 	}
 
+	//------------------------------------------------------------------------------------------------------
 	imageFileName := artifCommon.ParseUriForFilename(downloadUri)
 	imageName     := artifCommon.ParseFilenameForImageName(imageFileName)
 
@@ -230,13 +234,46 @@ func (d *Datasource) Execute() (cty.Value, error) {
 	// If the download result doesn't contain one of these msgs, proceed with import
 	if !strings.Contains(downloadResult, missingInputsMsg) || !strings.Contains(downloadResult, downloadFailedMsg) {
 		log.Println("Image download completed successfully. Beginning import into vCenter...")
-		importResult := vsphereTasks.ImportVm(vcUser, vcPass, vcServer, dcName, dsName, imageName, folderName, resPoolName, clusterName)
+		
+		token := vsCommon.VcenterAuth(vcUser, vcPass, vcServer)
 
-		if strings.Contains(importResult, "Success") {
-			log.Println("The image import and template conversion completed successfully.")
-		} else {
-			log.Fatal("Error: Unable to import and/or convert the image into a VM Template.")
+		folderId, err := vsGov.GetFolderId(vcUser, vcPass, vcServer, folderName, dcName)
+		log.Println("Folder ID: " + folderId)
+		if err != nil {
+			log.Printf("Error getting folder ID: %s\n", err)
 		}
+
+		resPoolId, err := vsGov.GetResPoolId(vcUser, vcPass, vcServer, resPoolName, dcName, clusterName)
+		log.Println("Resource Pool ID: " + resPoolId)
+		if err != nil {
+			log.Printf("Error getting resource pool ID: %s\n", err)
+		}
+
+		convertResult := vsVm.CheckFileConvert(outputDir, downloadUri)
+		log.Println(convertResult)
+
+		if convertResult != "Failed" {
+			statusCode := vsVm.RegisterVm(token, vcServer, dcName, dsName, imageName, folderId, resPoolId)
+			log.Println("Status Code of Register VM task: ", statusCode)
+
+			if statusCode == "200" {
+				tempResult := vsGov.MarkAsTemplate(vcUser, vcPass, vcServer, imageName, dcName)
+				log.Println(tempResult)
+
+				if strings.Contains(tempResult, "Success") {
+					log.Println("The image import and template conversion completed successfully.")
+				} else {
+					log.Fatal("Error: Unable to import and/or convert the image into a VM Template.")
+				}
+			} else {
+				log.Fatal("Error registering VMX file with vCenter.")
+			}
+		} else {
+			log.Fatal("Error during image type check and file conversion process.")
+		}
+		
+		//importResult := vsphereTasks.ImportVm(vcUser, vcPass, vcServer, dcName, dsName, imageName, folderName, resPoolName, clusterName)
+	
 	} else {
 		log.Fatal("Error: Failures occurred during image download.")
 	}

@@ -11,7 +11,7 @@ packer {
   required_plugins {
     artifactory = {
       source  = "github.com/raynaluzier/artifactory"
-      version = ">=1.0.8"
+      version = ">=1.0.10"
     }
   }
 }
@@ -75,6 +75,7 @@ Variable Definitions:
 variable "artif_token" {
   type        = string
   description = "Identity token of the Artifactory account with access to execute commands"
+  sensitive   = true
   default     = env("ARTIFACTORY_TOKEN")
 }
 
@@ -99,6 +100,7 @@ variable "vc_user" {
 variable "vc_password" {
   type        = string
   description = "vCenter User account password"
+  sensitive   = true
   default     = env("VCENTER_PASSWORD")
 }
 ```
@@ -123,6 +125,7 @@ Variable Definitions:
 variable "artif_token" {
   type        = string
   description = "Identity token of the Artifactory account with access to execute commands"
+  sensitive   = true
   default     = env("ARTIFACTORY_TOKEN")
 }
 
@@ -147,6 +150,7 @@ variable "vc_user" {
 variable "vc_password" {
   type        = string
   description = "vCenter User account password"
+  sensitive   = true
   default     = env("VCENTER_PASSWORD")
 }
 ```
@@ -169,6 +173,7 @@ Variable Definitions:
 variable "artif_token" {
   type        = string
   description = "Identity token of the Artifactory account with access to execute commands"
+  sensitive   = true
   default     = env("ARTIFACTORY_TOKEN")
 }
 
@@ -193,6 +198,7 @@ variable "vc_user" {
 variable "vc_password" {
   type        = string
   description = "vCenter User account password"
+  sensitive   = true
   default     = env("VCENTER_PASSWORD")
 }
 ```

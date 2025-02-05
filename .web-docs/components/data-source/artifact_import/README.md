@@ -54,7 +54,7 @@ data "artifactory-import" "basic-example" {
     folder_name         = "Templates"
     respool_name        = "cluster01-pool"
 
-    ouput_dir           = "H:\\lab-servs
+    output_dir          = "H:\\lab-servs
     download_uri        = "https://server.domain.com:8081/artifactory/api/storage/lab-repo/win/win2022.ova"
 }
 ```
@@ -89,7 +89,7 @@ data "artifactory-import" "basic-example" {
 	folder_name         = var.vc_folder
 	respool_name        = var.vc_respool
 
-	ouput_dir           = var.output_directory
+	output_dir          = var.output_directory
 	download_uri        = data.artifactory.basic-example.download_uri
 }
 ```
