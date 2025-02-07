@@ -16,7 +16,7 @@ const testDatasourceImportHCL2Basic = `
 	packer {
 		required_plugins {
 			artifactory = {
-				version = ">= 1.0.11"
+				version = ">= 1.0.12"
 				source  = "github.com/raynaluzier/artifactory"
 			}
 		}
@@ -116,8 +116,12 @@ const testDatasourceImportHCL2Basic = `
 		folder_name         = var.vc_folder
 		respool_name        = var.vc_respool
 
-		output_dir          = var.output_directory
-		download_uri        = data.artifactory.basic-example.download_uri
+		//output_dir          = var.output_directory
+		//download_uri        = data.artifactory.basic-example.download_uri
+
+		import_no_download  = true
+		source_path         = "E:\\path\\testing\\img2\\img2.ovf"
+		target_path         = "E:\\path\\converted\\img2\\img2.vmx"
 	}
 
 	locals {

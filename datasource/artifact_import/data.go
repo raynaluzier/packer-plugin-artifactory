@@ -13,7 +13,6 @@ import (
 	artifTasks "github.com/raynaluzier/artifactory-go-sdk/tasks"
 	vsCommon "github.com/raynaluzier/vsphere-go-sdk/common"
 	vsGov "github.com/raynaluzier/vsphere-go-sdk/govmomi"
-	_ "github.com/raynaluzier/vsphere-go-sdk/tasks"
 	vsVm "github.com/raynaluzier/vsphere-go-sdk/vm"
 	"github.com/zclconf/go-cty/cty"
 )
@@ -35,11 +34,15 @@ type Config struct {
 	VcenterFolder			string `mapstructure:"folder_name" required:"false"`
 	// Will use default pool if left blank
 	VcenterResourcePool		string `mapstructure:"respool_name" required:"false"`
-	// Accessible datastore path for downloaded files
-	OutputDir				string `mapstructure:"output_dir" required:"true"`
-	
-	DownloadUri				string `mapstructure:"download_uri" required:"true"`
 
+	// Accessible datastore path for downloaded files
+	OutputDir				string `mapstructure:"output_dir" required:"false"`   // required if using downloading
+	DownloadUri				string `mapstructure:"download_uri" required:"false"` // required if using downloading
+	// Convert and import to vCenter without first downloading image (i.e. image was already downloaded previously)
+	// Defaults to false
+	ImportNoDownload		bool   `mapstructure:"import_no_download" required:"false"`
+	SourceImagePath			string `mapstructure:"source_path" required:"false"` // required if bool is true
+	TargetImagePath			string `mapstructure:"target_path" required:"false"` // required if bool is true
 }
 
 type Datasource struct {
@@ -105,7 +108,7 @@ func (d *Datasource) Configure(raws ...interface{}) error {
 	if d.config.VcenterDatastore == "" {
 		dsName := os.Getenv("VCENTER_DATASTORE")
 		if dsName == "" {
-			log.Println("Missing the target vCenter datastore name.")
+			log.Fatal("Missing the target vCenter datastore name.")
 		}
 	}
 
@@ -136,17 +139,24 @@ func (d *Datasource) Configure(raws ...interface{}) error {
 		}
 	}
 
-	if d.config.OutputDir == "" {
+	if d.config.OutputDir == "" && d.config.ImportNoDownload == false {
 		outputDir := os.Getenv("OUTPUTDIR")
 		if outputDir == "" {
-			log.Println("No output directory was provided.")
-			log.Println("**** Output will be user's home directory.")
-			log.Println("**** If importing to vCenter, please provide the directory path to an accessible datastore.")
+			log.Fatal("No output directory was provided.")
+			log.Fatal("Please provide the directory path to an accessible datastore.")
 		}
 	}
 
-	if d.config.DownloadUri == "" {
-		log.Println("Please provide download URI for image artifact.")
+	if d.config.DownloadUri == "" && d.config.ImportNoDownload == false {
+		log.Fatal("No download URI for the artifact was provided. This is required if the artifact should be downloaded before importing into vCenter.")
+		log.Fatal("If the image does not need to be downloaded first, please set 'import_no_download' to TRUE, and provide full file paths for source and target directories.")
+	}
+
+	if d.config.ImportNoDownload == true {
+		if d.config.SourceImagePath == "" || d.config.TargetImagePath == "" {
+			log.Fatal("The 'import_no_download' flag is set to TRUE.")
+			log.Fatal("The full file paths for 'source_path' and 'target_path' are required.")
+		}
 	}
 
 	return nil
@@ -157,7 +167,7 @@ func (d *Datasource) OutputSpec() hcldec.ObjectSpec {
 }
 
 func (d *Datasource) Execute() (cty.Value, error) {
-	var downloadUri string
+	var downloadUri, sourcePath, targetPath string
 
 	// Artifactory related
 	if d.config.AritfactoryToken == "" {
@@ -221,61 +231,111 @@ func (d *Datasource) Execute() (cty.Value, error) {
 		downloadUri = d.config.DownloadUri
 	}
 
+	var importNoDownload = false  // default; whether we will convert and import the image into vCenter without downloading first (i.e. image already downloaded previously)
+	if d.config.ImportNoDownload == true {
+		importNoDownload = true
+	}
+
+	if d.config.SourceImagePath != "" {
+		sourcePath = d.config.SourceImagePath
+	}
+
+	if d.config.TargetImagePath != "" {
+		targetPath = d.config.TargetImagePath
+	}
+
 	//------------------------------------------------------------------------------------------------------
-	imageFileName := artifCommon.ParseUriForFilename(downloadUri)
-	imageName     := artifCommon.ParseFilenameForImageName(imageFileName)
+	// Gets required info to facilitate the vCenter import process
+	vcToken := vsCommon.VcenterAuth(vcUser, vcPass, vcServer)
 
-	// Download Artifacts
-	downloadResult := artifTasks.DownloadArtifacts(serverApi, token, downloadUri, outputDir)
+	folderId, err := vsGov.GetFolderId(vcUser, vcPass, vcServer, folderName, dcName)
+	log.Println("Folder ID: " + folderId)
+	if err != nil {
+		log.Printf("Error getting folder ID: %s\n", err)
+	}
+
+	resPoolId, err := vsGov.GetResPoolId(vcUser, vcPass, vcServer, resPoolName, dcName, clusterName)
+	log.Println("Resource Pool ID: " + resPoolId)
+	if err != nil {
+		log.Printf("Error getting resource pool ID: %s\n", err)
+	}
 	
-	var missingInputsMsg  = "Missing required inputs"
-	var downloadFailedMsg = "File download failed"
+	// If we are downloading first, parse for needed details, then proceed with download, conversion, import, and templating 
+	if importNoDownload == false && outputDir != "" && downloadUri != "" {
+		imageFileName := artifCommon.ParseUriForFilename(downloadUri)
+		imageName     := artifCommon.ParseFilenameForImageName(imageFileName)
 
-	// If the download result doesn't contain one of these msgs, proceed with import
-	if !strings.Contains(downloadResult, missingInputsMsg) || !strings.Contains(downloadResult, downloadFailedMsg) {
-		log.Println("Image download completed successfully. Beginning import into vCenter...")
+		// Download Artifacts
+		downloadResult := artifTasks.DownloadArtifacts(serverApi, token, downloadUri, outputDir)
 		
-		token := vsCommon.VcenterAuth(vcUser, vcPass, vcServer)
+		var missingInputsMsg  = "Missing required inputs"
+		var downloadFailedMsg = "File download failed"
 
-		folderId, err := vsGov.GetFolderId(vcUser, vcPass, vcServer, folderName, dcName)
-		log.Println("Folder ID: " + folderId)
-		if err != nil {
-			log.Printf("Error getting folder ID: %s\n", err)
-		}
+		// If the download result doesn't contain one of these msgs, proceed with import
+		if !strings.Contains(downloadResult, missingInputsMsg) || !strings.Contains(downloadResult, downloadFailedMsg) {
+			log.Println("Image download completed successfully. Beginning import into vCenter...")
 
-		resPoolId, err := vsGov.GetResPoolId(vcUser, vcPass, vcServer, resPoolName, dcName, clusterName)
-		log.Println("Resource Pool ID: " + resPoolId)
-		if err != nil {
-			log.Printf("Error getting resource pool ID: %s\n", err)
-		}
+			fileType, sourcePath, targetPath := vsVm.SetPathsFromDownloadUri(outputDir, downloadUri) 
+			convertResult := vsVm.ConvertImageByType(fileType, sourcePath, targetPath)
 
-		convertResult := vsVm.CheckFileConvert(outputDir, downloadUri)
-		log.Println(convertResult)
-
-		if convertResult != "Failed" {
-			statusCode := vsVm.RegisterVm(token, vcServer, dcName, dsName, imageName, folderId, resPoolId)
-			log.Println("Status Code of Register VM task: ", statusCode)
-
-			if statusCode == "200" {
-				tempResult := vsGov.MarkAsTemplate(vcUser, vcPass, vcServer, imageName, dcName)
-				log.Println(tempResult)
-
-				if strings.Contains(tempResult, "Success") {
-					log.Println("The image import and template conversion completed successfully.")
+			if convertResult != "Failed" {
+				statusCode := vsVm.RegisterVm(vcToken, vcServer, dcName, dsName, imageName, folderId, resPoolId)
+				log.Println("Status Code of Register VM task: ", statusCode)
+	
+				if statusCode == "200" {
+					tempResult := vsGov.MarkAsTemplate(vcUser, vcPass, vcServer, imageName, dcName)
+					log.Println(tempResult)
+	
+					if strings.Contains(tempResult, "Success") {
+						log.Println("The image import and template conversion completed successfully.")
+					} else {
+						log.Fatal("Error: Unable to import and/or convert the image into a VM Template.")
+					}
 				} else {
-					log.Fatal("Error: Unable to import and/or convert the image into a VM Template.")
+					log.Fatal("Error registering VMX file with vCenter.")
 				}
 			} else {
-				log.Fatal("Error registering VMX file with vCenter.")
+				log.Fatal("Error during image type check and file conversion process.")
 			}
 		} else {
-			log.Fatal("Error during image type check and file conversion process.")
+			log.Fatal("Error: Failures occurred during image download.")
 		}
-		
-		//importResult := vsphereTasks.ImportVm(vcUser, vcPass, vcServer, dcName, dsName, imageName, folderName, resPoolName, clusterName)
+	} else {  
+		// If we're checking the image, converting if needed, and then importing and templating without downloading first
+		var imageFileName string
+		if sourcePath != "" && targetPath != "" {
+			isWinPath := vsCommon.CheckPathType(sourcePath)
+			if isWinPath == true {
+				imageFileName, _ = vsCommon.FileNamePathFromWin(sourcePath)
+			} else {
+				imageFileName, _ = vsCommon.FileNamePathFromLnx(sourcePath)
+			}
+
+			imageName := vsCommon.ParseFilenameForImageName(imageFileName)
+			fileType := vsCommon.GetFileType(imageFileName)
+
+			convertResult := vsVm.ConvertImageByType(fileType, sourcePath, targetPath)
+
+			if convertResult != "Failed" {
+				statusCode := vsVm.RegisterVm(vcToken, vcServer, dcName, dsName, imageName, folderId, resPoolId)
+				log.Println("Status Code of Register VM task: ", statusCode)
 	
-	} else {
-		log.Fatal("Error: Failures occurred during image download.")
+				if statusCode == "200" {
+					tempResult := vsGov.MarkAsTemplate(vcUser, vcPass, vcServer, imageName, dcName)
+					log.Println(tempResult)
+	
+					if strings.Contains(tempResult, "Success") {
+						log.Println("The image import and template conversion completed successfully.")
+					} else {
+						log.Fatal("Error: Unable to import and/or convert the image into a VM Template.")
+					}
+				} else {
+					log.Fatal("Error registering VMX file with vCenter.")
+				}
+			} else {
+				log.Fatal("Error during image type check and file conversion process.")
+			}
+		}
 	}
 	
 	output := DatasourceOutput{}

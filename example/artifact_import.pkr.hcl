@@ -4,7 +4,7 @@
 packer {
     required_plugins {
         artifactory = {
-            version = ">= 1.0.10"
+            version = ">= 1.0.12"
             source  = "github.com/raynaluzier/artifactory"
         }
     }
@@ -109,14 +109,15 @@ data "artifactory-import" "basic-example" {
 	folder_name         = var.vc_folder
 	respool_name        = var.vc_respool
 
-	ouput_dir           = var.output_directory
-	download_uri        = data.artifactory.basic-example.download_uri
+	ouput_dir           = var.output_directory							// remove if import, no download
+	download_uri        = data.artifactory.basic-example.download_uri   // remove if import, no download
+
+	//import_no_download = true
+	//source_path        = "/lab-servs/img22.ova"
+	//target_path        = "/lab-servs/img22/vmx"
 }
 
 locals {
-	name         = data.artifactory.basic-example.name
-	create_date  = data.artifactory.basic-example.creation_date
-	artifact_uri = data.artifactory.basic-example.artifact_uri
 	download_uri = data.artifactory.basic-example.download_uri
 }
 
@@ -131,9 +132,6 @@ build {
 
 	provisioner "shell-local" {
 		inline = [
-			"echo artifact name: ${local.name}",
-			"echo artifact creation date: ${local.create_date}",
-			"echo artifact URI: ${local.artifact_uri}",
 			"echo artifact download URI: ${local.download_uri}"
 		]
 	}

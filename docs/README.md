@@ -1,4 +1,8 @@
-The JFrog Artifactory plugin can be used with HashiCorp Packer to identify, retrieve, and work with artifacts. This plugin comes with a data source to locate target artifacts and retrieve information necessary to work with them; a data source to download them to an accessible target datastore, convert the image type (if needed), import into vCenter, and mark it as a template; and post-processors to upload a newly created image (OVA, OVF, or VMTX) and it's supporting file(s) and update it's properties within Artifactory,  depending on the strategy you want to use. 
+The JFrog Artifactory plugin can be used with HashiCorp Packer to identify, retrieve, and upload artifacts, depending on the strategy you want to use. This plugin comes with two data sources and two post-processors. 
+
+One data source locates target image artifacts and retrieves information necessary to work with them. The other allows you to (optionally) download those image artifacts (OVA, OVF, or VMTX) from Artifactory and then import them into vCenter and mark them as VM Template. Prior to importing the image artifact, it will be evaluated, and if necessary converted, to the proper format to enable importing into vCenter.
+
+One post-processor enables the upload of a newly created image artifact into Artifactory and the other enables the assignment of one or more properties to an image artifact.
 
 
 ### Installation
@@ -10,7 +14,7 @@ packer {
   required_plugins {
     artifactory = {
       source  = "github.com/raynaluzier/artifactory"
-      version = ">=1.0.8"
+      version = ">=1.0.12"
     }
   }
 }
@@ -29,7 +33,7 @@ The following components are available with the Artifactory plugin.
 #### Data Sources
 
 - [artifactory](https://github.com/raynaluzier/packer-plugin-artifactory/blob/main/docs/datasources/datasource.mdx) - Filter and locate target artifacts and retrieve information necessary to work with them.
-- [artifactory-import](https://github.com/raynaluzier/packer-plugin-artifactory/blob/main/docs/datasources/artifact_import.mdx) - Download image artifacts (OVA, OVF, or VMTX) and import into vCenter as a template (for use with vsphere-clone builder plugin).
+- [artifactory-import](https://github.com/raynaluzier/packer-plugin-artifactory/blob/main/docs/datasources/artifact_import.mdx) - Optionally download image artifacts (OVA, OVF, or VMTX) and/or import into vCenter as a template (for use with vsphere-clone builder plugin).
 
 #### Post-Processors
 
@@ -75,6 +79,7 @@ Variable Definitions:
 variable "artif_token" {
   type        = string
   description = "Identity token of the Artifactory account with access to execute commands"
+  sensitive   = true
   default     = env("ARTIFACTORY_TOKEN")
 }
 
@@ -99,6 +104,7 @@ variable "vc_user" {
 variable "vc_password" {
   type        = string
   description = "vCenter User account password"
+  sensitive   = true
   default     = env("VCENTER_PASSWORD")
 }
 ```
@@ -123,6 +129,7 @@ Variable Definitions:
 variable "artif_token" {
   type        = string
   description = "Identity token of the Artifactory account with access to execute commands"
+  sensitive   = true
   default     = env("ARTIFACTORY_TOKEN")
 }
 
@@ -147,6 +154,7 @@ variable "vc_user" {
 variable "vc_password" {
   type        = string
   description = "vCenter User account password"
+  sensitive   = true
   default     = env("VCENTER_PASSWORD")
 }
 ```
@@ -169,6 +177,7 @@ Variable Definitions:
 variable "artif_token" {
   type        = string
   description = "Identity token of the Artifactory account with access to execute commands"
+  sensitive   = true
   default     = env("ARTIFACTORY_TOKEN")
 }
 
@@ -193,6 +202,7 @@ variable "vc_user" {
 variable "vc_password" {
   type        = string
   description = "vCenter User account password"
+  sensitive   = true
   default     = env("VCENTER_PASSWORD")
 }
 ```

@@ -1,6 +1,8 @@
-The JFrog Artifactory plugin can be used with HashiCorp Packer to identify, retrieve, and work with artifacts. This plugin comes with a data source to locate target artifacts and retrieve information necessary to work with them depending on the strategy you want to use, as well as two post-processors. One post-processor enables the upload of a newly created artifact into Artifactory and the other enables the assignment of one or more properties to an artifact.
+The JFrog Artifactory plugin can be used with HashiCorp Packer to identify, retrieve, and upload artifacts, depending on the strategy you want to use. This plugin comes with two data sources and two post-processors. 
 
-Future components will include functionality to download artifacts.
+One data source locates target image artifacts and retrieves information necessary to work with them. The other allows you to (optionally) download those image artifacts (OVA, OVF, or VMTX) from Artifactory and then import them into vCenter and mark them as VM Template. Prior to importing the image artifact, it will be evaluated, and if necessary converted, to the proper format to enable importing into vCenter.
+
+One post-processor enables the upload of a newly created image artifact into Artifactory and the other enables the assignment of one or more properties to an image artifact.
 
 ### Installation
 
@@ -11,7 +13,7 @@ packer {
   required_plugins {
     artifactory = {
       source  = "github.com/raynaluzier/artifactory"
-      version = ">=1.0.10"
+      version = ">=1.0.12"
     }
   }
 }
@@ -29,7 +31,7 @@ The following components are available with the Packer Artifactory plugin.
 #### Data Sources
 
 - [artifactory](https://github.com/raynaluzier/packer-plugin-artifactory/blob/main/docs/datasources/datasource.mdx) - Filter and locate target artifacts and retrieve information necessary to work with them.
-- [artifactory-import](https://github.com/raynaluzier/packer-plugin-artifactory/blob/main/docs/datasources/artifact_import.mdx) - Download image artifacts (OVA, OVF, or VMTX) and import into vCenter as a template (for use with vsphere-clone builder plugin).
+- [artifactory-import](https://github.com/raynaluzier/packer-plugin-artifactory/blob/main/docs/datasources/artifact_import.mdx) - Optionally download image artifacts (OVA, OVF, or VMTX) and/or import into vCenter as a template (for use with vsphere-clone builder plugin).
 
 #### Post-Processors
 
