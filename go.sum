@@ -291,8 +291,8 @@ github.com/prometheus/procfs v0.0.2/go.mod h1:TjEm7ze935MbeOT/UhFTIMYKhuLP4wbCsT
 github.com/prometheus/procfs v0.0.8/go.mod h1:7Qr8sr6344vo1JqZ6HhLceV9o3AJ1Ff+GxbHq6oeK9A=
 github.com/raynaluzier/artifactory-go-sdk v1.0.11 h1:KKUCtioihk/VeUZ6LZ9Yj4O7qHi34hvK/KBGCGlc1b8=
 github.com/raynaluzier/artifactory-go-sdk v1.0.11/go.mod h1:VCpL2xwnMNN7vA4zOD4BeQMQRV6+iAv78q8bSXYcty8=
-github.com/raynaluzier/vsphere-go-sdk v0.0.3 h1:TRLM2+mNqfJ2Rt1dANEOikBMvj/VxaFXew7OxjUSq3I=
-github.com/raynaluzier/vsphere-go-sdk v0.0.3/go.mod h1:i4mTPc+1jyHGVX5efmeOFA4ciOiYqh/R2VsClhHepgE=
+github.com/raynaluzier/vsphere-go-sdk v0.0.4 h1:ZAUc63ZPJHWRdnemeP1HX1MJQL0FNl0WDeOnkUZDOyY=
+github.com/raynaluzier/vsphere-go-sdk v0.0.4/go.mod h1:i4mTPc+1jyHGVX5efmeOFA4ciOiYqh/R2VsClhHepgE=
 github.com/ryanuber/columnize v0.0.0-20160712163229-9b3edd62028f/go.mod h1:sm1tb6uqfes/u+d4ooFouqFdy9/2g9QGwK3SQygK0Ts=
 github.com/ryanuber/columnize v2.1.0+incompatible/go.mod h1:sm1tb6uqfes/u+d4ooFouqFdy9/2g9QGwK3SQygK0Ts=
 github.com/ryanuber/go-glob v1.0.0 h1:iQh3xXAumdQ+4Ufa5b25cRpC5TYKlno6hsv6Cb3pkBk=

@@ -4,9 +4,16 @@ Type:  `artifactory-import`
 
 The Artifactory data source is used to download an artifact image of type OVA, OVF, or VMTX and it's standard associated image files that are stored in JFrog Artifactory to an accessible datastore path, convert the image to a VMX, import into vCenter, and then mark it as a template which is then ready for the vsphere-clone builder to consume.
 
-If the download portion is unnecessary (say the download occurred in a previous run, but the run had to be stopped or didn't complete successfully for some reason), there is an option to pick up the process starting with the conversion step. The conversion process checks the image file first, so if the file is already in VMX format, it will move on to importing to vCenter. If the file is still in OVA, OVF, or VMTX format, then the conversion will be done first.
+If the download portion is unnecessary (say the download occurred in a previous run, but the run had to be stopped or didn't complete successfully for some reason), there is an option to pick up the process starting with the conversion step. The conversion process checks the image file first, so if the file is already in VMX format, it will move on to importing to vCenter. If the file is still in OVA, OVF, or VMTX format, then the conversion will be done.
+
+It is assumed that the datastore path where the image files were downloaded is the same where the converted image files should be stored. This is the default behavior, but deviations from this are checked and handled behind the scenes.
 
 This component is meant to be used in conjunction with the [vSphere-Clone](https://developer.hashicorp.com/packer/integrations/hashicorp/vsphere/latest/components/builder/vsphere-clone) Builder.
+
+## Housekeeping
+* This process does NOT cleanup any image files that remain after the image conversion to VMX.
+
+* If opting to use the convert/import piece only without first downloading and the image files are OVA/OVF, if the parent directory of the image file is named differently than the image file itself (for example: "E:\lab\win2022.ovf" or "/lab/testing/rhel9.ova"), the OVFTOOL will automatically place the converted image files into a sub-directory named after the image file which is a behavior that can't be changed. So using our examples, this results in "E:\lab\win2022\win2022.vmx" or "/lab/testing/rhel9/rhel9.vmx". This means that the original OVA/OVF files will still reside in (our example) "E:\lab" or "/lab/testing" while the VMX files are in a sub-directory. Especially as this resulting path will be used to import into vCenter, this may not be ideal behavior. So to avoid this situation for convert/import-only scenarios, ensure the source files reside in a directory that's the same as the image name (ex: "E:\lab\win2022\win2022.ovf" or "/lab/testing/rhel9/rhel9.ova").
 
 ## Configuration Reference
 
@@ -31,23 +38,21 @@ This component is meant to be used in conjunction with the [vSphere-Clone](https
 - `respool_name` (string) - Optional, but recommended; The name of the target resource pool where the template should reside; Will try to use the default resource pool if left blank.
     * Environment variable: `VCENTER_RESOURCE_POOL`
 - `import_no_download` (bool) - Optional; Whether we should skip the initial download process from Artifactory in the event the image file(s) have already been downloaded, maybe from a previous run/process. This signals the workflow to check the image type and convert if necessary, then import the image into vCenter and mark as a template. Defaults to FALSE.
-    **If set to TRUE, then values for `source_path` and `target_path` are required.**
+    **If set to TRUE, then a value for `source_path` is required.**
 - `output_dir` (string) - Optional; The path to an accessible datastore where the downloaded image files should be placed; Process will automatically place image files into their own folder based on the image name, so this doesn't need to be included. (ex: 'H:\\lab-servers' or '/lab-servers/').
     **If `import_no_download` is set to FALSE (default), then values for `output_dir` and `download_uri` are required**
     * Environment variable: `OUTPUTDIR`
 - `download_uri` (string) - Optional; The Artifactory download URI of the image artifact that should be downloaded. The artifact should be either an OVA, OVF, or VMTX file. Any standard vSphere files associated with one of those image types will also be downloaded automatically. 
     **If `import_no_download` is set to FALSE (default), then values for `output_dir` and `download_uri` are required**
-- `source_path` (string) - Optional; Full file path (ex: `/path/folder/image1234.ova`) to the source image file (should be OVA, OVF, VMTX, or VMX if it's already in that format). As the image files must be in VMX format (essentially a VM) first for this plugin component to do the import, the image files will be examined to determined whether the image needs to be converted to VMX format. If not, the conversion step is skipped and the import will proceed.
-    **If `import_no_download` is set to TRUE, then values for `source_path` and `target_path` are required.**
-- `target_path` (string) - Optional; Full file path (ex: `/path/folder/image1234.vmx`) to the destination VMX image file that will be created (and where it should be created) upon completion of the conversion process. If the source_path already contains the VMX image files and no conversion is needed, then simply make target_path match the source_path.
-    **If `import_no_download` is set to TRUE, then values for `source_path` and `target_path` are required.**
+- `source_path` (string) - Optional; Full file path (ex: `/path/folder/image1234/image1234.ova`) to the source image file (should be OVA, OVF, VMTX, or VMX if it's already in that format). As the image files must be in VMX format (essentially a VM) first for this plugin component to do the import, the image files will be examined to determined whether the image needs to be converted to VMX format. If not, the conversion step is skipped and the import will proceed.
+    **If `import_no_download` is set to TRUE, then a value for `source_path` is required.**
 
 ## Output Data
 
 None
 
 
-## Basic Example Usage
+## Basic Example Usage, Downloading Artifacts and Importing to vCenter
 
 ```hcl
 data "artifactory-import" "basic-example" {
@@ -65,6 +70,27 @@ data "artifactory-import" "basic-example" {
 
     output_dir          = "H:\\lab-servs
     download_uri        = "https://server.domain.com:8081/artifactory/api/storage/lab-repo/win/win2022.ova"
+}
+```
+
+## Basic Example Usage, Skipping the Artifact Download Step
+
+```hcl
+data "artifactory-import" "basic-example" {
+    artifactory_token   = "artifactory_token"
+    artifactory_server  = "https://server.domain.com:8081/artifactory/api"
+
+    vcenter_server      = "vc01.domain.com"
+    vcenter_user        = "jsmith@domain.com"
+    vcenter_password    = "P@ssW0rd!"
+    datacenter_name     = "Lab"
+    datastore_name      = "lab-servs"
+    cluster_name        = "lab-cluster01"
+    folder_name         = "Templates"
+    respool_name        = "cluster01-pool"
+
+    import_no_download  = true
+    source_path         = "/lab/rhel9/rhel9.ova"
 }
 ```
 

@@ -6,7 +6,7 @@ require (
 	github.com/hashicorp/hcl/v2 v2.19.1
 	github.com/hashicorp/packer-plugin-sdk v0.6.0
 	github.com/raynaluzier/artifactory-go-sdk v1.0.11
-	github.com/raynaluzier/vsphere-go-sdk v0.0.3
+	github.com/raynaluzier/vsphere-go-sdk v0.0.4
 	github.com/zclconf/go-cty v1.13.3
 )
 

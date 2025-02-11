@@ -42,7 +42,6 @@ type Config struct {
 	// Defaults to false
 	ImportNoDownload		bool   `mapstructure:"import_no_download" required:"false"`
 	SourceImagePath			string `mapstructure:"source_path" required:"false"` // required if bool is true
-	TargetImagePath			string `mapstructure:"target_path" required:"false"` // required if bool is true
 }
 
 type Datasource struct {
@@ -153,12 +152,11 @@ func (d *Datasource) Configure(raws ...interface{}) error {
 	}
 
 	if d.config.ImportNoDownload == true {
-		if d.config.SourceImagePath == "" || d.config.TargetImagePath == "" {
+		if d.config.SourceImagePath == "" {
 			log.Fatal("The 'import_no_download' flag is set to TRUE.")
-			log.Fatal("The full file paths for 'source_path' and 'target_path' are required.")
+			log.Fatal("The 'source_path' to the full path for the image file (OVA, OVF, or VMTX) is required. Ex: 'E:\\lab\\win22\\win22.ova' or '/lab/win22/win22.ova'")
 		}
 	}
-
 	return nil
 }
 
@@ -167,7 +165,7 @@ func (d *Datasource) OutputSpec() hcldec.ObjectSpec {
 }
 
 func (d *Datasource) Execute() (cty.Value, error) {
-	var downloadUri, sourcePath, targetPath string
+	var downloadUri, sourcePath string
 
 	// Artifactory related
 	if d.config.AritfactoryToken == "" {
@@ -240,10 +238,6 @@ func (d *Datasource) Execute() (cty.Value, error) {
 		sourcePath = d.config.SourceImagePath
 	}
 
-	if d.config.TargetImagePath != "" {
-		targetPath = d.config.TargetImagePath
-	}
-
 	//------------------------------------------------------------------------------------------------------
 	// Gets required info to facilitate the vCenter import process
 	vcToken := vsCommon.VcenterAuth(vcUser, vcPass, vcServer)
@@ -266,6 +260,7 @@ func (d *Datasource) Execute() (cty.Value, error) {
 		imageName     := artifCommon.ParseFilenameForImageName(imageFileName)
 
 		// Download Artifacts
+		log.Println("Downloading artifacts from Artifactory....")
 		downloadResult := artifTasks.DownloadArtifacts(serverApi, token, downloadUri, outputDir)
 		
 		var missingInputsMsg  = "Missing required inputs"
@@ -273,16 +268,23 @@ func (d *Datasource) Execute() (cty.Value, error) {
 
 		// If the download result doesn't contain one of these msgs, proceed with import
 		if !strings.Contains(downloadResult, missingInputsMsg) || !strings.Contains(downloadResult, downloadFailedMsg) {
-			log.Println("Image download completed successfully. Beginning import into vCenter...")
+			log.Println("Image download completed successfully.")
+			log.Println("Checking image type and converting if necessary. This may time some time...")
 
-			fileType, sourcePath, targetPath := vsVm.SetPathsFromDownloadUri(outputDir, downloadUri) 
+			fileType, sourcePath, targetPath := vsVm.SetPathsFromDownloadUri(outputDir, downloadUri)
 			convertResult := vsVm.ConvertImageByType(fileType, sourcePath, targetPath)
+			log.Println("Conversion Result: " + convertResult)
 
 			if convertResult != "Failed" {
-				statusCode := vsVm.RegisterVm(vcToken, vcServer, dcName, dsName, imageName, folderId, resPoolId)
+				log.Println("Setting vmPathName....")
+				vmPathName := vsVm.SetVmPathName(sourcePath, dsName)
+
+				log.Println("Beginning import into vCenter....")
+				statusCode := vsVm.RegisterVm(vcToken, vcServer, dcName, vmPathName, imageName, folderId, resPoolId)
 				log.Println("Status Code of Register VM task: ", statusCode)
 	
 				if statusCode == "200" {
+					log.Println("Import successful. Marking image as a VM Template...")
 					tempResult := vsGov.MarkAsTemplate(vcUser, vcPass, vcServer, imageName, dcName)
 					log.Println(tempResult)
 	
@@ -300,27 +302,54 @@ func (d *Datasource) Execute() (cty.Value, error) {
 		} else {
 			log.Fatal("Error: Failures occurred during image download.")
 		}
-	} else {  
-		// If we're checking the image, converting if needed, and then importing and templating without downloading first
-		var imageFileName string
-		if sourcePath != "" && targetPath != "" {
+	} else {   // no download flag is true
+		// If we're skipping the download and going straight to checking the image, converting if needed, and then importing and templating...
+		var imageFileName, sourceFolderPath, targetFolderPath, vmPathName string
+		log.Println("'import_no_download' flag is set to TRUE. Skipping artifact download....")
+		// SetPathNoDownload -- sets target path
+		// ConvertImageByType
+		// SetVmPathName
+		// RegisterVm and mark as template
+		if sourcePath != "" {
+			targetPath := vsVm.SetPathNoDownload(sourcePath)					// Ex: ova/ovf = /lab/ or E:\Lab, vmtx = /lab/rhel/rhel9.vmx or E:\Lab\win22\win22.vmx
 			isWinPath := vsCommon.CheckPathType(sourcePath)
 			if isWinPath == true {
-				imageFileName, _ = vsCommon.FileNamePathFromWin(sourcePath)
-			} else {
-				imageFileName, _ = vsCommon.FileNamePathFromLnx(sourcePath)
+				imageFileName, sourceFolderPath = vsCommon.FileNamePathFromWin(sourcePath)		// Ex: E:\Lab\win22\win22.ova, returns: win22.ova
+				_, targetFolderPath = vsCommon.FileNamePathFromWin(targetPath)
+				} else {
+				imageFileName, sourceFolderPath = vsCommon.FileNamePathFromLnx(sourcePath)		// Ex: /lab/rhel9/rhel9.ova, returns: rhel9.ova
+				_, targetFolderPath = vsCommon.FileNamePathFromLnx(targetPath)
 			}
 
-			imageName := vsCommon.ParseFilenameForImageName(imageFileName)
-			fileType := vsCommon.GetFileType(imageFileName)
+			imageName := vsCommon.ParseFilenameForImageName(imageFileName)		// Ex: rhel9.ova, returns rhel9
+			fileType := vsCommon.GetFileType(imageFileName)						// rhel9.ova, returns ova
 
+			log.Println("Image Filename: " + imageFileName)
+			log.Println("Image Name: " + imageName)
+			log.Println("File Type: " + fileType)
+			log.Println("Source Path: " + sourcePath)
+			log.Println("Target Path: " + targetPath)
+
+			log.Println("Checking image type and converting if necessary. This may time some time...")
 			convertResult := vsVm.ConvertImageByType(fileType, sourcePath, targetPath)
+			log.Println("Conversion Result: " + convertResult)
 
 			if convertResult != "Failed" {
-				statusCode := vsVm.RegisterVm(vcToken, vcServer, dcName, dsName, imageName, folderId, resPoolId)
+				log.Println("Setting vmPathName....")
+				// Checking to make sure alt pathing scheme wasn't used. If so, we'll pass the target path instead
+				// which is used for the import into vCenter
+				if sourceFolderPath == targetFolderPath {
+					vmPathName = vsVm.SetVmPathName(sourcePath, dsName)
+				} else {
+					vmPathName = vsVm.SetVmPathName(targetPath, dsName)
+				}
+
+				log.Println("Beginning import into vCenter....")
+				statusCode := vsVm.RegisterVm(vcToken, vcServer, dcName, vmPathName, imageName, folderId, resPoolId)
 				log.Println("Status Code of Register VM task: ", statusCode)
 	
 				if statusCode == "200" {
+					log.Println("Import successful. Marking image as a VM Template...")
 					tempResult := vsGov.MarkAsTemplate(vcUser, vcPass, vcServer, imageName, dcName)
 					log.Println(tempResult)
 	
