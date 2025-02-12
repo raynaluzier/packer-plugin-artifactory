@@ -304,25 +304,23 @@ func (d *Datasource) Execute() (cty.Value, error) {
 		}
 	} else {   // no download flag is true
 		// If we're skipping the download and going straight to checking the image, converting if needed, and then importing and templating...
-		var imageFileName, sourceFolderPath, targetFolderPath, vmPathName string
+		// 'sourcePath' is the full path to the source image file including filename
+		var imageFileName, sourceFolderPath, targetFolderPath, vmPathName, fileType, convertResult string
 		log.Println("'import_no_download' flag is set to TRUE. Skipping artifact download....")
-		// SetPathNoDownload -- sets target path
-		// ConvertImageByType
-		// SetVmPathName
-		// RegisterVm and mark as template
+
 		if sourcePath != "" {
 			targetPath := vsVm.SetPathNoDownload(sourcePath)					// Ex: ova/ovf = /lab/ or E:\Lab, vmtx = /lab/rhel/rhel9.vmx or E:\Lab\win22\win22.vmx
 			isWinPath := vsCommon.CheckPathType(sourcePath)
 			if isWinPath == true {
-				imageFileName, sourceFolderPath = vsCommon.FileNamePathFromWin(sourcePath)		// Ex: E:\Lab\win22\win22.ova, returns: win22.ova
+				imageFileName, sourceFolderPath = vsCommon.FileNamePathFromWin(sourcePath)		// Ex: E:\Lab\win22\win22.ova, returns: win22.ova, E:\Lab\win22\
 				_, targetFolderPath = vsCommon.FileNamePathFromWin(targetPath)
 				} else {
-				imageFileName, sourceFolderPath = vsCommon.FileNamePathFromLnx(sourcePath)		// Ex: /lab/rhel9/rhel9.ova, returns: rhel9.ova
+				imageFileName, sourceFolderPath = vsCommon.FileNamePathFromLnx(sourcePath)		// Ex: /lab/rhel9/rhel9.ova, returns: rhel9.ova, /lab/rhel9/
 				_, targetFolderPath = vsCommon.FileNamePathFromLnx(targetPath)
 			}
 
 			imageName := vsCommon.ParseFilenameForImageName(imageFileName)		// Ex: rhel9.ova, returns rhel9
-			fileType := vsCommon.GetFileType(imageFileName)						// rhel9.ova, returns ova
+			fileType = vsCommon.GetFileType(imageFileName)						// rhel9.ova, returns ova
 
 			log.Println("Image Filename: " + imageFileName)
 			log.Println("Image Name: " + imageName)
@@ -330,8 +328,31 @@ func (d *Datasource) Execute() (cty.Value, error) {
 			log.Println("Source Path: " + sourcePath)
 			log.Println("Target Path: " + targetPath)
 
-			log.Println("Checking image type and converting if necessary. This may time some time...")
-			convertResult := vsVm.ConvertImageByType(fileType, sourcePath, targetPath)
+			// If this is an OVF image, we need to first move the image files into a sub dir called "ovf_files" and update the conversion source path to here
+			// If not, we'll get a file conflict with the disk file(s)
+			if fileType == "ovf" {
+				log.Println("OVF file detected...")
+				log.Println("Moving OVF files into subdirectory of source path called 'ovf_files'...")
+				destDir := sourceFolderPath + "ovf_files"		                // ex: 'E:\\path\\to\\win2022\\ovf_files'
+				destDir = vsCommon.CheckAddSlashToPath(destDir)                 // add ending slash by os type; 'E:\\path\\to\\win2022\\ovf_files\\'
+				moveList, err := vsVm.SetOvfFileList(sourcePath)                // Get list of OVF files to move
+				err = vsCommon.MoveFiles(moveList, sourceFolderPath, destDir)   // [file list], 'E:\\path\\to\\win2022\\', 'E:\\path\\to\\win2022\\ovf_files\\'
+				if err != nil {
+					log.Printf("Error moving files: %v\n", err)
+				} else {
+					log.Println("Files moved successfully!")
+				}
+
+				// Setting the new source path to the ovf_file dir for the conversion process only
+				newSourcePath := destDir + imageFileName				        // ex: E:\\path\\to\\win2022\\ovf_files\\win2022.ovf  
+				log.Println("Checking image type and converting if necessary. This may time some time...")
+				convertResult = vsVm.ConvertImageByType(fileType, newSourcePath, targetPath)
+				
+			} else {  // ova and vmtx don't need to be moved first
+				log.Println("Checking image type and converting if necessary. This may time some time...")
+				convertResult = vsVm.ConvertImageByType(fileType, sourcePath, targetPath)
+			}
+
 			log.Println("Conversion Result: " + convertResult)
 
 			if convertResult != "Failed" {
