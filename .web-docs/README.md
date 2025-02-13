@@ -13,7 +13,7 @@ packer {
   required_plugins {
     artifactory = {
       source  = "github.com/raynaluzier/artifactory"
-      version = ">=1.0.12"
+      version = ">=1.0.15"
     }
   }
 }

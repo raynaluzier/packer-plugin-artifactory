@@ -305,28 +305,43 @@ func (d *Datasource) Execute() (cty.Value, error) {
 	} else {   // no download flag is true
 		// If we're skipping the download and going straight to checking the image, converting if needed, and then importing and templating...
 		// 'sourcePath' is the full path to the source image file including filename
-		var imageFileName, sourceFolderPath, targetFolderPath, vmPathName, fileType, convertResult string
+		var imageFileName, sourceFolderPath, vmPathName, fileType, convertResult string
+		var postConvTargetPath, postConvTargetFilePath, imageName string
 		log.Println("'import_no_download' flag is set to TRUE. Skipping artifact download....")
 
 		if sourcePath != "" {
-			targetPath := vsVm.SetPathNoDownload(sourcePath)					// Ex: ova/ovf = /lab/ or E:\Lab, vmtx = /lab/rhel/rhel9.vmx or E:\Lab\win22\win22.vmx
+			targetPath := vsVm.SetPathNoDownload(sourcePath)					                // Ex: ova/ovf = E:\Lab, vmtx = E:\Lab\win22\win22.vmx
 			isWinPath := vsCommon.CheckPathType(sourcePath)
 			if isWinPath == true {
 				imageFileName, sourceFolderPath = vsCommon.FileNamePathFromWin(sourcePath)		// Ex: E:\Lab\win22\win22.ova, returns: win22.ova, E:\Lab\win22\
-				_, targetFolderPath = vsCommon.FileNamePathFromWin(targetPath)
+				imageName = vsCommon.ParseFilenameForImageName(imageFileName)		            // Ex: rhel9.ova, returns rhel9
+				if fileType != "vmtx" {		// vmtx files have a target path that includes full path to VMX file, the other types just have a folder target
+					postConvTargetPath = targetPath + imageName
+					postConvTargetPath = vsCommon.CheckAddSlashToPath(postConvTargetPath)
+				} else {
+					postConvTargetPath = sourceFolderPath
+					// since we're grabbing the sourceFolderPath regardless of type, we can use this VMTX postConvert value as it will be the same
+				}
 				} else {
 				imageFileName, sourceFolderPath = vsCommon.FileNamePathFromLnx(sourcePath)		// Ex: /lab/rhel9/rhel9.ova, returns: rhel9.ova, /lab/rhel9/
-				_, targetFolderPath = vsCommon.FileNamePathFromLnx(targetPath)
+				imageName = vsCommon.ParseFilenameForImageName(imageFileName)		            // Ex: rhel9.ova, returns rhel9
+				if fileType != "vmtx" {
+					postConvTargetPath = targetPath + imageName
+					postConvTargetPath = vsCommon.CheckAddSlashToPath(postConvTargetPath)
+				} else {
+					postConvTargetPath = sourceFolderPath
+				}
 			}
-
-			imageName := vsCommon.ParseFilenameForImageName(imageFileName)		// Ex: rhel9.ova, returns rhel9
-			fileType = vsCommon.GetFileType(imageFileName)						// rhel9.ova, returns ova
+			
+			fileType = vsCommon.GetFileType(imageFileName)						               // rhel9.ova, returns ova
 
 			log.Println("Image Filename: " + imageFileName)
 			log.Println("Image Name: " + imageName)
 			log.Println("File Type: " + fileType)
 			log.Println("Source Path: " + sourcePath)
 			log.Println("Target Path: " + targetPath)
+			log.Println("Source Folder Path: " + sourceFolderPath)
+			log.Println("Post Conversion Target Path: " + postConvTargetPath)
 
 			// If this is an OVF image, we need to first move the image files into a sub dir called "ovf_files" and update the conversion source path to here
 			// If not, we'll get a file conflict with the disk file(s)
@@ -343,7 +358,7 @@ func (d *Datasource) Execute() (cty.Value, error) {
 					log.Println("Files moved successfully!")
 				}
 
-				// Setting the new source path to the ovf_file dir for the conversion process only
+				// Setting the new conversion source path to the ovf_file dir for the conversion process only
 				newSourcePath := destDir + imageFileName				        // ex: E:\\path\\to\\win2022\\ovf_files\\win2022.ovf  
 				log.Println("Checking image type and converting if necessary. This may time some time...")
 				convertResult = vsVm.ConvertImageByType(fileType, newSourcePath, targetPath)
@@ -357,13 +372,10 @@ func (d *Datasource) Execute() (cty.Value, error) {
 
 			if convertResult != "Failed" {
 				log.Println("Setting vmPathName....")
-				// Checking to make sure alt pathing scheme wasn't used. If so, we'll pass the target path instead
-				// which is used for the import into vCenter
-				if sourceFolderPath == targetFolderPath {
-					vmPathName = vsVm.SetVmPathName(sourcePath, dsName)
-				} else {
-					vmPathName = vsVm.SetVmPathName(targetPath, dsName)
-				}
+				postConvTargetFilePath = postConvTargetPath + imageName + ".vmx"
+
+				vmPathName = vsVm.SetVmPathName(postConvTargetFilePath, dsName)
+				log.Println("vmPathName: " + vmPathName)
 
 				log.Println("Beginning import into vCenter....")
 				statusCode := vsVm.RegisterVm(vcToken, vcServer, dcName, vmPathName, imageName, folderId, resPoolId)

@@ -16,7 +16,7 @@ const testDatasourceImportHCL2Basic = `
 	packer {
 		required_plugins {
 			artifactory = {
-				version = ">= 1.0.13"
+				version = ">= 1.0.15"
 				source  = "github.com/raynaluzier/artifactory"
 			}
 		}
@@ -144,7 +144,7 @@ const testDatasourceImportHCL2Basic = `
 		}
 	}
 `
-// Run with: PACKER_ACC=1 go test -count 1 -v ./... -timeout=120
+// Run with: PACKER_ACC=1 go test -count 1 -v ./... -timeout 180m
 func TestAccDatasourceImport_Artifactory(t *testing.T) {
 	testCase := &acctest.PluginTestCase{
 		Name: "artifactory_datasource_import basic_test",
