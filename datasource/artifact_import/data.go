@@ -148,13 +148,13 @@ func (d *Datasource) Configure(raws ...interface{}) error {
 
 	if d.config.DownloadUri == "" && d.config.ImportNoDownload == false {
 		log.Println("No download URI for the artifact was provided. This is required if the artifact should be downloaded before importing into vCenter.")
-		log.Fatal("If the image does not need to be downloaded first, please set 'import_no_download' to TRUE, and provide full file paths for source and target directories.")
+		log.Fatal("If the image does not need to be downloaded first, please set 'import_no_download' to TRUE, and provide full file path to the source directory where the image file (OVA, OVF, or VMTX) is located.")
 	}
 
 	if d.config.ImportNoDownload == true {
 		if d.config.SourceImagePath == "" {
 			log.Println("The 'import_no_download' flag is set to TRUE.")
-			log.Fatal("The 'source_path' to the full path for the image file (OVA, OVF, or VMTX) is required. Ex: 'E:\\lab\\win22\\win22.ova' or '/lab/win22/win22.ova'")
+			log.Fatal("The 'source_path' to the full path for the image file (OVA, OVF, or VMTX) is required. Ex: '/lab/win22/win22.ova' If using a Windows path, ensure it is properly escaped with double-backslashes.")
 		}
 	}
 	return nil
@@ -235,7 +235,7 @@ func (d *Datasource) Execute() (cty.Value, error) {
 	}
 
 	if d.config.SourceImagePath != "" {
-		sourcePath = artifCommon.EscapeSpecialChars(d.config.SourceImagePath)
+		sourcePath = d.config.SourceImagePath
 	}
 
 	//------------------------------------------------------------------------------------------------------
@@ -262,6 +262,7 @@ func (d *Datasource) Execute() (cty.Value, error) {
 		// Download Artifacts
 		log.Println("Downloading artifacts from Artifactory....")
 		downloadResult := artifTasks.DownloadArtifacts(serverApi, token, downloadUri, outputDir)
+		log.Println("Download Result: " + downloadResult)
 		
 		var missingInputsMsg  = "Missing required inputs"
 		var downloadFailedMsg = "File download failed"
