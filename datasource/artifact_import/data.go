@@ -235,7 +235,7 @@ func (d *Datasource) Execute() (cty.Value, error) {
 	}
 
 	if d.config.SourceImagePath != "" {
-		sourcePath = d.config.SourceImagePath
+		sourcePath = artifCommon.EscapeSpecialChars(d.config.SourceImagePath)
 	}
 
 	//------------------------------------------------------------------------------------------------------

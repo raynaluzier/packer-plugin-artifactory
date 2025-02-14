@@ -16,7 +16,7 @@ const testDatasourceImportHCL2Basic = `
 	packer {
 		required_plugins {
 			artifactory = {
-				version = ">= 1.0.16"
+				version = ">= 1.0.17"
 				source  = "github.com/raynaluzier/artifactory"
 			}
 		}
