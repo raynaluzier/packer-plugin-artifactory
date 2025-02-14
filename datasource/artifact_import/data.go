@@ -141,19 +141,19 @@ func (d *Datasource) Configure(raws ...interface{}) error {
 	if d.config.OutputDir == "" && d.config.ImportNoDownload == false {
 		outputDir := os.Getenv("OUTPUTDIR")
 		if outputDir == "" {
-			log.Fatal("No output directory was provided.")
+			log.Println("No output directory was provided.")
 			log.Fatal("Please provide the directory path to an accessible datastore.")
 		}
 	}
 
 	if d.config.DownloadUri == "" && d.config.ImportNoDownload == false {
-		log.Fatal("No download URI for the artifact was provided. This is required if the artifact should be downloaded before importing into vCenter.")
+		log.Println("No download URI for the artifact was provided. This is required if the artifact should be downloaded before importing into vCenter.")
 		log.Fatal("If the image does not need to be downloaded first, please set 'import_no_download' to TRUE, and provide full file paths for source and target directories.")
 	}
 
 	if d.config.ImportNoDownload == true {
 		if d.config.SourceImagePath == "" {
-			log.Fatal("The 'import_no_download' flag is set to TRUE.")
+			log.Println("The 'import_no_download' flag is set to TRUE.")
 			log.Fatal("The 'source_path' to the full path for the image file (OVA, OVF, or VMTX) is required. Ex: 'E:\\lab\\win22\\win22.ova' or '/lab/win22/win22.ova'")
 		}
 	}
