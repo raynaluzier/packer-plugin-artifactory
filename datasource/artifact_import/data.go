@@ -317,7 +317,7 @@ func (d *Datasource) Execute() (cty.Value, error) {
 				imageFileName, sourceFolderPath = vsCommon.FileNamePathFromWin(sourcePath)		// Ex: E:\Lab\win22\win22.ova, returns: win22.ova, E:\Lab\win22\
 				imageName = vsCommon.ParseFilenameForImageName(imageFileName)		            // Ex: rhel9.ova, returns rhel9
 				if fileType != "vmtx" {		// vmtx files have a target path that includes full path to VMX file, the other types just have a folder target
-					postConvTargetPath = targetPath + imageName
+					postConvTargetPath = targetPath
 					postConvTargetPath = vsCommon.CheckAddSlashToPath(postConvTargetPath)
 				} else {
 					postConvTargetPath = sourceFolderPath
