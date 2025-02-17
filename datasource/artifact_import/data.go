@@ -373,7 +373,9 @@ func (d *Datasource) Execute() (cty.Value, error) {
 
 			if convertResult != "Failed" {
 				log.Println("Setting vmPathName....")
-				postConvTargetFilePath = postConvTargetPath + imageName + ".vmx"
+				if fileType == "ova" || fileType == "ovf" { // don't do for vmx or vmtx files as full path to file is already being passed in those cases
+					postConvTargetFilePath = postConvTargetPath + imageName + ".vmx"
+				}
 
 				vmPathName = vsVm.SetVmPathName(postConvTargetFilePath, dsName)
 				log.Println("vmPathName: " + vmPathName)
