@@ -318,7 +318,6 @@ func (d *Datasource) Execute() (cty.Value, error) {
 				imageName = vsCommon.ParseFilenameForImageName(imageFileName)		            // Ex: rhel9.ova, returns rhel9
 				if fileType != "vmtx" {		// vmtx files have a target path that includes full path to VMX file, the other types just have a folder target
 					postConvTargetPath = targetPath
-					postConvTargetPath = vsCommon.CheckAddSlashToPath(postConvTargetPath)
 				} else {
 					postConvTargetPath = sourceFolderPath
 					// since we're grabbing the sourceFolderPath regardless of type, we can use this VMTX postConvert value as it will be the same
