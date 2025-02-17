@@ -320,7 +320,7 @@ func (d *Datasource) Execute() (cty.Value, error) {
 					postConvTargetPath = targetPath + imageName
 					postConvTargetPath = vsCommon.CheckAddSlashToPath(postConvTargetPath)
 				} else {
-					postConvTargetPath = targetPath //sourceFolderPath
+					postConvTargetPath = targetPath
 					// since we're grabbing the sourceFolderPath regardless of type, we can use this VMTX postConvert value as it will be the same
 				}
 			} else {
@@ -330,7 +330,7 @@ func (d *Datasource) Execute() (cty.Value, error) {
 					postConvTargetPath = targetPath + imageName
 					postConvTargetPath = vsCommon.CheckAddSlashToPath(postConvTargetPath)
 				} else {
-					postConvTargetPath = targetPath //sourceFolderPath
+					postConvTargetPath = targetPath
 				}
 			}
 			
@@ -375,9 +375,10 @@ func (d *Datasource) Execute() (cty.Value, error) {
 				log.Println("Setting vmPathName....")
 				if fileType == "ova" || fileType == "ovf" { // don't do for vmx or vmtx files as full path to file is already being passed in those cases
 					postConvTargetFilePath = postConvTargetPath + imageName + ".vmx"
+					vmPathName = vsVm.SetVmPathName(postConvTargetFilePath, dsName)
+				} else {
+					vmPathName = vsVm.SetVmPathName(postConvTargetPath, dsName)
 				}
-
-				vmPathName = vsVm.SetVmPathName(postConvTargetFilePath, dsName)
 				log.Println("vmPathName: " + vmPathName)
 
 				log.Println("Beginning import into vCenter....")
