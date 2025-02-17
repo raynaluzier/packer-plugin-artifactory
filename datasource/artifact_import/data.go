@@ -316,20 +316,21 @@ func (d *Datasource) Execute() (cty.Value, error) {
 			if isWinPath == true {
 				imageFileName, sourceFolderPath = vsCommon.FileNamePathFromWin(sourcePath)		// Ex: E:\Lab\win22\win22.ova, returns: win22.ova, E:\Lab\win22\
 				imageName = vsCommon.ParseFilenameForImageName(imageFileName)		            // Ex: rhel9.ova, returns rhel9
-				if fileType != "vmtx" {		// vmtx files have a target path that includes full path to VMX file, the other types just have a folder target
-					postConvTargetPath = targetPath
-				} else {
-					postConvTargetPath = sourceFolderPath
-					// since we're grabbing the sourceFolderPath regardless of type, we can use this VMTX postConvert value as it will be the same
-				}
-				} else {
-				imageFileName, sourceFolderPath = vsCommon.FileNamePathFromLnx(sourcePath)		// Ex: /lab/rhel9/rhel9.ova, returns: rhel9.ova, /lab/rhel9/
-				imageName = vsCommon.ParseFilenameForImageName(imageFileName)		            // Ex: rhel9.ova, returns rhel9
-				if fileType != "vmtx" {
+				if fileType == "ova" || fileType == "ovf" {		// vmtx files have a target path that includes full path to VMX file, the other types just have a folder target
 					postConvTargetPath = targetPath + imageName
 					postConvTargetPath = vsCommon.CheckAddSlashToPath(postConvTargetPath)
 				} else {
-					postConvTargetPath = sourceFolderPath
+					postConvTargetPath = targetPath //sourceFolderPath
+					// since we're grabbing the sourceFolderPath regardless of type, we can use this VMTX postConvert value as it will be the same
+				}
+			} else {
+				imageFileName, sourceFolderPath = vsCommon.FileNamePathFromLnx(sourcePath)		// Ex: /lab/rhel9/rhel9.ova, returns: rhel9.ova, /lab/rhel9/
+				imageName = vsCommon.ParseFilenameForImageName(imageFileName)		            // Ex: rhel9.ova, returns rhel9
+				if fileType == "ova" || fileType == "ovf" {
+					postConvTargetPath = targetPath + imageName
+					postConvTargetPath = vsCommon.CheckAddSlashToPath(postConvTargetPath)
+				} else {
+					postConvTargetPath = targetPath //sourceFolderPath
 				}
 			}
 			
