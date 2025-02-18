@@ -316,9 +316,12 @@ func (d *Datasource) Execute() (cty.Value, error) {
 			if isWinPath == true {
 				imageFileName, sourceFolderPath = vsCommon.FileNamePathFromWin(sourcePath)		// Ex: E:\Lab\win22\win22.ova, returns: win22.ova, E:\Lab\win22\
 				imageName = vsCommon.ParseFilenameForImageName(imageFileName)		            // Ex: rhel9.ova, returns rhel9
+				fileType = vsCommon.GetFileType(imageFileName)
+				
 				if fileType == "ova" || fileType == "ovf" {		// vmtx files have a target path that includes full path to VMX file, the other types just have a folder target
 					postConvTargetPath = targetPath + imageName
 					postConvTargetPath = vsCommon.CheckAddSlashToPath(postConvTargetPath)
+					log.Println("Post Conversion Target Path: " + postConvTargetPath)
 				} else {
 					postConvTargetPath = targetPath
 					// since we're grabbing the sourceFolderPath regardless of type, we can use this VMTX postConvert value as it will be the same
@@ -326,9 +329,12 @@ func (d *Datasource) Execute() (cty.Value, error) {
 			} else {
 				imageFileName, sourceFolderPath = vsCommon.FileNamePathFromLnx(sourcePath)		// Ex: /lab/rhel9/rhel9.ova, returns: rhel9.ova, /lab/rhel9/
 				imageName = vsCommon.ParseFilenameForImageName(imageFileName)		            // Ex: rhel9.ova, returns rhel9
+				fileType = vsCommon.GetFileType(imageFileName)
+
 				if fileType == "ova" || fileType == "ovf" {
 					postConvTargetPath = targetPath + imageName
 					postConvTargetPath = vsCommon.CheckAddSlashToPath(postConvTargetPath)
+					log.Println("Post Conversion Target Path: " + postConvTargetPath)
 				} else {
 					postConvTargetPath = targetPath
 				}
@@ -342,7 +348,7 @@ func (d *Datasource) Execute() (cty.Value, error) {
 			log.Println("Source Path: " + sourcePath)
 			log.Println("Target Path: " + targetPath)
 			log.Println("Source Folder Path: " + sourceFolderPath)
-			log.Println("Post Conversion Target Path: " + postConvTargetPath)
+			//log.Println("Post Conversion Target Path: " + postConvTargetPath)
 
 			// If this is an OVF image, we need to first move the image files into a sub dir called "ovf_files" and update the conversion source path to here
 			// If not, we'll get a file conflict with the disk file(s)
