@@ -109,17 +109,6 @@ func (d *Datasource) Execute() (cty.Value, error) {
 		fileList = d.config.FileList
 	}
 
-	dirCheck, err := os.Stat(outputDir)
-	log.Println("Checking if output directory exists... ", dirCheck)
-	if os.IsNotExist(err) {
-		err = os.MkdirAll(outputDir, 0755)
-		if err != nil {
-			log.Println("Error creating directory: " + outputDir + " - ", err)
-		} else {
-			log.Println("Successfully created directory: " + outputDir)
-		}
-	}
-
 	for _, file := range fileList {
 		task := "Downloading: " + file
 		result, err = tasks.DownloadGeneralArtifact(serverApi, token, outputDir, artifPath, file, task)
