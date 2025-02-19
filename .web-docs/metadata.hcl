@@ -6,7 +6,7 @@
 # be kept in a `.web-docs` directory at the root of your plugin repository.
 integration {
   name = "JFrog Artifactory"
-  description = "The JFrog Artifactory plugin can be used with HashiCorp Packer to locate and reference image artifacts stored in Artifactory."
+  description = "The JFrog Artifactory plugin can be used with HashiCorp Packer to locate, reference, and work with image artifacts stored in Artifactory."
   identifier = "packer/jfrog/artifactory"
   flags = [
     # Remove if the plugin does not conform to the HCP Packer requirements.
@@ -38,13 +38,28 @@ integration {
     slug = "artifactory"
   }
   component {
+    type = "data-source"
+    name = "JFrog Artifactory Image Download, Convert, and vCenter Import"
+    slug = "artifactory-import"
+  }
+  component {
+    type = "data-source"
+    name = "JFrog Artifactory Download Non-Image Artifacts"
+    slug = "artifactory-download-other"
+  }
+  component {
     type = "post-processor"
-    name = "JFrog Artifactory Artifact Upload"
+    name = "JFrog Artifactory Image Artifact Upload"
     slug = "artifactory-upload"
   }
   component {
     type = "post-processor"
-    name = "JFrog Artifactory Property Update"
+    name = "JFrog Artifactory Image Property Update"
     slug = "artifactory-update-props"
+  }
+  component {
+    type = "post-processor"
+    name = "JFrog Artifactory Upload Non-Image Artifacts"
+    slug = "artifactory-upload-other"
   }
 }

@@ -30,8 +30,9 @@ var server = ""   // Update for testing
 // Run with: PACKER_ACC=1 go test -count 1 -v ./... -timeout 120m
 func TestAccDatasourceDownload_Artifactory(t *testing.T) {
 	// Prep test artifact
+	setAsOva           := false  // whether we want the test file converted to an OVA (depends on test)
 	testDirPath        := common.CreateTestDirectory(testDirName)
-	testArtifactPath   := common.CreateTestFile(testDirPath, testArtifact, artifactContents)
+	testArtifactPath   := common.CreateTestFile(testDirPath, testArtifact, artifactContents, setAsOva)
 	uploadTestArtifact := true
 	testArtifactDownloadOther := SetTemplate(testDirPath)
 	kvProps = append(kvProps,"release=latest-stable")

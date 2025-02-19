@@ -33,13 +33,18 @@ The following components are available with the Artifactory plugin.
 #### Data Sources
 
 - [artifactory](https://github.com/raynaluzier/packer-plugin-artifactory/blob/main/docs/datasources/datasource.mdx) - Filter and locate target artifacts and retrieve information necessary to work with them.
+
 - [artifactory-import](https://github.com/raynaluzier/packer-plugin-artifactory/blob/main/docs/datasources/artifact_import.mdx) - Optionally download image artifacts (OVA, OVF, or VMTX) and/or import into vCenter as a template (for use with vsphere-clone builder plugin).
+
+- [artifactory-download-other](https://github.com/raynaluzier/packer-plugin-artifactory/blob/main/docs/datasources/download_other.mdx) - Download non-image artifacts that may support the image itself, such as script files, metadata, etc.
 
 #### Post-Processors
 
 - [artifactory-upload](https://github.com/raynaluzier/packer-plugin-artifactory/blob/main/docs/post-processors/artifact_upload.mdx) - Upload newly built image artifacts (OVA, OVF, or VMTX) to JFrog Artifactory.
 
 - [artifactory-update-props](https://github.com/raynaluzier/packer-plugin-artifactory/blob/main/docs/post-processors/update_props.mdx) - Update the properties of an existing or newly created image artifact stored in Jfrog Artifactory.
+
+- [artifactory-upload-other](https://github.com/raynaluzier/packer-plugin-artifactory/blob/main/docs/post-processors/upload_other.mdx) - Upload non-image artifacts that may support the image itself, such as script files, metadata, etc.
 
 ### Authentication
 There are several ways to provide credentials for JFrog Artifactory authentication, which uses a bearer token when making each underlying request. The following authentication methods are supported:
@@ -213,30 +218,4 @@ ARTIFACTORY_TOKEN=1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t
 VCENTER_SERVER=vc01.domain.com
 VCENTER_USER=auser@domain.com
 VCENTER_PASSWORD=MyP@$$w0rd!
-```
-
-### Troubleshooting
-To gather additional information about the processes happening, change the logging level to 'DEBUG'. This can be done by setting Logging in the data source configuration or via an environment variable.
-
-Data Source Example:
-```
-data "artifactory" "basic-example" {
-  artifactory_server  = "https://server.domain.com:8081/artifactory/api"
-  artifactory_token   = "1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t"
-  logging = "DEBUG"
-}
-```
-
-Exported Environment Variable:
-```
-export ARTIFACTORY_SERVER=https://server.domain.com:8081/artifactory/api
-export ARTIFACTORY_TOKEN=1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t
-export LOGGING=DEBUG
-```
-
-Environment Variable in .env:
-```
-ARTIFACTORY_SERVER=https://server.domain.com:8081/artifactory/api
-ARTIFACTORY_TOKEN=1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t
-LOGGING=DEBUG
 ```

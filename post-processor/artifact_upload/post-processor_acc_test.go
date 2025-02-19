@@ -23,17 +23,18 @@ const artifactSuffix   = ""
 const artifactContents = "Just some test content."
 var kvProps []string
 var downloadUri string
+const setAsOva = true
 
 var token = ""    // Update for testing
 var server = ""   // Update for testing
 
-// Run with: PACKER_ACC=1 go test -count 1 -v ./... -timeout=120
+// Run with: PACKER_ACC=1 go test -count 1 -v ./... -timeout 120m
 func TestAccPostProcessorUpload_Artifactory(t *testing.T) {
 
 	// Prep test artifact
 	testDirPath        := common.CreateTestDirectory(testDirName)
 	// Returns $HOME_DIR/test-directory/test-artifact.ova
-	testArtifactPath   := common.CreateTestFile(testDirPath, testArtifactName, artifactContents)  // the artifact will be renamed to test-artifact.ova
+	testArtifactPath   := common.CreateTestFile(testDirPath, testArtifactName, artifactContents, setAsOva)  // the artifact will be renamed to test-artifact.ova
 	uploadTestArtifact := false  // Don't need to upload artifact as part of test setup; test itself will do this.
 	testArtifactUpload := SetTemplate(testArtifactPath)
 	kvProps = append(kvProps,"release=latest-stable")
@@ -107,7 +108,7 @@ func SetTemplate(testDirPath string) string {
 	packer {
 		required_plugins {
 			artifactory = {
-				version = ">= 1.0.10"
+				version = ">= 1.0.27"
 				source  = "github.com/raynaluzier/artifactory"
 			}
 		}

@@ -4,7 +4,7 @@
 packer {
     required_plugins {
         artifactory = {
-            version = ">= 1.0.15"
+            version = ">= 1.0.27"
             source  = "github.com/raynaluzier/artifactory"
         }
     }

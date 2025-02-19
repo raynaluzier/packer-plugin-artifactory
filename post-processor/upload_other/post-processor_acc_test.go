@@ -24,6 +24,7 @@ const artifactSuffix   = ""
 const artifactContents = "Just some test content."
 var kvProps []string
 var downloadUri string
+const setAsOva = false
 
 var token = ""    // Update for testing
 var server = ""   // Update for testing
@@ -34,8 +35,8 @@ func TestAccPostProcessorUploadOther_Artifactory(t *testing.T) {
 	// Prep test artifact
 	testDirPath        := common.CreateTestDirectory(testDirName)
 	// Returns $HOME_DIR/test-directory/testfile1.txt, testfile2.txt
-	testArtifactOnePath   := common.CreateTestFile(testDirPath, testArtifactOne, artifactContents)
-	testArtifactTwoPath   := common.CreateTestFile(testDirPath, testArtifactTwo, artifactContents)
+	testArtifactOnePath   := common.CreateTestFile(testDirPath, testArtifactOne, artifactContents, setAsOva)
+	testArtifactTwoPath   := common.CreateTestFile(testDirPath, testArtifactTwo, artifactContents, setAsOva)
 
 	uploadTestArtifact := false  // Don't need to upload artifact as part of test setup; test itself will do this.
 	testArtifactUploadOther := SetTemplate(testDirPath)
@@ -112,7 +113,7 @@ func SetTemplate(testDirPath string) string {
 	packer {
 		required_plugins {
 			artifactory = {
-				version = ">= 1.0.25"
+				version = ">= 1.0.27"
 				source  = "github.com/raynaluzier/artifactory"
 			}
 		}

@@ -18,7 +18,7 @@ const testDatasourceHCL2Basic = `
 	packer {
 		required_plugins {
 			artifactory = {
-				version = ">= 1.0.10"
+				version = ">= 1.0.27"
 				source  = "github.com/raynaluzier/artifactory"
 			}
 		}
@@ -87,16 +87,17 @@ const artifactSuffix   = ""
 const artifactContents = "Just some test content."
 var kvProps []string
 const uploadTestArtifact = true
+const setAsOva           = false
 
 var token = ""    // Update for testing
 var server = ""   // Update for testing
 
-// Run with: PACKER_ACC=1 go test -count 1 -v ./... -timeout=120
+// Run with: PACKER_ACC=1 go test -count 1 -v ./... -timeout 120m
 func TestAccDatasource_Artifactory(t *testing.T) {
 
 	// Prep test artifact
 	testDirPath  := common.CreateTestDirectory(testDirName)
-	testArtifactPath := common.CreateTestFile(testDirPath, testArtifactName, artifactContents)
+	testArtifactPath := common.CreateTestFile(testDirPath, testArtifactName, artifactContents, setAsOva)
 	kvProps = append(kvProps,"release=latest-stable")
 	uploadTestArtifact := true
 
