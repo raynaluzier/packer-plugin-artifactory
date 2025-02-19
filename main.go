@@ -8,6 +8,7 @@ import (
 	"os"
 
 	artifactImport "packer-plugin-artifactory/datasource/artifact_import"
+	artifactDownloadOther "packer-plugin-artifactory/datasource/download_other"
 	artifactImage "packer-plugin-artifactory/datasource/source_image"
 	artifactUpload "packer-plugin-artifactory/post-processor/artifact_upload"
 	artifactUpdateProps "packer-plugin-artifactory/post-processor/update_props"
@@ -19,7 +20,7 @@ import (
 
 var (
 	// Version is the main version number that is being run at the moment.
-	Version = "1.0.26"
+	Version = "1.0.27"
 
 	// VersionPrerelease is A pre-release marker for the Version. If this is ""
 	// (empty string) then it means that it is a final release. Otherwise, this
@@ -35,6 +36,7 @@ func main() {
 	pps := plugin.NewSet()
 	pps.RegisterDatasource(plugin.DEFAULT_NAME, new(artifactImage.Datasource))
 	pps.RegisterDatasource("import", new(artifactImport.Datasource))
+	pps.RegisterDatasource("download-other", new(artifactDownloadOther.Datasource))
 	pps.RegisterPostProcessor("upload", new(artifactUpload.PostProcessor))
 	pps.RegisterPostProcessor("upload-other", new(artifactUploadOther.PostProcessor))
 	pps.RegisterPostProcessor("update-props", new(artifactUpdateProps.PostProcessor))

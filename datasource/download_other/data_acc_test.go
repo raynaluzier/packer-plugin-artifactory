@@ -1,4 +1,4 @@
-package artifactUploadOther
+package artifactDownloadOther
 
 import (
 	"fmt"
@@ -18,38 +18,36 @@ var artifactUri string
 var statusCode  string
 
 const testDirName      = "test-directory"
-const testArtifactName = "test-artifact.txt"  // this gets renamed to an ova file later
+const testArtifact     = "testfile1.txt"
 const artifactSuffix   = ""
 const artifactContents = "Just some test content."
 var kvProps []string
 var downloadUri string
 
-var token = ""    // Update for testing
+var token  = ""    // Update for testing
 var server = ""   // Update for testing
 
-// Run with: PACKER_ACC=1 go test -count 1 -v ./... -timeout=120
-func TestAccPostProcessorUpload_Artifactory(t *testing.T) {
-
+// Run with: PACKER_ACC=1 go test -count 1 -v ./... -timeout 120m
+func TestAccDatasourceDownload_Artifactory(t *testing.T) {
 	// Prep test artifact
 	testDirPath        := common.CreateTestDirectory(testDirName)
-	// Returns $HOME_DIR/test-directory/test-artifact.ova
-	testArtifactPath   := common.CreateTestFile(testDirPath, testArtifactName, artifactContents)  // the artifact will be renamed to test-artifact.ova
-	uploadTestArtifact := false  // Don't need to upload artifact as part of test setup; test itself will do this.
-	testArtifactUpload := SetTemplate(testArtifactPath)
+	testArtifactPath   := common.CreateTestFile(testDirPath, testArtifact, artifactContents)
+	uploadTestArtifact := true
+	testArtifactDownloadOther := SetTemplate(testDirPath)
 	kvProps = append(kvProps,"release=latest-stable")
 
 	log.Println("Test Directory Created: " + testDirPath)
 	log.Println("Test Artifact Created: " + testArtifactPath)
  
 	testCase := &acctest.PluginTestCase{
-		Name: "artifactory_postprocessor_upload_test",
+		Name: "artifactory_datasource_download_other_test",
 		Setup: func() error {
-			status, err := tasks.SetupTest(server, token, testArtifactPath, artifactSuffix, kvProps, uploadTestArtifact)
-			fmt.Println("Status of setup: " + status)
-
+			artifactUri, err := tasks.SetupTest(server, token, testArtifactPath, artifactSuffix, kvProps, uploadTestArtifact)
 			if err != nil {
 				log.Fatal(err)
 			}
+			log.Println("Test Artifact Created: " + artifactUri)
+			common.DeleteTestFile(testArtifactPath) // Delete test file locally so we can test downloading here
 			return nil
 		},
 		Teardown: func() error {
@@ -68,12 +66,21 @@ func TestAccPostProcessorUpload_Artifactory(t *testing.T) {
 
 			return nil
 		},
-		Template: testArtifactUpload,
+		Template: testArtifactDownloadOther,
 		Type: "basic-example",
 		Check: func(buildCommand *exec.Cmd, logfile string) error {
 			if buildCommand.ProcessState != nil {
 				if buildCommand.ProcessState.ExitCode() != 0 {
 					return fmt.Errorf("Bad exit code. Logfile: %s", logfile)
+				}
+			}
+
+			items, _ := os.ReadDir(testDirPath)
+			for _, item := range items {
+				if item.Name() == testArtifact {
+					log.Println("Test artifact downloaded successfully.")
+				} else {
+					log.Println("Test artifact download failed.")
 				}
 			}
 
@@ -89,9 +96,9 @@ func TestAccPostProcessorUpload_Artifactory(t *testing.T) {
 			}
 			logsString := string(logsBytes)
 			log.Println(logsString)
-
-			downloadUriLog := "Download URI for new artifact: " + downloadUri
-			if matched, _ := regexp.MatchString(downloadUriLog+".*", logsString); !matched {
+			
+			outputLog := "Test artifact downloaded successfully."
+			if matched, _ := regexp.MatchString(outputLog+".*", logsString); !matched {
 				t.Fatalf("logs doesn't contain expected output %q", logsString)
 			}
 			return nil
@@ -102,28 +109,37 @@ func TestAccPostProcessorUpload_Artifactory(t *testing.T) {
 
 func SetTemplate(testDirPath string) string {
 	newPath := common.EscapeSpecialChars(testDirPath)  // $HOME_DIR/test-directory/
-
+	
 	template := `
 	packer {
 		required_plugins {
 			artifactory = {
-				version = ">= 1.0.10"
+				version = ">= 1.0.26"
 				source  = "github.com/raynaluzier/artifactory"
 			}
 		}
 	}
-
+	
 	variable "artif_token" {
 		type        = string
 		description = "Identity token of the Artifactory account with access to execute commands"
 		sensitive   = true
 		default     = env("ARTIFACTORY_TOKEN")
 	}
-
+	
 	variable "artif_server" {
 		type        = string
 		description = "The Artifactory API server address"
 		default     = env("ARTIFACTORY_SERVER")
+	}
+	
+	data "artifactory-download-other" "basic-example" {
+		artifactory_token     = var.artif_token  
+		artifactory_server    = var.artif_server
+
+		output_dir       = "` + newPath +`"
+		artifactory_path = "/test-packer-plugin"
+		file_list        = ["` + testArtifact + `"]
 	}
 
 	source "null" "basic-example" {
@@ -134,17 +150,6 @@ func SetTemplate(testDirPath string) string {
 		sources = [
 			"source.null.basic-example"
 		]
-		
-		post-processor "artifactory-upload" {
-		    artifactory_token     = var.artif_token  
-        	artifactory_server    = var.artif_server 
-			
-			source_path = "` + newPath + `"
-			target_path = "/test-packer-plugin"
-			file_suffix = "acc-test1"
-			image_name  = "test-artifact"
-			image_type  = "ova"
-		}
 	}
 	`
 	return template
