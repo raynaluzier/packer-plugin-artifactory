@@ -28,6 +28,7 @@ type Config struct {
 	// Base image name without any file suffix appended (ex: win2022 or rhel9)
 	ImageName              string `mapstructure:"image_name" required:"true"`
 	ExistingUriTarget	   string `mapstructure:"existing_uri_target" required:"false"`
+	// Defaults to INFO
 	Logging                string `mapstructure:"logging" required:"false"`
 }
 
@@ -131,9 +132,6 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source
 	if p.config.ImageName != "" {
 		imageName = p.config.ImageName
 	}
-
-	// Troubleshooting:
-	//log.Println("serverapi: " + serverApi)
 
 	result := tasks.UploadArtifacts(serverApi, token, logLevel, imageType, imageName, sourcePath, targetPath, fileSuffix)
 

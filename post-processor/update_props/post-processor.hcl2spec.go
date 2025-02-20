@@ -14,6 +14,7 @@ type FlatConfig struct {
 	ArtifactoryServer  *string           `mapstructure:"artifactory_server" required:"true" cty:"artifactory_server" hcl:"artifactory_server"`
 	ArtifactUri        *string           `mapstructure:"artifact_uri" required:"true" cty:"artifact_uri" hcl:"artifact_uri"`
 	ArtifactProperties map[string]string `mapstructure:"properties" required:"true" cty:"properties" hcl:"properties"`
+	Logging            *string           `mapstructure:"logging" required:"false" cty:"logging" hcl:"logging"`
 }
 
 // FlatMapstructure returns a new FlatConfig.
@@ -32,6 +33,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"artifactory_server": &hcldec.AttrSpec{Name: "artifactory_server", Type: cty.String, Required: false},
 		"artifact_uri":       &hcldec.AttrSpec{Name: "artifact_uri", Type: cty.String, Required: false},
 		"properties":         &hcldec.AttrSpec{Name: "properties", Type: cty.Map(cty.String), Required: false},
+		"logging":            &hcldec.AttrSpec{Name: "logging", Type: cty.String, Required: false},
 	}
 	return s
 }

@@ -13,7 +13,8 @@ This data source differs from the `artifactory-import` data source in that the `
     * Environment variable: `ARTIFACTORY_SERVER`
 - `artifactory_token` (string) - Required; The Artifactory account Identity Token used to authenticate with the Artifactory server and perform operations. Results are limited to whatever the account has access to. If the account can only "see" a single repository, then the results will only include content from that single repository.
     * Environment variable: `ARTIFACTORY_TOKEN`
-
+- `logging` (string) - Optional; The logging level to use (INFO, WARN, ERROR, DEBUG). This defaults to 'INFO' if left blank.
+    * Environment variable: `LOGGING`
 - `output_dir` (string) - Required; The directory where the artifacts should be downloaded to; ensure this is properly escaped as necessary.
     * Environment variable: `OUTPUTDIR`
 - `artifactory_path` (string) - Required; The repo path within Artifactory where the artifact(s) to be downloaded reside(s) (ex: /repo/folder).
@@ -30,6 +31,7 @@ No outputs.
 data "artifactory-download-other" "basic-example" {
 		artifactory_token     = var.artif_token  
 		artifactory_server    = var.artif_server
+		logging               = "INFO"
 
 		output_dir       = "c:\\lab\\output-test\\"
 		artifactory_path = "/test-repo/testing/"

@@ -36,6 +36,7 @@ The use of property key(s)/value(s) as filter parameters can further assist in i
 data "artifactory" "basic-example" {
     artifactory_token     = "artifactory_token"
     artifactory_server    = "https://server.domain.com:8081/artifactory/api"
+    logging               = "DEBUG"
 
     artifact_name = "test-artifact"
     file_type     = "ova"

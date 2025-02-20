@@ -20,6 +20,8 @@ type Config struct {
 	ArtifactoryPath		   string `mapstructure:"artifactory_path" required:"true"`
 	FolderName             string `mapstructure:"folder_name" required:"false"`
 	FileList         	   []string `mapstructure:"file_list" required:"true"`
+	// Defaults to INFO
+	Logging                string `mapstructure:"logging" required:"false"`
 }
 
 type PostProcessor struct {
@@ -70,7 +72,7 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 }
 
 func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source packersdk.Artifact) (packersdk.Artifact, bool, bool, error) {
-	var token, serverApi, sourcePath, artifPath, folderName, result string
+	var token, serverApi, sourcePath, artifPath, folderName, result, logLevel string
 	var err error
 	var fileList []string
 
@@ -100,12 +102,19 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source
 		folderName = p.config.FolderName
 	}
 
+	if p.config.Logging == "" {
+		logLevel := os.Getenv("LOGGING")
+		if logLevel != "" {
+			p.config.Logging = logLevel
+		}
+	}
+
 	if len(p.config.FileList) > 0 {
 		fileList = p.config.FileList
 	}
 
 	for _, file := range fileList {
-		result, err = tasks.UploadGeneralArtifact(serverApi, token, sourcePath, artifPath, file, folderName)
+		result, err = tasks.UploadGeneralArtifact(serverApi, token, logLevel, sourcePath, artifPath, file, folderName)
 		if err != nil {
 			log.Println(result)
 			log.Fatal("Error uploading: " + file)

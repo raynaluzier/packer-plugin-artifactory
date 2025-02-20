@@ -19,6 +19,8 @@ type Config struct {
 	OutputDir			   string `mapstructure:"output_dir" required:"true"`
 	ArtifactoryPath        string `mapstructure:"artifactory_path" required:"true"`
 	FileList               []string `mapstructure:"file_list" required:"true"`
+	// Defaults to 'INFO'
+	Logging                string `mapstructure:"logging" required:"false"`
 }
 
 type Datasource struct {
@@ -101,6 +103,11 @@ func (d *Datasource) Execute() (cty.Value, error) {
 		}
 	}
 
+	if d.config.Logging == "" {
+		d.config.Logging = os.Getenv("LOGGING")
+	}
+	logLevel := d.config.Logging
+
 	if d.config.ArtifactoryPath != "" {
 		artifPath = d.config.ArtifactoryPath
 	}
@@ -111,7 +118,7 @@ func (d *Datasource) Execute() (cty.Value, error) {
 
 	for _, file := range fileList {
 		task := "Downloading: " + file
-		result, err = tasks.DownloadGeneralArtifact(serverApi, token, outputDir, artifPath, file, task)
+		result, err = tasks.DownloadGeneralArtifact(serverApi, token, logLevel, outputDir, artifPath, file, task)
 		log.Println("Result of download: " + file + " - " + result)
 	}
 

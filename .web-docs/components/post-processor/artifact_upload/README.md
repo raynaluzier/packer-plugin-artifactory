@@ -11,7 +11,6 @@ The Artifactory post-provisioner `artifactory-upload` is used to upload a newly 
     * Environment variable: `ARTIFACTORY_SERVER`
 - `artifactory_token` (string) - Required; The Artifactory account Identity Token used to authenticate with the Artifactory server and perform operations. Results are limited to whatever the account has access to. If the account can only "see" a single repository, then the results will only include content from that single repository.
     * Environment variable: `ARTIFACTORY_TOKEN`
-
 - `source_path` (string) - Required; The directory path where the source image file(s) are located (for ex. "C:\\lab" or "/lab")
 - `target_path` (string) - *Optional; The target path (/repo/folder/) within Artifactory where the artifact should be uploaded to. If NOT populated, you MUST use `existing_uri_target` instead. The image files will automatically be placed within a subfolder in this path named after the image. For example: /repo/folder --> /repo/folder/image1111/image1111.ova
 - `file_suffix` (string) - Optional; Distinguishing file name suffix to use such as version, date, ect. where the base image name is always the same.
@@ -32,7 +31,8 @@ None
 ```hcl
 	post-processor "artifactory-upload" {
 		artifactory_token     = var.artif_token  
-        artifactory_server    = var.artif_server 
+        artifactory_server    = var.artif_server
+		logging               = "DEBUG"
 			
 		source_path = "c:\\lab"
 		target_path = "/test-packer-plugin/win"

@@ -4,6 +4,7 @@ package artifactUpdateProps
 import (
 	"context"
 	"log"
+	"os"
 
 	"github.com/hashicorp/hcl/v2/hcldec"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
@@ -16,6 +17,8 @@ type Config struct {
 	ArtifactoryServer      string `mapstructure:"artifactory_server" required:"true"`
 	ArtifactUri			   string `mapstructure:"artifact_uri" required:"true"`
 	ArtifactProperties	   map[string]string `mapstructure:"properties" required:"true"`
+	// Defaults to INFO
+	Logging                string `mapstructure:"logging" required:"false"`
 }
 
 type PostProcessor struct {
@@ -62,7 +65,7 @@ func BuildProps(kvInput map[string]string) ([]string) {
 
 func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source packersdk.Artifact) (packersdk.Artifact, bool, bool, error) {
 	var kvProperties []string
-	var token, serverApi, artifactUri string
+	var token, serverApi, artifactUri, logLevel string
 
 	if p.config.AritfactoryToken != "" {
 		token = p.config.AritfactoryToken
@@ -80,7 +83,14 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source
 		kvProperties = BuildProps(p.config.ArtifactProperties)
 	}
 
-	statusCode, err := tasks.SetProps(serverApi, token, artifactUri, kvProperties)
+	if p.config.Logging == "" {
+		logLevel := os.Getenv("LOGGING")
+		if logLevel != "" {
+			p.config.Logging = logLevel
+		}
+	}
+
+	statusCode, err := tasks.SetProps(serverApi, token, logLevel, artifactUri, kvProperties)
 	if statusCode == "204" {
 		ui.Say("Property assignment to artifact was successful.")
 	} else {

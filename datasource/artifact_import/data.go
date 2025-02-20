@@ -11,9 +11,7 @@ import (
 	"github.com/hashicorp/packer-plugin-sdk/template/config"
 	artifCommon "github.com/raynaluzier/artifactory-go-sdk/common"
 	artifTasks "github.com/raynaluzier/artifactory-go-sdk/tasks"
-	vsCommon "github.com/raynaluzier/vsphere-go-sdk/common"
-	vsGov "github.com/raynaluzier/vsphere-go-sdk/govmomi"
-	vsVm "github.com/raynaluzier/vsphere-go-sdk/vm"
+	vsTasks "github.com/raynaluzier/vsphere-go-sdk/tasks"
 	"github.com/zclconf/go-cty/cty"
 )
 
@@ -42,6 +40,8 @@ type Config struct {
 	// Defaults to false
 	ImportNoDownload		bool   `mapstructure:"import_no_download" required:"false"`
 	SourceImagePath			string `mapstructure:"source_path" required:"false"` // required if bool is true
+	// Defaults to INFO
+	Logging                string `mapstructure:"logging" required:"false"`
 }
 
 type Datasource struct {
@@ -165,7 +165,7 @@ func (d *Datasource) OutputSpec() hcldec.ObjectSpec {
 }
 
 func (d *Datasource) Execute() (cty.Value, error) {
-	var downloadUri, sourcePath string
+	var downloadUri, sourcePath, importResult string
 
 	// Artifactory related
 	if d.config.AritfactoryToken == "" {
@@ -220,6 +220,11 @@ func (d *Datasource) Execute() (cty.Value, error) {
 	folderName := d.config.VcenterFolder
 
 	// Other Info
+	if d.config.Logging == "" {
+		d.config.Logging = os.Getenv("LOGGING")
+	}
+	logLevel := d.config.Logging
+
 	if d.config.OutputDir == "" {
 		d.config.OutputDir = os.Getenv("OUTPUTDIR")
 	}
@@ -240,18 +245,10 @@ func (d *Datasource) Execute() (cty.Value, error) {
 
 	//------------------------------------------------------------------------------------------------------
 	// Gets required info to facilitate the vCenter import process
-	vcToken := vsCommon.VcenterAuth(vcUser, vcPass, vcServer)
 
-	folderId, err := vsGov.GetFolderId(vcUser, vcPass, vcServer, folderName, dcName)
-	log.Println("Folder ID: " + folderId)
+	folderId, resPoolId, err := vsTasks.GetResourceIds(vcUser, vcPass, vcServer, logLevel, dcName, folderName, resPoolName, clusterName)
 	if err != nil {
-		log.Printf("Error getting folder ID: %s\n", err)
-	}
-
-	resPoolId, err := vsGov.GetResPoolId(vcUser, vcPass, vcServer, resPoolName, dcName, clusterName)
-	log.Println("Resource Pool ID: " + resPoolId)
-	if err != nil {
-		log.Printf("Error getting resource pool ID: %s\n", err)
+		log.Fatal("Error getting folder and resource pool IDs")
 	}
 	
 	// If we are downloading first, parse for needed details, then proceed with download, conversion, import, and templating 
@@ -260,8 +257,7 @@ func (d *Datasource) Execute() (cty.Value, error) {
 		imageName     := artifCommon.ParseFilenameForImageName(imageFileName)
 
 		// Download Artifacts
-		log.Println("Downloading artifacts from Artifactory....")
-		downloadResult := artifTasks.DownloadArtifacts(serverApi, token, downloadUri, outputDir)
+		downloadResult := artifTasks.DownloadArtifacts(serverApi, token, logLevel, downloadUri, outputDir)
 		log.Println("Download Result: " + downloadResult)
 		
 		var missingInputsMsg  = "Missing required inputs"
@@ -272,140 +268,20 @@ func (d *Datasource) Execute() (cty.Value, error) {
 			log.Println("Image download completed successfully.")
 			log.Println("Checking image type and converting if necessary. This may time some time...")
 
-			fileType, sourcePath, targetPath := vsVm.SetPathsFromDownloadUri(outputDir, downloadUri)
-			convertResult := vsVm.ConvertImageByType(fileType, sourcePath, targetPath)
-			log.Println("Conversion Result: " + convertResult)
-
-			if convertResult != "Failed" {
-				log.Println("Setting vmPathName....")
-				vmPathName := vsVm.SetVmPathName(sourcePath, dsName)
-
-				log.Println("Beginning import into vCenter....")
-				statusCode := vsVm.RegisterVm(vcToken, vcServer, dcName, vmPathName, imageName, folderId, resPoolId)
-				log.Println("Status Code of Register VM task: ", statusCode)
-	
-				if statusCode == "200" {
-					log.Println("Import successful. Marking image as a VM Template...")
-					tempResult := vsGov.MarkAsTemplate(vcUser, vcPass, vcServer, imageName, dcName)
-					log.Println(tempResult)
-	
-					if strings.Contains(tempResult, "Success") {
-						log.Println("The image import and template conversion completed successfully.")
-					} else {
-						log.Fatal("Error: Unable to import and/or convert the image into a VM Template.")
-					}
-				} else {
-					log.Fatal("Error registering VMX file with vCenter.")
-				}
-			} else {
-				log.Fatal("Error during image type check and file conversion process.")
-			}
+			importResult = vsTasks.ConvertImportFromDownload(vcUser, vcPass, vcServer, logLevel, outputDir, downloadUri, dcName, dsName, imageName, folderId, resPoolId)
 		} else {
 			log.Fatal("Error: Failures occurred during image download.")
 		}
 	} else {   // no download flag is true
-		// If we're skipping the download and going straight to checking the image, converting if needed, and then importing and templating...
-		// 'sourcePath' is the full path to the source image file including filename
-		var imageFileName, sourceFolderPath, vmPathName, fileType, convertResult string
-		var postConvTargetPath, postConvTargetFilePath, imageName string
-		log.Println("'import_no_download' flag is set to TRUE. Skipping artifact download....")
+		log.Println("Checking image type and converting if necessary. This may time some time...")
+		importResult = vsTasks.ConvertImportNoDownload(vcUser, vcPass, vcServer, logLevel, dcName, dsName, sourcePath, folderId, resPoolId)
+	}
+	log.Println("Import Result: " + importResult)
 
-		if sourcePath != "" {
-			targetPath := vsVm.SetPathNoDownload(sourcePath)					                // Ex: ova/ovf = E:\Lab, vmtx = E:\Lab\win22\win22.vmx
-			isWinPath := vsCommon.CheckPathType(sourcePath)
-			if isWinPath == true {
-				imageFileName, sourceFolderPath = vsCommon.FileNamePathFromWin(sourcePath)		// Ex: E:\Lab\win22\win22.ova, returns: win22.ova, E:\Lab\win22\
-				imageName = vsCommon.ParseFilenameForImageName(imageFileName)		            // Ex: rhel9.ova, returns rhel9
-				fileType = vsCommon.GetFileType(imageFileName)
-				
-				if fileType == "ova" || fileType == "ovf" {		// vmtx files have a target path that includes full path to VMX file, the other types just have a folder target
-					postConvTargetPath = targetPath + imageName
-					postConvTargetPath = vsCommon.CheckAddSlashToPath(postConvTargetPath)
-				} else {
-					postConvTargetPath = targetPath
-					// since we're grabbing the sourceFolderPath regardless of type, we can use this VMTX postConvert value as it will be the same
-				}
-			} else {
-				imageFileName, sourceFolderPath = vsCommon.FileNamePathFromLnx(sourcePath)		// Ex: /lab/rhel9/rhel9.ova, returns: rhel9.ova, /lab/rhel9/
-				imageName = vsCommon.ParseFilenameForImageName(imageFileName)		            // Ex: rhel9.ova, returns rhel9
-				fileType = vsCommon.GetFileType(imageFileName)
-
-				if fileType == "ova" || fileType == "ovf" {
-					postConvTargetPath = targetPath + imageName
-					postConvTargetPath = vsCommon.CheckAddSlashToPath(postConvTargetPath)
-				} else {
-					postConvTargetPath = targetPath
-				}
-			}
-			
-			fileType = vsCommon.GetFileType(imageFileName)						               // rhel9.ova, returns ova
-
-			log.Println("Image Filename: " + imageFileName)
-			log.Println("Image Name: " + imageName)
-			log.Println("File Type: " + fileType)
-			log.Println("Source Path: " + sourcePath)
-			log.Println("Target Path: " + targetPath)
-			log.Println("Source Folder Path: " + sourceFolderPath)
-			log.Println("Post Conversion Target Path: " + postConvTargetPath)
-
-			// If this is an OVF image, we need to first move the image files into a sub dir called "ovf_files" and update the conversion source path to here
-			// If not, we'll get a file conflict with the disk file(s)
-			if fileType == "ovf" {
-				log.Println("OVF file detected...")
-				log.Println("Moving OVF files into subdirectory of source path called 'ovf_files'...")
-				destDir := sourceFolderPath + "ovf_files"		                // ex: 'E:\\path\\to\\win2022\\ovf_files'
-				destDir = vsCommon.CheckAddSlashToPath(destDir)                 // add ending slash by os type; 'E:\\path\\to\\win2022\\ovf_files\\'
-				moveList, err := vsVm.SetOvfFileList(sourcePath)                // Get list of OVF files to move
-				err = vsCommon.MoveFiles(moveList, sourceFolderPath, destDir)   // [file list], 'E:\\path\\to\\win2022\\', 'E:\\path\\to\\win2022\\ovf_files\\'
-				if err != nil {
-					log.Printf("Error moving files: %v\n", err)
-				} else {
-					log.Println("Files moved successfully!")
-				}
-
-				// Setting the new conversion source path to the ovf_file dir for the conversion process only
-				newSourcePath := destDir + imageFileName				        // ex: E:\\path\\to\\win2022\\ovf_files\\win2022.ovf  
-				log.Println("Checking image type and converting if necessary. This may time some time...")
-				convertResult = vsVm.ConvertImageByType(fileType, newSourcePath, targetPath)
-				
-			} else {  // ova and vmtx don't need to be moved first
-				log.Println("Checking image type and converting if necessary. This may time some time...")
-				convertResult = vsVm.ConvertImageByType(fileType, sourcePath, targetPath)
-			}
-
-			log.Println("Conversion Result: " + convertResult)
-
-			if convertResult != "Failed" {
-				log.Println("Setting vmPathName....")
-				if fileType == "ova" || fileType == "ovf" { // don't do for vmx or vmtx files as full path to file is already being passed in those cases
-					postConvTargetFilePath = postConvTargetPath + imageName + ".vmx"
-					vmPathName = vsVm.SetVmPathName(postConvTargetFilePath, dsName)
-				} else {
-					vmPathName = vsVm.SetVmPathName(postConvTargetPath, dsName)
-				}
-				log.Println("vmPathName: " + vmPathName)
-
-				log.Println("Beginning import into vCenter....")
-				statusCode := vsVm.RegisterVm(vcToken, vcServer, dcName, vmPathName, imageName, folderId, resPoolId)
-				log.Println("Status Code of Register VM task: ", statusCode)
-	
-				if statusCode == "200" {
-					log.Println("Import successful. Marking image as a VM Template...")
-					tempResult := vsGov.MarkAsTemplate(vcUser, vcPass, vcServer, imageName, dcName)
-					log.Println(tempResult)
-	
-					if strings.Contains(tempResult, "Success") {
-						log.Println("The image import and template conversion completed successfully.")
-					} else {
-						log.Fatal("Error: Unable to import and/or convert the image into a VM Template.")
-					}
-				} else {
-					log.Fatal("Error registering VMX file with vCenter.")
-				}
-			} else {
-				log.Fatal("Error during image type check and file conversion process.")
-			}
-		}
+	if importResult == "Success" {
+		log.Println("Process completed successfully.")
+	} else if importResult == "Failed" || importResult == "" {
+		log.Fatal("Process did not complete successfully.")
 	}
 	
 	output := DatasourceOutput{}

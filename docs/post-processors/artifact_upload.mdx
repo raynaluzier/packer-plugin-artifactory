@@ -33,6 +33,7 @@ None
 	post-processor "artifactory-upload" {
 		artifactory_token     = var.artif_token  
         artifactory_server    = var.artif_server 
+		logging               = "DEBUG"
 			
 		source_path = "c:\\lab"
 		target_path = "/test-packer-plugin/win"

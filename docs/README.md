@@ -14,7 +14,7 @@ packer {
   required_plugins {
     artifactory = {
       source  = "github.com/raynaluzier/artifactory"
-      version = ">=1.0.12"
+      version = ">=1.0.27"
     }
   }
 }
@@ -27,11 +27,9 @@ $ packer plugins install github.com/raynaluzier/artifactory
 ```
 
 ### Components
-
 The following components are available with the Artifactory plugin.
 
 #### Data Sources
-
 - [artifactory](https://github.com/raynaluzier/packer-plugin-artifactory/blob/main/docs/datasources/datasource.mdx) - Filter and locate target artifacts and retrieve information necessary to work with them.
 
 - [artifactory-import](https://github.com/raynaluzier/packer-plugin-artifactory/blob/main/docs/datasources/artifact_import.mdx) - Optionally download image artifacts (OVA, OVF, or VMTX) and/or import into vCenter as a template (for use with vsphere-clone builder plugin).
@@ -39,7 +37,6 @@ The following components are available with the Artifactory plugin.
 - [artifactory-download-other](https://github.com/raynaluzier/packer-plugin-artifactory/blob/main/docs/datasources/download_other.mdx) - Download non-image artifacts that may support the image itself, such as script files, metadata, etc.
 
 #### Post-Processors
-
 - [artifactory-upload](https://github.com/raynaluzier/packer-plugin-artifactory/blob/main/docs/post-processors/artifact_upload.mdx) - Upload newly built image artifacts (OVA, OVF, or VMTX) to JFrog Artifactory.
 
 - [artifactory-update-props](https://github.com/raynaluzier/packer-plugin-artifactory/blob/main/docs/post-processors/update_props.mdx) - Update the properties of an existing or newly created image artifact stored in Jfrog Artifactory.
