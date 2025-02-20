@@ -23,11 +23,9 @@ type Config struct {
 	VcenterServer			string `mapstructure:"vcenter_server" required:"true"`
 	VcenterUser				string `mapstructure:"vcenter_user" required:"true"`
 	VcenterPassword			string `mapstructure:"vcenter_password" required:"true"`
-	// Will use default DC if left blank
-	VcenterDatacenter		string `mapstructure:"datacenter_name" required:"false"`
+	VcenterDatacenter		string `mapstructure:"datacenter_name" required:"true"`
 	VcenterDatastore		string `mapstructure:"datastore_name" required:"true"`
-	// Used to get Res Pool ID; will use default DC and pool if left blank
-	VcenterCluster			string `mapstructure:"cluster_name" required:"false"`
+	VcenterCluster			string `mapstructure:"cluster_name" required:"true"`
 	// Will use default root folder of datacenter if left blank
 	VcenterFolder			string `mapstructure:"folder_name" required:"false"`
 	// Will use default pool if left blank
@@ -99,8 +97,7 @@ func (d *Datasource) Configure(raws ...interface{}) error {
 	if d.config.VcenterDatacenter == "" {
 		dcName := os.Getenv("VCENTER_DATACENTER")
 		if dcName == "" {
-			log.Println("The target vCenter datacenter was not provided. The default datacenter will be used.")
-			log.Println("**** If this is not desired, then please provide the datacenter name.")
+			log.Fatal("Missing the target vCenter datacenter name.")
 		}
 	}
 
@@ -114,9 +111,7 @@ func (d *Datasource) Configure(raws ...interface{}) error {
 	if d.config.VcenterCluster == "" {
 		clusterName := os.Getenv("VCENTER_CLUSTER")
 		if clusterName == "" {
-			log.Println("No target vCenter was provided, which is used to locate the target resource pool.")
-			log.Println("**** The default datacenter and resource pool will be used instead.")
-			log.Println("**** If this is not desired, then please provide a specific datacenter, cluster, and resource pool information.")
+			log.Fatal("Missing the target vCenter cluster.")
 		}
 	}
 

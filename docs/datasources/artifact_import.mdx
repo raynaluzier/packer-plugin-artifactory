@@ -38,11 +38,11 @@ This component is meant to be used in conjunction with the [vSphere-Clone](https
     * Environment variable: `VCENTER_USER`
 - `vcenter_password` (string) - Required; The vCenter password for the associated service or user account provided above.
     * Environment variable: `VCENTER_PASSWORD`
-- `datacenter_name` (string) - Optional, but recommended; Target datacenter name the template will be imported into; Will try to use the default datacenter if this is left blank.
+- `datacenter_name` (string) - Required; Target datacenter name the template will be imported into; Will try to use the default datacenter if this is left blank.
     * Environment variable: `VCENTER_DATACENTER`
 - `datastore_name` (string) - Required; The name of the datastore the image files were downloaded to.
     * Environment variable: `VCENTER_DATASTORE`
-- `cluster_name` (string) - Optional, but recommended; Target cluster name the template will be imported into. This is used to get the resource pool ID. If left blank, will try to use the default datacenter and resource pool. 
+- `cluster_name` (string) - Required; Target cluster name the template will be imported into. This is used to get the resource pool ID. If left blank, will try to use the default datacenter and resource pool. 
     * Environment variable: `VCENTER_CLUSTER`
 - `folder_name` (string) - Optional, but recommended; The name of the vCenter folder where the template should be placed; Will try to use the default root folder of the datacenter if left blank.
     * Environment variable: `VCENTER_FOLDER`

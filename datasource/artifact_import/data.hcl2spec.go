@@ -15,9 +15,9 @@ type FlatConfig struct {
 	VcenterServer       *string `mapstructure:"vcenter_server" required:"true" cty:"vcenter_server" hcl:"vcenter_server"`
 	VcenterUser         *string `mapstructure:"vcenter_user" required:"true" cty:"vcenter_user" hcl:"vcenter_user"`
 	VcenterPassword     *string `mapstructure:"vcenter_password" required:"true" cty:"vcenter_password" hcl:"vcenter_password"`
-	VcenterDatacenter   *string `mapstructure:"datacenter_name" required:"false" cty:"datacenter_name" hcl:"datacenter_name"`
+	VcenterDatacenter   *string `mapstructure:"datacenter_name" required:"true" cty:"datacenter_name" hcl:"datacenter_name"`
 	VcenterDatastore    *string `mapstructure:"datastore_name" required:"true" cty:"datastore_name" hcl:"datastore_name"`
-	VcenterCluster      *string `mapstructure:"cluster_name" required:"false" cty:"cluster_name" hcl:"cluster_name"`
+	VcenterCluster      *string `mapstructure:"cluster_name" required:"true" cty:"cluster_name" hcl:"cluster_name"`
 	VcenterFolder       *string `mapstructure:"folder_name" required:"false" cty:"folder_name" hcl:"folder_name"`
 	VcenterResourcePool *string `mapstructure:"respool_name" required:"false" cty:"respool_name" hcl:"respool_name"`
 	OutputDir           *string `mapstructure:"output_dir" required:"false" cty:"output_dir" hcl:"output_dir"`
