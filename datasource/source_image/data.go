@@ -139,7 +139,12 @@ func (d *Datasource) Execute() (cty.Value, error) {
 	// Search for artifact and return details
 	artifactUri, artifactName, createDate, downloadUri, err := tasks.GetImageDetails(d.config.ArtifactoryServer, d.config.AritfactoryToken, d.config.Logging, artifName, ext, kvProperties)
 	if err != nil {
-		log.Fatal("Error finding artifact details. Either no matching artifact or an error was encountered retrieving one or more artifact details.")
+		log.Println(err)
+		if artifactUri == "" {
+			log.Println("[ERROR] No Artifact URI was returned; this is likely because no matching artifact was found.")
+		} else if artifactName == "" || createDate == "" || downloadUri == "" {
+			log.Println("[ERROR] An Artifact URI was returned, however an error was encountered retrieving one or more artifact details.")
+		}
 	}
 	
 	output := DatasourceOutput{
