@@ -39,33 +39,33 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 	if p.config.AritfactoryToken == "" {
 		token := os.Getenv("ARTIFACTORY_TOKEN")
 		if token == "" {
-			log.Fatal("Missing Artifactory identity token. The token is required to complete tasks against Artifactory.")
+			log.Fatal("---> Missing Artifactory identity token. The token is required to complete tasks against Artifactory.")
 		}	
 	}
 
 	if p.config.ArtifactoryServer == "" {
 		serverApi := os.Getenv("ARTIFACTORY_SERVER")
 		if serverApi == "" {
-			log.Fatal("Missing Artifactory server API address. The server API address is required to communicate with Artifactory.")	
+			log.Fatal("---> Missing Artifactory server API address. The server API address is required to communicate with Artifactory.")	
 		}
 	}
 
 	if p.config.SourcePath == "" {
-		log.Fatal("Please provide the source path to the artifact(s) to upload.")
+		log.Fatal("---> Please provide the source path to the artifact(s) to upload.")
 		log.Fatal("Source path should be in the form of either 'h:\\lab\\' or '/lab/'")
 	}
 
 	if p.config.ArtifactoryPath == "" {
-		log.Fatal("Please provide the Artifactory /repo/folder/path where the artifact(s) should be uploaded to.")
+		log.Fatal("---> Please provide the Artifactory /repo/folder/path where the artifact(s) should be uploaded to.")
 	}
 
 	if p.config.FolderName == "" {
-		log.Println("No folder name was provided. Therefore, artifact(s) will be placed in the root of the Artifactory path provided.")
+		log.Println("---> No folder name was provided. Therefore, artifact(s) will be placed in the root of the Artifactory path provided.")
 		log.Println("If this is not desired, please provide an folder name. To place these with a specific image file, use the image name as the folder name.")
 	}
 
 	if len(p.config.FileList) <= 0 {
-		log.Fatal("Please add one or more files to the file_list for upload.")
+		log.Fatal("---> Please add one or more files to the file_list for upload.")
 	}
 
 	return nil

@@ -43,28 +43,28 @@ func (d *Datasource) Configure(raws ...interface{}) error {
 	if d.config.AritfactoryToken == "" {
 		token := os.Getenv("ARTIFACTORY_TOKEN")
 		if token == "" {
-			log.Fatal("Please provide an Artifactory Identity Token.")
+			log.Fatal("---> Please provide an Artifactory Identity Token.")
 		}
 	}
 	
 	if d.config.ArtifactoryServer == "" {
 		server := os.Getenv("ARTIFACTORY_SERVER")
 		if server == "" {
-			log.Fatal("Please provide the URL to the Artifactory server (ex: https://server.com:8081/artifactory/api).")
+			log.Fatal("---> Please provide the URL to the Artifactory server (ex: https://server.com:8081/artifactory/api).")
 		}
 	}
 
 	if d.config.OutputDir == "" {
-		log.Println("Please provide the path to the desired output directory for the files being downloaded.")
+		log.Println("---> Please provide the path to the desired output directory for the files being downloaded.")
 		log.Fatal("Path should include proper escape characters where necessary.")
 	}
 
 	if d.config.ArtifactoryPath == "" {
-		log.Fatal("Please provide the repo path in Artifactory where the artifacts reside (ex: /repo/folder/).")
+		log.Fatal("---> Please provide the repo path in Artifactory where the artifacts reside (ex: /repo/folder/).")
 	}
 
 	if len(d.config.FileList) <= 0 {
-		log.Println("Please provide a list of one or more filenames to be downloaded.")
+		log.Println("---> Please provide a list of one or more filenames to be downloaded.")
 		log.Fatal("Ex:  file_list = [\"file1.txt\", \"file2.txt\"]")
 	}
 

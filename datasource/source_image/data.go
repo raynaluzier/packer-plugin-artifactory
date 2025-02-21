@@ -16,8 +16,6 @@ import (
 type Config struct {
 	AritfactoryToken       string `mapstructure:"artifactory_token" required:"true"`
 	ArtifactoryServer      string `mapstructure:"artifactory_server" required:"true"`
-	// Defaults to 'INFO'
-	Logging                string `mapstructure:"logging" required:"false"`
 	// Full or partial name of the artifact
 	ArtifactName           string `mapstructure:"artifact_name" required:"true"`
 	// File extension; defaults to '.vmtx' if left blank
@@ -53,23 +51,23 @@ func (d *Datasource) Configure(raws ...interface{}) error {
 	if d.config.AritfactoryToken == "" {
 		token := os.Getenv("ARTIFACTORY_TOKEN")
 		if token == "" {
-			log.Fatal("Please provide an Artifactory Identity Token.")
+			log.Fatal("---> Please provide an Artifactory Identity Token.")
 		}
 	}
 	
 	if d.config.ArtifactoryServer == "" {
 		server := os.Getenv("ARTIFACTORY_SERVER")
 		if server == "" {
-			log.Fatal("Please provide the URL to the Artifactory server (ex: https://server.com:8081/artifactory/api).")
+			log.Fatal("---> Please provide the URL to the Artifactory server (ex: https://server.com:8081/artifactory/api).")
 		}
 	}
 
 	if d.config.ArtifactName == "" {
-		log.Fatal("Please provide the full or partial artifact name.")
+		log.Fatal("---> Please provide the full or partial artifact name.")
 	}
 
 	if d.config.ArtifactFileType == "" {
-		log.Fatal("Please provide the source image's extension type; for example .vmtx.")
+		log.Fatal("---> Please provide the source image's extension type; for example '.vmtx' or 'vmtx'.")
 	}
 	return nil
 }
@@ -110,13 +108,6 @@ func (d *Datasource) Execute() (cty.Value, error) {
 		}
 	}
 
-	if d.config.Logging == "" {
-		logLevel := os.Getenv("LOGGING")
-		if logLevel != "" {
-			d.config.Logging = logLevel
-		}
-	}
-
 	// Artifact Related
 	if d.config.ArtifactName != "" {
 		artifName = d.config.ArtifactName
@@ -137,13 +128,13 @@ func (d *Datasource) Execute() (cty.Value, error) {
 	}
 
 	// Search for artifact and return details
-	artifactUri, artifactName, createDate, downloadUri, err := tasks.GetImageDetails(d.config.ArtifactoryServer, d.config.AritfactoryToken, d.config.Logging, artifName, ext, kvProperties)
+	artifactUri, artifactName, createDate, downloadUri, err := tasks.GetImageDetails(d.config.ArtifactoryServer, d.config.AritfactoryToken, artifName, ext, kvProperties)
 	if err != nil {
 		log.Println(err)
 		if artifactUri == "" {
-			log.Println("[ERROR] No Artifact URI was returned; this is likely because no matching artifact was found.")
+			log.Println("[ERROR] ----> No Artifact URI was returned; this is likely because no matching artifact was found.")
 		} else if artifactName == "" || createDate == "" || downloadUri == "" {
-			log.Println("[ERROR] An Artifact URI was returned, however an error was encountered retrieving one or more artifact details.")
+			log.Println("[ERROR] ----> An Artifact URI was returned, however an error was encountered retrieving one or more artifact details.")
 		}
 	}
 	

@@ -12,7 +12,6 @@ import (
 type FlatConfig struct {
 	AritfactoryToken  *string           `mapstructure:"artifactory_token" required:"true" cty:"artifactory_token" hcl:"artifactory_token"`
 	ArtifactoryServer *string           `mapstructure:"artifactory_server" required:"true" cty:"artifactory_server" hcl:"artifactory_server"`
-	Logging           *string           `mapstructure:"logging" required:"false" cty:"logging" hcl:"logging"`
 	ArtifactName      *string           `mapstructure:"artifact_name" required:"true" cty:"artifact_name" hcl:"artifact_name"`
 	ArtifactFileType  *string           `mapstructure:"file_type" required:"true" cty:"file_type" hcl:"file_type"`
 	ArtifactChannel   *string           `mapstructure:"channel" required:"false" cty:"channel" hcl:"channel"`
@@ -33,7 +32,6 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 	s := map[string]hcldec.Spec{
 		"artifactory_token":  &hcldec.AttrSpec{Name: "artifactory_token", Type: cty.String, Required: false},
 		"artifactory_server": &hcldec.AttrSpec{Name: "artifactory_server", Type: cty.String, Required: false},
-		"logging":            &hcldec.AttrSpec{Name: "logging", Type: cty.String, Required: false},
 		"artifact_name":      &hcldec.AttrSpec{Name: "artifact_name", Type: cty.String, Required: false},
 		"file_type":          &hcldec.AttrSpec{Name: "file_type", Type: cty.String, Required: false},
 		"channel":            &hcldec.AttrSpec{Name: "channel", Type: cty.String, Required: false},

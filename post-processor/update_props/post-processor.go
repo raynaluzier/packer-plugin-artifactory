@@ -34,19 +34,19 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 	}
 
 	if p.config.AritfactoryToken == "" {
-		log.Fatal("Missing Artifactory identity token. The token is required to complete tasks against Artifactory.")
+		log.Fatal("---> Missing Artifactory identity token. The token is required to complete tasks against Artifactory.")
 	}
 
 	if p.config.ArtifactoryServer == "" {
-		log.Fatal("Missing Artifactory server API address. The server API address is required to communicate with Artifactory.")
+		log.Fatal("---> Missing Artifactory server API address. The server API address is required to communicate with Artifactory.")
 	}
 
 	if p.config.ArtifactUri == "" {
-		log.Fatal("Missing Artifact URI. The new Artifact URI is required to update the artifact's properties.")
+		log.Fatal("---> Missing Artifact URI. The new Artifact URI is required to update the artifact's properties.")
 	}
 
 	if len(p.config.ArtifactProperties) == 0 {
-		log.Fatal("Missing Artifact properties. At least one key/value pair is required to update the artifact's properties.")
+		log.Fatal("---> Missing Artifact properties. At least one key/value pair is required to update the artifact's properties.")
 	}
 
 	return nil

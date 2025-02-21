@@ -62,63 +62,63 @@ func (d *Datasource) Configure(raws ...interface{}) error {
 	if d.config.AritfactoryToken == "" {
 		token := os.Getenv("ARTIFACTORY_TOKEN")
 		if token == "" {
-			log.Fatal("Please provide an Artifactory Identity Token.")
+			log.Fatal("---> Please provide an Artifactory Identity Token.")
 		}
 	}
 	
 	if d.config.ArtifactoryServer == "" {
 		server := os.Getenv("ARTIFACTORY_SERVER")
 		if server == "" {
-			log.Fatal("Please provide the URL to the Artifactory server (ex: https://server.com:8081/artifactory/api).")
+			log.Fatal("---> Please provide the URL to the Artifactory server (ex: https://server.com:8081/artifactory/api).")
 		}
 	}
 
 	if d.config.VcenterServer == "" {
 		vcServer := os.Getenv("VCENTER_SERVER")
 		if vcServer == "" {
-			log.Fatal("Missing the target vCenter Server name.")
+			log.Fatal("---> Missing the target vCenter Server name.")
 		}
 	}
 
 	if d.config.VcenterUser == "" {
 		vcUser := os.Getenv("VCENTER_USER")
 		if vcUser == "" {
-			log.Fatal("Missing the vCenter Server username. This is required for authentication.")
+			log.Fatal("---> Missing the vCenter Server username. This is required for authentication.")
 		}
 	}
 
 	if d.config.VcenterPassword == "" {
 		vcPass := os.Getenv("VCENTER_PASSWORD")
 		if vcPass == "" {
-			log.Fatal("Missing the vCenter Server password. This is required for authentication.")
+			log.Fatal("---> Missing the vCenter Server password. This is required for authentication.")
 		}
 	}
 
 	if d.config.VcenterDatacenter == "" {
 		dcName := os.Getenv("VCENTER_DATACENTER")
 		if dcName == "" {
-			log.Fatal("Missing the target vCenter datacenter name.")
+			log.Fatal("---> Missing the target vCenter datacenter name.")
 		}
 	}
 
 	if d.config.VcenterDatastore == "" {
 		dsName := os.Getenv("VCENTER_DATASTORE")
 		if dsName == "" {
-			log.Fatal("Missing the target vCenter datastore name.")
+			log.Fatal("---> Missing the target vCenter datastore name.")
 		}
 	}
 
 	if d.config.VcenterCluster == "" {
 		clusterName := os.Getenv("VCENTER_CLUSTER")
 		if clusterName == "" {
-			log.Fatal("Missing the target vCenter cluster.")
+			log.Fatal("---> Missing the target vCenter cluster.")
 		}
 	}
 
 	if d.config.VcenterFolder == "" {
 		folderName := os.Getenv("VCENTER_FOLDER")
 		if folderName == "" {
-			log.Println("No target vCenter folder was provided.")
+			log.Println("---> No target vCenter folder was provided.")
 			log.Println("**** The default root folder will be used instead.")
 			log.Println("**** If this is not desired, then please provide a specific vCenter folder name.")
 		}
@@ -127,7 +127,7 @@ func (d *Datasource) Configure(raws ...interface{}) error {
 	if d.config.VcenterResourcePool == "" {
 		resPoolName := os.Getenv("VCENTER_RESOURCE_POOL")
 		if resPoolName == "" {
-			log.Println("No target vCenter resource pool was provided.")
+			log.Println("---> No target vCenter resource pool was provided.")
 			log.Println("**** The default resource pool will be used instead.")
 			log.Println("**** If this is not desired, then please provide a specific vCenter resource pool name.")
 		}
@@ -136,19 +136,19 @@ func (d *Datasource) Configure(raws ...interface{}) error {
 	if d.config.OutputDir == "" && d.config.ImportNoDownload == false {
 		outputDir := os.Getenv("OUTPUTDIR")
 		if outputDir == "" {
-			log.Println("No output directory was provided.")
+			log.Println("---> No output directory was provided.")
 			log.Fatal("Please provide the directory path to an accessible datastore.")
 		}
 	}
 
 	if d.config.DownloadUri == "" && d.config.ImportNoDownload == false {
-		log.Println("No download URI for the artifact was provided. This is required if the artifact should be downloaded before importing into vCenter.")
+		log.Println("---> No download URI for the artifact was provided. This is required if the artifact should be downloaded before importing into vCenter.")
 		log.Fatal("If the image does not need to be downloaded first, please set 'import_no_download' to TRUE, and provide full file path to the source directory where the image file (OVA, OVF, or VMTX) is located.")
 	}
 
 	if d.config.ImportNoDownload == true {
 		if d.config.SourceImagePath == "" {
-			log.Println("The 'import_no_download' flag is set to TRUE.")
+			log.Println("---> The 'import_no_download' flag is set to TRUE.")
 			log.Fatal("The 'source_path' to the full path for the image file (OVA, OVF, or VMTX) is required. Ex: '/lab/win22/win22.ova' If using a Windows path, ensure it is properly escaped with double-backslashes.")
 		}
 	}
