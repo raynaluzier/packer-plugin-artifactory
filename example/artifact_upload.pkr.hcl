@@ -25,7 +25,6 @@ data "artifactory" "basic-example" {
     # Provide via environment variables
     artifactory_token     = var.artif_token  
     artifactory_server    = var.artif_server 
-    logging               = "INFO" 
 
     artifact_name = "test-artifact"
     file_type     = "ova"

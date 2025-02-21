@@ -11,9 +11,7 @@ This post-processor differs from the `artifactory-upload` post-processor in that
 - `artifactory_server` (string) - Required; The API address of the Artifactory server (ex: https://server.domain.com:8081/artifactory/api). The URL will differ slightly between cloud-hosted and self-hosted instanced.
     * Environment variable: `ARTIFACTORY_SERVER`
 - `artifactory_token` (string) - Required; The Artifactory account Identity Token used to authenticate with the Artifactory server and perform operations. Results are limited to whatever the account has access to. If the account can only "see" a single repository, then the results will only include content from that single repository.
-    * Environment variable: `ARTIFACTORY_TOKEN`
-- `logging` (string) - Optional; The logging level to use (INFO, WARN, ERROR, DEBUG). This defaults to 'INFO' if left blank.
-    * Environment variable: `LOGGING`	
+    * Environment variable: `ARTIFACTORY_TOKEN`	
 - `source_path` (string) - Required; The directory path where the files to be uploaded reside.
 - `artifactory_path` (string) - Required; The repo path within Artifactory where the artifact(s) are to uploaded to (ex: /repo/folder).
 - `folder_name` (string) - Optional; If files are to be uploaded to the same directory as a given image, set this to be the image name; otherwise leave blank.
@@ -32,7 +30,6 @@ None
 	post-processor "artifactory-upload-other" {
         artifactory_token     = var.artif_token  
         artifactory_server    = var.artif_server 
-		logging               = "DEBUG"
 			
 		source_path      = "c:\\lab\\test-dir"
 		file_list        = ["testfile1.txt", "testfile2.txt"]

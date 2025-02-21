@@ -87,7 +87,6 @@ data "artifactory" "basic-example" {
 	# Provide via environment variables
 	artifactory_token     = var.artif_token  
 	artifactory_server    = var.artif_server
-	logging               = "DEBUG"
 
 	artifact_name = "test-artifact"
 	file_type     = "ova"
@@ -100,7 +99,6 @@ data "artifactory" "basic-example" {
 data "artifactory-import" "basic-example" {
 	artifactory_token   = "artifactory_token"
 	artifactory_server  = "https://server.domain.com:8081/artifactory/api"
-	logging             = "DEBUG"
 
 	vcenter_server      = var.vc_server
 	vcenter_user        = var.vc_user

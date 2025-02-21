@@ -18,8 +18,6 @@ The use of property key(s)/value(s) as filter parameters can further assist in i
 - `file_type` (string) - Required; The file extension of the desired artifact (ex: vmtx). If left blank, this will default to 'vmtx'.
 - `filter` (map[string]string) - Optional; The key/value pairs of artifact properties to filter the artifact by.
 - `channel` (string) - Optional; Similar concept to HCP Packer; the channel name assigned to a given artifact. This is simply a property VALUE to the key 'channel'. To be valid, an artifact must have a property named 'channel' assigned with the desired value (ex: 'windows-iis-prod').
-- `logging` (string) - Optional; The logging level to use (INFO, WARN, ERROR, DEBUG). This defaults to 'INFO' if left blank.
-    * Environment variable: `LOGGING`
 
 ## Output Data
 
@@ -36,7 +34,6 @@ The use of property key(s)/value(s) as filter parameters can further assist in i
 data "artifactory" "basic-example" {
     artifactory_token     = "artifactory_token"
     artifactory_server    = "https://server.domain.com:8081/artifactory/api"
-    logging               = "DEBUG"
 
     artifact_name = "test-artifact"
     file_type     = "ova"

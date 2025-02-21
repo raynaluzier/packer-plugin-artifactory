@@ -16,7 +16,6 @@ type FlatConfig struct {
 	ArtifactoryPath   *string  `mapstructure:"artifactory_path" required:"true" cty:"artifactory_path" hcl:"artifactory_path"`
 	FolderName        *string  `mapstructure:"folder_name" required:"false" cty:"folder_name" hcl:"folder_name"`
 	FileList          []string `mapstructure:"file_list" required:"true" cty:"file_list" hcl:"file_list"`
-	Logging           *string  `mapstructure:"logging" required:"false" cty:"logging" hcl:"logging"`
 }
 
 // FlatMapstructure returns a new FlatConfig.
@@ -37,7 +36,6 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"artifactory_path":   &hcldec.AttrSpec{Name: "artifactory_path", Type: cty.String, Required: false},
 		"folder_name":        &hcldec.AttrSpec{Name: "folder_name", Type: cty.String, Required: false},
 		"file_list":          &hcldec.AttrSpec{Name: "file_list", Type: cty.List(cty.String), Required: false},
-		"logging":            &hcldec.AttrSpec{Name: "logging", Type: cty.String, Required: false},
 	}
 	return s
 }

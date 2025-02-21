@@ -24,7 +24,6 @@ variable "artif_server" {
 data "artifactory-download-other" "basic-example" {
 		artifactory_token     = var.artif_token  
 		artifactory_server    = var.artif_server
-        logging               = "INFO"
 
 		output_dir       = "c:\\lab\\output-test\\"
 		artifactory_path = "/test-libs-local/testing/"

@@ -38,8 +38,6 @@ type Config struct {
 	// Defaults to false
 	ImportNoDownload		bool   `mapstructure:"import_no_download" required:"false"`
 	SourceImagePath			string `mapstructure:"source_path" required:"false"` // required if bool is true
-	// Defaults to INFO
-	Logging                string `mapstructure:"logging" required:"false"`
 }
 
 type Datasource struct {
@@ -214,12 +212,6 @@ func (d *Datasource) Execute() (cty.Value, error) {
 	}
 	folderName := d.config.VcenterFolder
 
-	// Other Info
-	if d.config.Logging == "" {
-		d.config.Logging = os.Getenv("LOGGING")
-	}
-	logLevel := d.config.Logging
-
 	if d.config.OutputDir == "" {
 		d.config.OutputDir = os.Getenv("OUTPUTDIR")
 	}
@@ -241,7 +233,7 @@ func (d *Datasource) Execute() (cty.Value, error) {
 	//------------------------------------------------------------------------------------------------------
 	// Gets required info to facilitate the vCenter import process
 
-	folderId, resPoolId, err := vsTasks.GetResourceIds(vcUser, vcPass, vcServer, logLevel, dcName, folderName, resPoolName, clusterName)
+	folderId, resPoolId, err := vsTasks.GetResourceIds(vcUser, vcPass, vcServer, dcName, folderName, resPoolName, clusterName)
 	if err != nil {
 		log.Fatal("Error getting folder and resource pool IDs")
 	}
@@ -252,7 +244,7 @@ func (d *Datasource) Execute() (cty.Value, error) {
 		imageName     := artifCommon.ParseFilenameForImageName(imageFileName)
 
 		// Download Artifacts
-		downloadResult := artifTasks.DownloadArtifacts(serverApi, token, logLevel, downloadUri, outputDir)
+		downloadResult := artifTasks.DownloadArtifacts(serverApi, token, downloadUri, outputDir)
 		log.Println("Download Result: " + downloadResult)
 		
 		var missingInputsMsg  = "Missing required inputs"
@@ -263,13 +255,13 @@ func (d *Datasource) Execute() (cty.Value, error) {
 			log.Println("Image download completed successfully.")
 			log.Println("Checking image type and converting if necessary. This may time some time...")
 
-			importResult = vsTasks.ConvertImportFromDownload(vcUser, vcPass, vcServer, logLevel, outputDir, downloadUri, dcName, dsName, imageName, folderId, resPoolId)
+			importResult = vsTasks.ConvertImportFromDownload(vcUser, vcPass, vcServer, outputDir, downloadUri, dcName, dsName, imageName, folderId, resPoolId)
 		} else {
 			log.Fatal("Error: Failures occurred during image download.")
 		}
 	} else {   // no download flag is true
 		log.Println("Checking image type and converting if necessary. This may time some time...")
-		importResult = vsTasks.ConvertImportNoDownload(vcUser, vcPass, vcServer, logLevel, dcName, dsName, sourcePath, folderId, resPoolId)
+		importResult = vsTasks.ConvertImportNoDownload(vcUser, vcPass, vcServer, dcName, dsName, sourcePath, folderId, resPoolId)
 	}
 	log.Println("Import Result: " + importResult)
 

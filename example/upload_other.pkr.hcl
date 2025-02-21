@@ -33,7 +33,6 @@ build {
     post-processor "artifactory-upload-other" {
         artifactory_token     = var.artif_token  
         artifactory_server    = var.artif_server 
-        logging               = "DEBUG"
 			
 		source_path      = "c:\\lab\\test-dir"
 		file_list        = ["testfile1.txt", "testfile2.txt"]

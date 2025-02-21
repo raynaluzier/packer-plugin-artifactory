@@ -24,7 +24,6 @@ type FlatConfig struct {
 	DownloadUri         *string `mapstructure:"download_uri" required:"false" cty:"download_uri" hcl:"download_uri"`
 	ImportNoDownload    *bool   `mapstructure:"import_no_download" required:"false" cty:"import_no_download" hcl:"import_no_download"`
 	SourceImagePath     *string `mapstructure:"source_path" required:"false" cty:"source_path" hcl:"source_path"`
-	Logging             *string `mapstructure:"logging" required:"false" cty:"logging" hcl:"logging"`
 }
 
 // FlatMapstructure returns a new FlatConfig.
@@ -53,7 +52,6 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"download_uri":       &hcldec.AttrSpec{Name: "download_uri", Type: cty.String, Required: false},
 		"import_no_download": &hcldec.AttrSpec{Name: "import_no_download", Type: cty.Bool, Required: false},
 		"source_path":        &hcldec.AttrSpec{Name: "source_path", Type: cty.String, Required: false},
-		"logging":            &hcldec.AttrSpec{Name: "logging", Type: cty.String, Required: false},
 	}
 	return s
 }

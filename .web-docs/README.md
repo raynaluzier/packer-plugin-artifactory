@@ -215,29 +215,3 @@ VCENTER_SERVER=vc01.domain.com
 VCENTER_USER=auser@domain.com
 VCENTER_PASSWORD=MyP@$$w0rd!
 ```
-
-### Troubleshooting
-To gather additional information about the processes happening, change the logging level to 'DEBUG'. This can be done by setting Logging in the data source configuration or via an environment variable.
-
-Data Source Example:
-```
-data "artifactory" "basic-example" {
-  artifactory_server  = "https://server.domain.com:8081/artifactory/api"
-  artifactory_token   = "1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t"
-  logging = "DEBUG"
-}
-```
-
-Exported Environment Variable:
-```
-export ARTIFACTORY_SERVER=https://server.domain.com:8081/artifactory/api
-export ARTIFACTORY_TOKEN=1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t
-export LOGGING=DEBUG
-```
-
-Environment Variable in .env:
-```
-ARTIFACTORY_SERVER=https://server.domain.com:8081/artifactory/api
-ARTIFACTORY_TOKEN=1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t
-LOGGING=DEBUG
-```

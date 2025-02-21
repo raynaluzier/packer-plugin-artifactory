@@ -28,8 +28,6 @@ type Config struct {
 	// Base image name without any file suffix appended (ex: win2022 or rhel9)
 	ImageName              string `mapstructure:"image_name" required:"true"`
 	ExistingUriTarget	   string `mapstructure:"existing_uri_target" required:"false"`
-	// Defaults to INFO
-	Logging                string `mapstructure:"logging" required:"false"`
 }
 
 type PostProcessor struct {
@@ -86,7 +84,7 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 }
 
 func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source packersdk.Artifact) (packersdk.Artifact, bool, bool, error) {
-	var token, serverApi, sourcePath, targetPath, fileSuffix, logLevel, imageType, imageName string
+	var token, serverApi, sourcePath, targetPath, fileSuffix, imageType, imageName string
 
 	if p.config.AritfactoryToken != "" {
 		token = p.config.AritfactoryToken
@@ -118,13 +116,6 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source
 		fileSuffix = p.config.FileSuffix
 	}
 
-	if p.config.Logging == "" {
-		logLevel := os.Getenv("LOGGING")
-		if logLevel != "" {
-			p.config.Logging = logLevel
-		}
-	}
-
 	if p.config.ImageType != "" {
 		imageType = p.config.ImageType
 	}
@@ -133,7 +124,7 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source
 		imageName = p.config.ImageName
 	}
 
-	result := tasks.UploadArtifacts(serverApi, token, logLevel, imageType, imageName, sourcePath, targetPath, fileSuffix)
+	result := tasks.UploadArtifacts(serverApi, token, imageType, imageName, sourcePath, targetPath, fileSuffix)
 
 	if result != "End of upload process" {
 		log.Fatal("Unable to upload artifacts - " + result)

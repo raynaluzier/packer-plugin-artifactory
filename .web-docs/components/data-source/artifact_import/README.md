@@ -23,8 +23,6 @@ This component is meant to be used in conjunction with the [vSphere-Clone](https
     * Environment variable: `ARTIFACTORY_SERVER`
 - `artifactory_token` (string) - Required; The Artifactory account Identity Token used to authenticate with the Artifactory server and perform operations. Results are limited to whatever the account has access to. If the account can only "see" a single repository, then the results will only include content from that single repository.
     * Environment variable: `ARTIFACTORY_TOKEN`
-- `logging` (string) - Optional; The logging level to use (INFO, WARN, ERROR, DEBUG). This defaults to 'INFO' if left blank.
-    * Environment variable: `LOGGING`
 - `vcenter_server` (string) - Required; The FQDN or IP address of the target vCenter where the image should be imported.
     * Environment variable: `VCENTER_SERVER`
 - `vcenter_user` (string) - Required; The vCenter service or user account (ex: jsmith@domain.com) that will be querying for the corresponding resource pool and folder vSphere IDs and importing the VMX into vCenter. This account needs access to the target datacenter, cluster, datastore, resource pool, and folder within vCenter for the tasks to complete successfully.
@@ -62,7 +60,6 @@ None
 data "artifactory-import" "basic-example" {
     artifactory_token   = "artifactory_token"
     artifactory_server  = "https://server.domain.com:8081/artifactory/api"
-    logging             = "DEBUG"
 
     vcenter_server      = "vc01.domain.com"
     vcenter_user        = "jsmith@domain.com"
@@ -84,7 +81,6 @@ data "artifactory-import" "basic-example" {
 data "artifactory-import" "basic-example" {
     artifactory_token   = "artifactory_token"
     artifactory_server  = "https://server.domain.com:8081/artifactory/api"
-    logging             = "INFO"
 
     vcenter_server      = "vc01.domain.com"
     vcenter_user        = "jsmith@domain.com"
