@@ -15,7 +15,7 @@ import (
 
 // --> If making changes to this section, make sure the hcl2spec gets updated as well!
 type Config struct {
-	AritfactoryToken       string `mapstructure:"artifactory_token" required:"true"`
+	ArtifactoryToken       string `mapstructure:"artifactory_token" required:"true"`
 	ArtifactoryServer      string `mapstructure:"artifactory_server" required:"true"`
 	OutputDir			   string `mapstructure:"output_dir" required:"true"`
 	ArtifactoryPath        string `mapstructure:"artifactory_path" required:"true"`
@@ -39,7 +39,7 @@ func (d *Datasource) Configure(raws ...interface{}) error {
 		return err
 	}
 
-	if d.config.AritfactoryToken == "" {
+	if d.config.ArtifactoryToken == "" {
 		token := os.Getenv("ARTIFACTORY_TOKEN")
 		if token == "" {
 			log.Fatal("---> Please provide an Artifactory Identity Token.")
@@ -80,11 +80,13 @@ func (d *Datasource) Execute() (cty.Value, error) {
 	var err error
 
 	// Environment related
-	if d.config.AritfactoryToken == "" {
+	if d.config.ArtifactoryToken == "" {
 		token = os.Getenv("ARTIFACTORY_TOKEN")
 		if token != "" {
-			d.config.AritfactoryToken = token
+			d.config.ArtifactoryToken = token
 		}
+	} else {
+		token = d.config.ArtifactoryToken
 	}
 	
 	if d.config.ArtifactoryServer == "" {
@@ -92,6 +94,8 @@ func (d *Datasource) Execute() (cty.Value, error) {
 		if serverApi != "" {
 			d.config.ArtifactoryServer = serverApi
 		}
+	} else {
+		serverApi = d.config.ArtifactoryServer
 	}
 
 	// Artifact Related
@@ -100,6 +104,8 @@ func (d *Datasource) Execute() (cty.Value, error) {
 		if outputDir != "" {
 			d.config.OutputDir = outputDir
 		}
+	} else {
+		outputDir = d.config.OutputDir
 	}
 
 	if d.config.ArtifactoryPath != "" {
