@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/hashicorp/packer-plugin-sdk/hcl2helper"
 	"github.com/hashicorp/packer-plugin-sdk/template/config"
+	"github.com/raynaluzier/artifactory-go-sdk/common"
 	"github.com/raynaluzier/artifactory-go-sdk/tasks"
 	"github.com/zclconf/go-cty/cty"
 )
@@ -109,8 +110,20 @@ func (d *Datasource) Execute() (cty.Value, error) {
 		fileList = d.config.FileList
 	}
 
+	log.Println(serverApi)
+	log.Println(artifPath)
+
+	serverApi = common.FormatServerForDownloadUri(serverApi)
+	serverApi = common.TrimEndSlashUrl(serverApi)
+	downloadPath := serverApi + artifPath
+	downloadPath = common.CheckAddSlashToPath(downloadPath)
+	log.Println("Server API Reformed: " + serverApi)
+	log.Println("Download Path: " + downloadPath)
+
 	for _, file := range fileList {
 		task := "Downloading: " + file
+		log.Println(task)
+		log.Println("Artifact Download URI should be: " + downloadPath + file)
 		result, err = tasks.DownloadGeneralArtifact(serverApi, token, outputDir, artifPath, file, task)
 		log.Println("Result of download: " + file + " - " + result)
 	}
