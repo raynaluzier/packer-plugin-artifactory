@@ -57,14 +57,14 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 	}
 
 	if p.config.SourcePath == "" {
-		log.Fatal("---> Please provide the source path to the artifact to upload.")
+		log.Println("---> Please provide the source path to the artifact to upload.")
 		log.Fatal("Source path should be in the form of either 'h:\\lab\\artifact.ext' or '/lab/artifact.ext'")
 	}
 
 	if p.config.TargetPath == "" && p.config.ExistingUriTarget == "" {
-		log.Fatal("---> Please provide either a target path or an existing artifact URI (from data source) to reference as a target location.")
-		log.Fatal("If using an existing artifact URI, the artifact's path will be parsed and used as the target for the new artifact.")
-		log.Fatal("Otherwise, the target path should be in the form of '/repo/folder/path")
+		log.Println("---> Please provide either a target path OR use the 'existing_artifact_uri' input (which can be populated manually or from data source) to reference as a target location.")
+		log.Println("If using an existing artifact URI, the artifact's path will be parsed and used as the target for the new artifact.")
+		log.Fatal("Otherwise, the target path should be in the form of '/repo/folder/path.")
 	}
 
 	if p.config.TargetPath != "" && p.config.ExistingUriTarget != "" {
