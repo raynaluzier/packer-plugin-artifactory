@@ -15,7 +15,7 @@ import (
 )
 
 type Config struct {
-	AritfactoryToken       string `mapstructure:"artifactory_token" required:"true"`
+	ArtifactoryToken       string `mapstructure:"artifactory_token" required:"true"`
 	ArtifactoryServer      string `mapstructure:"artifactory_server" required:"true"`
 	SourcePath			   string `mapstructure:"source_path" required:"true"`
 	// If not provided, then can reference an existing artifact URI to parse for the target
@@ -42,7 +42,7 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 		return err
 	}
 
-	if p.config.AritfactoryToken == "" {
+	if p.config.ArtifactoryToken == "" {
 		token := os.Getenv("ARTIFACTORY_TOKEN")
 		if token == "" {
 			log.Fatal("---> Missing Artifactory identity token. The token is required to complete tasks against Artifactory.")
@@ -86,16 +86,16 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source packersdk.Artifact) (packersdk.Artifact, bool, bool, error) {
 	var token, serverApi, sourcePath, targetPath, fileSuffix, imageType, imageName string
 
-	if p.config.AritfactoryToken != "" {
-		token = p.config.AritfactoryToken
-	} else {
+	if p.config.ArtifactoryToken == "" {
 		token = os.Getenv("ARTIFACTORY_TOKEN")
+	} else {
+		token = p.config.ArtifactoryToken
 	}
 	
-	if p.config.ArtifactoryServer != "" {
-		serverApi = p.config.ArtifactoryServer
-	} else {
+	if p.config.ArtifactoryServer == "" {
 		serverApi = os.Getenv("ARTIFACTORY_SERVER")
+	} else {
+		serverApi = p.config.ArtifactoryServer
 	}
 
 	if p.config.SourcePath != "" {

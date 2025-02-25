@@ -10,6 +10,7 @@ It is assumed that the datastore path where the image files were downloaded is t
 
 This component is meant to be used in conjunction with the [vSphere-Clone](https://developer.hashicorp.com/packer/integrations/hashicorp/vsphere/latest/components/builder/vsphere-clone) Builder.
 
+
 ## Advisements
 * When converting an image that was thin provisioned to start, the OVFTOOL automatically converts the image to be thick provisioned. Converting the resulting template back to a virtual machine and attempting to power it on may result in the following error: **"Unsupported or invalid disk type 2 for 'scsi0:0'. Ensure that the disk has been imported."** 
     ![Unsupported or Invalid Disk Error](https://github.com/raynaluzier/packer-plugin-artifactory/tree/main/docs/datasources/unsupported_disk_error.jpg)
@@ -17,12 +18,22 @@ This component is meant to be used in conjunction with the [vSphere-Clone](https
   To resolve this, edit the settings of the virtual machine. Expand the hard disk settings and change the **Virtual Device Node** to **IDE 0**. The machine will then power on successfully.
     ![Edit Settings](https://github.com/raynaluzier/packer-plugin-artifactory/tree/main/docs/datasources/edit_settings_disk.jpg)
 
+
+* When downloading, if the files already exist in the target location, they will be overwritten.
+
+* When downloading and/or converting image files, the files are placed into a directory named after the image. 
+Ex: If the output directory is H:\\lab-servs, the image file 'win2022.ova' will be placed in H:\\lab-servs\\win2022\\win2022.ova, and when the OVA is unpackaged, the resulting files will be in H:\\lab-servs\\win2022\\.
+
+
 ## Housekeeping
+* Artifactory property key/values, artifact URIs, download URIs, Artifactory paths (/repo/folder/...), and file names are **CASE SENSITIVE**. There are a few exceptions, however, it's best to assume case sensitivity for successful outcomes. This is a behavior of the Artifactory API and not something we can control.
+
 * This process does NOT cleanup any image files that remain after the image conversion to VMX.
 
 * If opting to use only the convert/import piece without first downloading AND the image files are OVA/OVF format, if the parent directory of the image file is named differently than the image file itself (for example: "E:\lab\win2022.ovf" or "/lab/testing/rhel9.ova"), the OVFTOOL will automatically place the converted image files into a sub-directory named after the image file which is a behavior that can't be changed. So using our examples, this results in "E:\lab\win2022\win2022.vmx" or "/lab/testing/rhel9/rhel9.vmx". This means that the original OVA/OVF files will still reside in (our example) "E:\lab" or "/lab/testing" while the VMX files are in a sub-directory. Especially as this resulting path will be used to import into vCenter, this may not be ideal behavior. So to avoid this situation for convert/import-only scenarios, ensure the source files reside in a directory that's the same as the image name (ex: "E:\lab\win2022\win2022.ovf" or "/lab/testing/rhel9/rhel9.ova").
 
 * An OVF image is typically comprised of an **.ovf**, **.mf**, and one or more **-disk#.vmdk** (ex: win2022-disk1.vmdk) files. When the OVF is unpacked, it creates a disk file(s) that's the same name as the disk file(s) included with the OVF. Because we are placing the converted image files into the same directory as the source image (which is the same directory that is using during the import into vCenter), this creates a file conflict and the process fails. Therefore, when the image type is OVF, the OVF files will first be moved into a subdirectory called `ovf_files` and then the conversion will kick off. The converted files can then go to the intended source directory without conflict. OVA and VMTX files do not have this issue.
+
 
 ## Configuration Reference
 

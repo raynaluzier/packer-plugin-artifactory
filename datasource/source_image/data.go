@@ -14,7 +14,7 @@ import (
 
 // --> If making changes to this section, make sure the hcl2spec gets updated as well!
 type Config struct {
-	AritfactoryToken       string `mapstructure:"artifactory_token" required:"true"`
+	ArtifactoryToken       string `mapstructure:"artifactory_token" required:"true"`
 	ArtifactoryServer      string `mapstructure:"artifactory_server" required:"true"`
 	// Full or partial name of the artifact
 	ArtifactName           string `mapstructure:"artifact_name" required:"true"`
@@ -48,7 +48,7 @@ func (d *Datasource) Configure(raws ...interface{}) error {
 		return err
 	}
 
-	if d.config.AritfactoryToken == "" {
+	if d.config.ArtifactoryToken == "" {
 		token := os.Getenv("ARTIFACTORY_TOKEN")
 		if token == "" {
 			log.Fatal("---> Please provide an Artifactory Identity Token.")
@@ -88,24 +88,20 @@ func BuildPropFilters(kvInput map[string]string) ([]string) {
 }
 
 func (d *Datasource) Execute() (cty.Value, error) {
-	var artifName string
-	var ext string
+	var artifName, token, ext, artifactUri, serverApi string
 	var kvProperties []string
-	var artifactUri string
 
 	// Environment related
-	if d.config.AritfactoryToken == "" {
-		token := os.Getenv("ARTIFACTORY_TOKEN")
-		if token != "" {
-			d.config.AritfactoryToken = token
-		}
+	if d.config.ArtifactoryToken == "" {
+		token = os.Getenv("ARTIFACTORY_TOKEN")
+	} else {
+		token = d.config.ArtifactoryToken
 	}
-	
+
 	if d.config.ArtifactoryServer == "" {
-		serverApi := os.Getenv("ARTIFACTORY_SERVER")
-		if serverApi != "" {
-			d.config.ArtifactoryServer = serverApi
-		}
+		serverApi = os.Getenv("ARTIFACTORY_SERVER")
+	} else {
+		serverApi = d.config.ArtifactoryServer
 	}
 
 	// Artifact Related
@@ -128,7 +124,7 @@ func (d *Datasource) Execute() (cty.Value, error) {
 	}
 
 	// Search for artifact and return details
-	artifactUri, artifactName, createDate, downloadUri, err := tasks.GetImageDetails(d.config.ArtifactoryServer, d.config.AritfactoryToken, artifName, ext, kvProperties)
+	artifactUri, artifactName, createDate, downloadUri, err := tasks.GetImageDetails(serverApi, token, artifName, ext, kvProperties)
 	if err != nil {
 		log.Println(err)
 		if artifactUri == "" {

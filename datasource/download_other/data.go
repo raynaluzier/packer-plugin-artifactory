@@ -82,18 +82,12 @@ func (d *Datasource) Execute() (cty.Value, error) {
 	// Environment related
 	if d.config.ArtifactoryToken == "" {
 		token = os.Getenv("ARTIFACTORY_TOKEN")
-		if token != "" {
-			d.config.ArtifactoryToken = token
-		}
 	} else {
 		token = d.config.ArtifactoryToken
 	}
 	
 	if d.config.ArtifactoryServer == "" {
 		serverApi = os.Getenv("ARTIFACTORY_SERVER")
-		if serverApi != "" {
-			d.config.ArtifactoryServer = serverApi
-		}
 	} else {
 		serverApi = d.config.ArtifactoryServer
 	}
@@ -101,9 +95,6 @@ func (d *Datasource) Execute() (cty.Value, error) {
 	// Artifact Related
 	if d.config.OutputDir == "" {
 		outputDir = os.Getenv("OUTPUTDIR")
-		if outputDir != "" {
-			d.config.OutputDir = outputDir
-		}
 	} else {
 		outputDir = d.config.OutputDir
 	}

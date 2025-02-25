@@ -7,6 +7,10 @@ The Artifactory data source is used to filter and identify an artifact image sto
 The use of property key(s)/value(s) as filter parameters can further assist in identifying the correct image. If more than one artifact matches the input parameters, the latest artifact will be returned.
 
 
+## Housekeeping
+* Artifactory property key/values, artifact URIs, download URIs, Artifactory paths (/repo/folder/...), and file names are **CASE SENSITIVE**. There are a few exceptions, however, it's best to assume case sensitivity for successful outcomes. This is a behavior of the Artifactory API and not something we can control.
+
+
 ## Configuration Reference
 
 - `artifactory_server` (string) - Required; The API address of the Artifactory server (ex: https://server.domain.com:8081/artifactory/api). The URL will differ slightly between cloud-hosted and self-hosted instanced.

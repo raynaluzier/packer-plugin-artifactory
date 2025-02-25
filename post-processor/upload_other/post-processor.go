@@ -14,7 +14,7 @@ import (
 )
 
 type Config struct {
-	AritfactoryToken       string `mapstructure:"artifactory_token" required:"true"`
+	ArtifactoryToken       string `mapstructure:"artifactory_token" required:"true"`
 	ArtifactoryServer      string `mapstructure:"artifactory_server" required:"true"`
 	SourcePath			   string `mapstructure:"source_path" required:"true"`
 	ArtifactoryPath		   string `mapstructure:"artifactory_path" required:"true"`
@@ -34,7 +34,7 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 		return err
 	}
 
-	if p.config.AritfactoryToken == "" {
+	if p.config.ArtifactoryToken == "" {
 		token := os.Getenv("ARTIFACTORY_TOKEN")
 		if token == "" {
 			log.Fatal("---> Missing Artifactory identity token. The token is required to complete tasks against Artifactory.")
@@ -72,18 +72,18 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source packersdk.Artifact) (packersdk.Artifact, bool, bool, error) {
 	var token, serverApi, sourcePath, artifPath, folderName, result string
 	var err error
-	var fileList []string
+	var fileList, failList []string
 
-	if p.config.AritfactoryToken != "" {
-		token = p.config.AritfactoryToken
-	} else {
+	if p.config.ArtifactoryToken == "" {
 		token = os.Getenv("ARTIFACTORY_TOKEN")
+	} else {
+		token = p.config.ArtifactoryToken
 	}
 	
-	if p.config.ArtifactoryServer != "" {
-		serverApi = p.config.ArtifactoryServer
-	} else {
+	if p.config.ArtifactoryServer == "" {
 		serverApi = os.Getenv("ARTIFACTORY_SERVER")
+	} else {
+		serverApi = p.config.ArtifactoryServer
 	}
 
 	if p.config.SourcePath != "" {
@@ -106,21 +106,29 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source
 
 	for _, file := range fileList {
 		result, err = tasks.UploadGeneralArtifact(serverApi, token, sourcePath, artifPath, file, folderName)
-		if err != nil {
-			log.Println(result)
-			log.Fatal("Error uploading: " + file)
+		if result == "Failed" && err == nil {
+			log.Println("File not found: " + file)
+			failList = append(failList, file)
+		} else if err != nil {
+			log.Println("Error uploading: " + file)
+			failList = append(failList, file)
 		} else {
 			log.Println("Successfully uploaded file: " + file)
 		}
 	}
 
-	if err != nil {
-		log.Fatal("Unable to upload one or more artifacts.")
-		err := errors.New("Unable to upload artifacts.")
+	if len(failList) > 0 {
+		log.Println("[WARN] Unable to upload one or more artifacts.")
+		log.Println("[WARN] Please check the file name(s) and Artifactory path provided; both are CASE-SENSITIVE.")
+		log.Println("---> The following files were not uploaded: ")
+		for _, f := range failList {
+			log.Println(f)
+		}
+		err := errors.New("Unable to upload one or more artifacts.")
 		return source, false, false, err
 
 	} else {
-		ui.Say("Artifact upload(s) completed.")
+		ui.Say("Artifact upload(s) complete.")
 		return source, true, true, nil
 	}
 

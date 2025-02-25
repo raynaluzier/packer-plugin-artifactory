@@ -7,6 +7,14 @@ The Artifactory data source is used to download any supporting artifacts that go
 This data source differs from the `artifactory-import` data source in that the `artifactory-import` process is used to download OVA, OVF, or VMTX files which are comprised of one or more specific files, depending on the image type. Depending on the image type, the associated files are determined, validated, and optionally downloaded before being converted to VMX, imported into vCenter, and marked as a VM Template.
 
 
+## Advisements
+* When downloading, if the files already exist in the target location, they will be overwritten. 
+
+
+## Housekeeping
+* Artifactory property key/values, artifact URIs, download URIs, Artifactory paths (/repo/folder/...), and file names are **CASE SENSITIVE**. There are a few exceptions, however, it's best to assume case sensitivity for successful outcomes. This is a behavior of the Artifactory API and not something we can control.
+
+
 ## Configuration Reference
 
 - `artifactory_server` (string) - Required; The API address of the Artifactory server (ex: https://server.domain.com:8081/artifactory/api). The URL will differ slightly between cloud-hosted and self-hosted instanced.
@@ -17,6 +25,7 @@ This data source differs from the `artifactory-import` data source in that the `
     * Environment variable: `OUTPUTDIR`
 - `artifactory_path` (string) - Required; The repo path within Artifactory where the artifact(s) to be downloaded reside(s) (ex: /repo/folder).
 - `file_list` ([]string) - Required; The list of file names with extensions to be downloaded; each file should be in quotes.
+
 
 ## Output Data
 

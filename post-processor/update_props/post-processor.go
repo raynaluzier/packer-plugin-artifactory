@@ -4,6 +4,7 @@ package artifactUpdateProps
 import (
 	"context"
 	"log"
+	"os"
 
 	"github.com/hashicorp/hcl/v2/hcldec"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
@@ -12,7 +13,7 @@ import (
 )
 
 type Config struct {
-	AritfactoryToken       string `mapstructure:"artifactory_token" required:"true"`
+	ArtifactoryToken       string `mapstructure:"artifactory_token" required:"true"`
 	ArtifactoryServer      string `mapstructure:"artifactory_server" required:"true"`
 	ArtifactUri			   string `mapstructure:"artifact_uri" required:"true"`
 	ArtifactProperties	   map[string]string `mapstructure:"properties" required:"true"`
@@ -30,7 +31,7 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 		return err
 	}
 
-	if p.config.AritfactoryToken == "" {
+	if p.config.ArtifactoryToken == "" {
 		log.Fatal("---> Missing Artifactory identity token. The token is required to complete tasks against Artifactory.")
 	}
 
@@ -64,11 +65,15 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source
 	var kvProperties []string
 	var token, serverApi, artifactUri string
 
-	if p.config.AritfactoryToken != "" {
-		token = p.config.AritfactoryToken
+	if p.config.ArtifactoryToken == "" {
+		token = os.Getenv("ARTIFACTORY_TOKEN")
+	} else {
+		token = p.config.ArtifactoryToken
 	}
 	
-	if p.config.ArtifactoryServer != "" {
+	if p.config.ArtifactoryServer == "" {
+		serverApi = os.Getenv("ARTIFACTORY_SERVER")
+	} else {
 		serverApi = p.config.ArtifactoryServer
 	}
 

@@ -17,7 +17,7 @@ import (
 
 // --> If making changes to this section, make sure the hcl2spec gets updated as well!
 type Config struct {
-	AritfactoryToken       string `mapstructure:"artifactory_token" required:"true"`
+	ArtifactoryToken       string `mapstructure:"artifactory_token" required:"true"`
 	ArtifactoryServer      string `mapstructure:"artifactory_server" required:"true"`
 	
 	VcenterServer			string `mapstructure:"vcenter_server" required:"true"`
@@ -57,7 +57,7 @@ func (d *Datasource) Configure(raws ...interface{}) error {
 		return err
 	}
 
-	if d.config.AritfactoryToken == "" {
+	if d.config.ArtifactoryToken == "" {
 		token := os.Getenv("ARTIFACTORY_TOKEN")
 		if token == "" {
 			log.Fatal("---> Please provide an Artifactory Identity Token.")
@@ -158,64 +158,76 @@ func (d *Datasource) OutputSpec() hcldec.ObjectSpec {
 }
 
 func (d *Datasource) Execute() (cty.Value, error) {
-	var downloadUri, sourcePath, importResult string
+	var downloadUri, sourcePath, importResult, token, serverApi, outputDir string
+	var vcServer, vcUser, vcPass, dcName, dsName, clusterName, resPoolName, folderName string
 
 	// Artifactory related
-	if d.config.AritfactoryToken == "" {
-		d.config.AritfactoryToken = os.Getenv("ARTIFACTORY_TOKEN")
+	if d.config.ArtifactoryToken == "" {
+		token = os.Getenv("ARTIFACTORY_TOKEN")
+	} else {
+		token = d.config.ArtifactoryToken
 	}
-	token := d.config.AritfactoryToken
 	
 	if d.config.ArtifactoryServer == "" {
-		d.config.ArtifactoryServer = os.Getenv("ARTIFACTORY_SERVER")
+		serverApi = os.Getenv("ARTIFACTORY_SERVER")
+	} else {
+		serverApi = d.config.ArtifactoryServer
 	}
-	serverApi := d.config.ArtifactoryServer
 
 	// vCenter Related
 	if d.config.VcenterServer == "" {
-		d.config.VcenterServer = os.Getenv("VCENTER_SERVER")
+		vcServer = os.Getenv("VCENTER_SERVER")
+	} else {
+		vcServer = d.config.VcenterServer
 	}
-	vcServer := d.config.VcenterServer
 
 	if d.config.VcenterUser == "" {
-		d.config.VcenterUser = os.Getenv("VCENTER_USER")
+		vcUser = os.Getenv("VCENTER_USER")
+	} else {
+		vcUser = d.config.VcenterUser
 	}
-	vcUser := d.config.VcenterUser
 
 	if d.config.VcenterPassword == "" {
-		d.config.VcenterPassword = os.Getenv("VCENTER_PASSWORD")
+		vcPass = os.Getenv("VCENTER_PASSWORD")
+	} else {
+		vcPass = d.config.VcenterPassword
 	}
-	vcPass := d.config.VcenterPassword
 
 	if d.config.VcenterDatacenter == "" {
-		d.config.VcenterDatacenter = os.Getenv("VCENTER_DATACENTER")
+		dcName = os.Getenv("VCENTER_DATACENTER")
+	} else {
+		dcName = d.config.VcenterDatacenter
 	}
-	dcName := d.config.VcenterDatacenter
 
 	if d.config.VcenterDatastore == "" {
-		d.config.VcenterDatastore = os.Getenv("VCENTER_DATASTORE")
+		dsName = os.Getenv("VCENTER_DATASTORE")
+	} else {
+		dsName = d.config.VcenterDatastore
 	}
-	dsName := d.config.VcenterDatastore
 
 	if d.config.VcenterCluster == "" {
-		d.config.VcenterCluster = os.Getenv("VCENTER_CLUSTER")
+		clusterName = os.Getenv("VCENTER_CLUSTER")
+	} else {
+		clusterName = d.config.VcenterCluster
 	}
-	clusterName := d.config.VcenterCluster
 
 	if d.config.VcenterResourcePool == "" {
-		d.config.VcenterResourcePool = os.Getenv("VCENTER_RESOURCE_POOL")
+		resPoolName = os.Getenv("VCENTER_RESOURCE_POOL")
+	} else {
+		resPoolName = d.config.VcenterResourcePool
 	}
-	resPoolName := d.config.VcenterResourcePool
 
 	if d.config.VcenterFolder == "" {
-		d.config.VcenterFolder = os.Getenv("VCENTER_FOLDER")
+		folderName = os.Getenv("VCENTER_FOLDER")
+	} else {
+		folderName = d.config.VcenterFolder
 	}
-	folderName := d.config.VcenterFolder
 
 	if d.config.OutputDir == "" {
-		d.config.OutputDir = os.Getenv("OUTPUTDIR")
+		outputDir = os.Getenv("OUTPUTDIR")
+	} else {
+		outputDir = d.config.OutputDir
 	}
-	outputDir := d.config.OutputDir
 
 	if d.config.DownloadUri != "" {
 		downloadUri = d.config.DownloadUri

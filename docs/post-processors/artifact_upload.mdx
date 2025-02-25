@@ -5,6 +5,17 @@ Type:  `artifactory-upload`
 The Artifactory post-provisioner `artifactory-upload` is used to upload a newly created artifact into JFrog Artifactory and displays the artifact's download URI and the artifact URI in the UI.
 
 
+## Advisements
+* When uploading, if the files already exist in the target location, they will be overwritten. 
+
+* When uploading, the files are placed into a directory named after the image withing Artifactory. 
+Ex: If the target path is /win-local-libs/, the image file 'win2022.ova' will be placed in /win-local-libs/win2022/.
+
+
+## Housekeeping
+* Artifactory property key/values, artifact URIs, download URIs, Artifactory paths (/repo/folder/...), and file names are **CASE SENSITIVE**. There are a few exceptions, however, it's best to assume case sensitivity for successful outcomes. This is a behavior of the Artifactory API and not something we can control.
+
+
 ## Configuration Reference
 
 - `artifactory_server` (string) - Required; The API address of the Artifactory server (ex: https://server.domain.com:8081/artifactory/api). The URL will differ slightly between cloud-hosted and self-hosted instanced.
@@ -18,6 +29,7 @@ The Artifactory post-provisioner `artifactory-upload` is used to upload a newly 
 - `image_type` (string) - Required; The type of image that will be uploaded; supported types are 'ova', 'ovf', and 'vmtx'.
 - `image_name` (string) - Required; The base image name without any file suffix or extension appended.
 - `existing_uri_target` (string) - *Optional; The URI address of an existing artifact. The plugin will parse this address to determine the /repo/folder/path and set this as the `target_path` for the new artifact.
+
 
 ## Output Data
 

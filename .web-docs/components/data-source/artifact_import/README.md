@@ -10,7 +10,23 @@ It is assumed that the datastore path where the image files were downloaded is t
 
 This component is meant to be used in conjunction with the [vSphere-Clone](https://developer.hashicorp.com/packer/integrations/hashicorp/vsphere/latest/components/builder/vsphere-clone) Builder.
 
+
+## Advisements
+* When converting an image that was thin provisioned to start, the OVFTOOL automatically converts the image to be thick provisioned. Converting the resulting template back to a virtual machine and attempting to power it on may result in the following error: **"Unsupported or invalid disk type 2 for 'scsi0:0'. Ensure that the disk has been imported."** 
+    ![Unsupported or Invalid Disk Error](https://github.com/raynaluzier/packer-plugin-artifactory/tree/main/docs/datasources/unsupported_disk_error.jpg)
+
+To resolve this, edit the settings of the virtual machine. Expand the hard disk settings and change the **Virtual Device Node** to **IDE 0**. The machine will then power on successfully.
+    ![Edit Settings](https://github.com/raynaluzier/packer-plugin-artifactory/tree/main/docs/datasources/edit_settings_disk.jpg)
+
+* When downloading, if the files already exist in the target location, they will be overwritten. 
+
+* When downloading and/or converting image files, the files are placed into a directory named after the image. 
+Ex: If the output directory is H:\\lab-servs, the image file 'win2022.ova' will be placed in H:\\lab-servs\\win2022\\win2022.ova, and when the OVA is unpackaged, the resulting files will be in H:\\lab-servs\\win2022\\.
+
+
 ## Housekeeping
+* Artifactory property key/values, artifact URIs, download URIs, Artifactory paths (/repo/folder/...), and file names are **CASE SENSITIVE**. There are a few exceptions, however, it's best to assume case sensitivity for successful outcomes. This is a behavior of the Artifactory API and not something we can control. 
+
 * This process does NOT cleanup any image files that remain after the image conversion to VMX.
 
 * If opting to use only the convert/import piece without first downloading AND the image files are OVA/OVF format, if the parent directory of the image file is named differently than the image file itself (for example: "E:\lab\win2022.ovf" or "/lab/testing/rhel9.ova"), the OVFTOOL will automatically place the converted image files into a sub-directory named after the image file which is a behavior that can't be changed. So using our examples, this results in "E:\lab\win2022\win2022.vmx" or "/lab/testing/rhel9/rhel9.vmx". This means that the original OVA/OVF files will still reside in (our example) "E:\lab" or "/lab/testing" while the VMX files are in a sub-directory. Especially as this resulting path will be used to import into vCenter, this may not be ideal behavior. So to avoid this situation for convert/import-only scenarios, ensure the source files reside in a directory that's the same as the image name (ex: "E:\lab\win2022\win2022.ovf" or "/lab/testing/rhel9/rhel9.ova").
@@ -48,6 +64,7 @@ This component is meant to be used in conjunction with the [vSphere-Clone](https
     **If `import_no_download` is set to FALSE (default), then values for `output_dir` and `download_uri` are required**
 - `source_path` (string) - Optional; Full file path (ex: `/path/folder/image1234/image1234.ova`) to the source image file (should be OVA, OVF, VMTX, or VMX if it's already in that format). As the image files must be in VMX format (essentially a VM) first for this plugin component to do the import, the image files will be examined to determined whether the image needs to be converted to VMX format. If not, the conversion step is skipped and the import will proceed.
     **If `import_no_download` is set to TRUE, then a value for `source_path` is required.**
+
 
 ## Output Data
 

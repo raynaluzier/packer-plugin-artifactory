@@ -10,7 +10,7 @@ import (
 // FlatConfig is an auto-generated flat version of Config.
 // Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
 type FlatConfig struct {
-	AritfactoryToken  *string  `mapstructure:"artifactory_token" required:"true" cty:"artifactory_token" hcl:"artifactory_token"`
+	ArtifactoryToken  *string  `mapstructure:"artifactory_token" required:"true" cty:"artifactory_token" hcl:"artifactory_token"`
 	ArtifactoryServer *string  `mapstructure:"artifactory_server" required:"true" cty:"artifactory_server" hcl:"artifactory_server"`
 	SourcePath        *string  `mapstructure:"source_path" required:"true" cty:"source_path" hcl:"source_path"`
 	ArtifactoryPath   *string  `mapstructure:"artifactory_path" required:"true" cty:"artifactory_path" hcl:"artifactory_path"`

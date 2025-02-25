@@ -6,6 +6,15 @@ The Artifactory post-processor is used to upload any supporting artifacts that g
 
 This post-processor differs from the `artifactory-upload` post-processor in that the `artifactory-upload` process is used to upload OVA, OVF, or VMTX files which are comprised of one or more specific files, depending on the image type.
 
+
+## Advisements
+* When uploading, if the files already exist in the target location, they will be overwritten.
+
+
+## Housekeeping
+* Artifactory property key/values, artifact URIs, download URIs, Artifactory paths (/repo/folder/...), and file names are **CASE SENSITIVE**. There are a few exceptions, however, it's best to assume case sensitivity for successful outcomes. This is a behavior of the Artifactory API and not something we can control.
+
+
 ## Configuration Reference
 
 - `artifactory_server` (string) - Required; The API address of the Artifactory server (ex: https://server.domain.com:8081/artifactory/api). The URL will differ slightly between cloud-hosted and self-hosted instanced.
@@ -17,6 +26,7 @@ This post-processor differs from the `artifactory-upload` post-processor in that
 - `folder_name` (string) - Optional; If files are to be uploaded to the same directory as a given image, set this to be the image name; otherwise leave blank.
   ** You may optionally include the folder name in the Artifactory path above. This was only separated out to specifically draw attention to whether or not to place the file(s) with an image, but handling it with this input is not required.
 - `file_list` ([]string) - Required; The list of file names with extensions to be uploaded; each file should be in quotes.
+
 
 ## Output Data
 
