@@ -124,15 +124,25 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source
 		imageName = p.config.ImageName
 	}
 
+	log.Println("Server Address: " + serverApi)
+	log.Println("Image Name: " + imageName)
+	log.Println("Image Type: " + imageType)
+	log.Println("Source Path: " + sourcePath)
+	log.Println("Target Path: " + targetPath)
+	log.Println("File Suffix (if applicable): " + fileSuffix)
+
+	log.Println("Preparing to check and upload image artifact(s)...")
 	result := tasks.UploadArtifacts(serverApi, token, imageType, imageName, sourcePath, targetPath, fileSuffix)
 
 	if result != "End of upload process" {
-		log.Fatal("Unable to upload artifacts - " + result)
-		err := errors.New("Unable to upload artifacts")
+		log.Println("Unable to upload artifacts - " + result)
+		log.Println("The Artifactory path is CASE SENSITIVE. Please verify the Artifactory path is correct and the image file(s) exist in the source path.")
+		err := errors.New("Unable to upload image artifacts.")
 		return source, false, false, err
 
 	} else {
-		ui.Say("Artifact uploads completed.")
+		log.Println(result + " - Uploaded image artifacts for: " + imageName + "." + imageType)
+		log.Println("---> Upload of image artifact(s) completed.")
 		return source, true, true, nil
 	}
 
