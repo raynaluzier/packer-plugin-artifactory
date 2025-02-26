@@ -24,9 +24,8 @@ Ex: If the target path is /win-local-libs/, the image file 'win2022.ova' will be
     * Environment variable: `ARTIFACTORY_TOKEN`
 - `source_path` (string) - Required; The directory path where the source image file(s) are located (for ex. "C:\\lab" or "/lab")
 - `target_path` (string) - *Optional; The target path (/repo/folder/) within Artifactory where the artifact should be uploaded to. If NOT populated, you MUST use `existing_uri_target` instead. The image files will automatically be placed within a subfolder in this path named after the image. For example: /repo/folder --> /repo/folder/image1111/image1111.ova
-- `file_suffix` (string) - Optional; Distinguishing file name suffix to use such as version, date, ect. where the base image name is always the same.
 - `image_type` (string) - Required; The type of image that will be uploaded; supported types are 'ova', 'ovf', and 'vmtx'.
-- `image_name` (string) - Required; The base image name without any file suffix or extension appended.
+- `image_name` (string) - Required; The base image name
 - `existing_uri_target` (string) - *Optional; The URI address of an existing artifact. The plugin will parse this address to determine the /repo/folder/path and set this as the `target_path` for the new artifact.
 
 
@@ -37,7 +36,7 @@ None
 
 ## Basic Example Usage
 
-**Upload Image with No File Suffix**
+**Upload Image**
 ```hcl
 	post-processor "artifactory-upload" {
 		artifactory_token     = var.artif_token  
@@ -45,20 +44,6 @@ None
 			
 		source_path = "c:\\lab"
 		target_path = "/test-packer-plugin/win"
-		image_type  = "ova"
-		image_name  = "test-artifact"
-	}
-```
-
-**Upload Image with File Suffix**
-```hcl
-	post-processor "artifactory-upload" {
-		artifactory_token     = var.artif_token  
-        artifactory_server    = var.artif_server 
-			
-		source_path = "c:\\lab"
-		target_path = "/test-packer-plugin/win"
-		file_suffix = "acc-test1"
 		image_type  = "ova"
 		image_name  = "test-artifact"
 	}

@@ -41,7 +41,6 @@ const testDatasourceHCL2Basic = `
 		# Provide via environment variables
 		artifactory_token     = var.artif_token  
 		artifactory_server    = var.artif_server
-		logging               = "INFO"
 
 		artifact_name = "test-artifact"
 		file_type     = "txt"
@@ -83,7 +82,6 @@ var statusCode  string
 
 const testDirName      = "test-directory"
 const testArtifactName = "test-artifact.txt"
-const artifactSuffix   = ""
 const artifactContents = "Just some test content."
 var kvProps []string
 const uploadTestArtifact = true
@@ -107,7 +105,7 @@ func TestAccDatasource_Artifactory(t *testing.T) {
 	testCase := &acctest.PluginTestCase{
 		Name: "artifactory_datasource_basic_test",
 		Setup: func() error {
-			artifactUri, err := tasks.SetupTest(server, token, testArtifactPath, artifactSuffix, kvProps, uploadTestArtifact)
+			artifactUri, err := tasks.SetupTest(server, token, testArtifactPath, kvProps, uploadTestArtifact)
 			if err != nil {
 				log.Fatal(err)
 			}

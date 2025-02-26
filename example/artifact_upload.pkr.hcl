@@ -62,7 +62,6 @@ build {
 
 		source_path = "c:\\lab\\"
 		target_path = "/test-packer-plugin/win/"
-		file_suffix = "1.0.0"
         image_name  = "test-artifact"
         image_type  = "ova"
 	}

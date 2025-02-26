@@ -19,7 +19,6 @@ var statusCode  string
 
 const testDirName      = "test-directory"
 const testArtifact     = "testfile1.txt"
-const artifactSuffix   = ""
 const artifactContents = "Just some test content."
 var kvProps []string
 var downloadUri string
@@ -43,7 +42,7 @@ func TestAccDatasourceDownload_Artifactory(t *testing.T) {
 	testCase := &acctest.PluginTestCase{
 		Name: "artifactory_datasource_download_other_test",
 		Setup: func() error {
-			artifactUri, err := tasks.SetupTest(server, token, testArtifactPath, artifactSuffix, kvProps, uploadTestArtifact)
+			artifactUri, err := tasks.SetupTest(server, token, testArtifactPath, kvProps, uploadTestArtifact)
 			if err != nil {
 				log.Fatal(err)
 			}

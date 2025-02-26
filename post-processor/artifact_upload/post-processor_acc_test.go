@@ -19,7 +19,6 @@ var statusCode  string
 
 const testDirName      = "test-directory"
 const testArtifactName = "test-artifact.txt"  // this gets renamed to an ova file later
-const artifactSuffix   = ""
 const artifactContents = "Just some test content."
 var kvProps []string
 var downloadUri string
@@ -45,7 +44,7 @@ func TestAccPostProcessorUpload_Artifactory(t *testing.T) {
 	testCase := &acctest.PluginTestCase{
 		Name: "artifactory_postprocessor_upload_test",
 		Setup: func() error {
-			status, err := tasks.SetupTest(server, token, testArtifactPath, artifactSuffix, kvProps, uploadTestArtifact)
+			status, err := tasks.SetupTest(server, token, testArtifactPath, kvProps, uploadTestArtifact)
 			fmt.Println("Status of setup: " + status)
 
 			if err != nil {
@@ -142,7 +141,6 @@ func SetTemplate(testDirPath string) string {
 			
 			source_path = "` + newPath + `"
 			target_path = "/test-packer-plugin"
-			file_suffix = "acc-test1"
 			image_name  = "test-artifact"
 			image_type  = "ova"
 		}

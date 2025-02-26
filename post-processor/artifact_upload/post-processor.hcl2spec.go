@@ -14,7 +14,6 @@ type FlatConfig struct {
 	ArtifactoryServer *string `mapstructure:"artifactory_server" required:"true" cty:"artifactory_server" hcl:"artifactory_server"`
 	SourcePath        *string `mapstructure:"source_path" required:"true" cty:"source_path" hcl:"source_path"`
 	TargetPath        *string `mapstructure:"target_path" required:"false" cty:"target_path" hcl:"target_path"`
-	FileSuffix        *string `mapstructure:"file_suffix" required:"false" cty:"file_suffix" hcl:"file_suffix"`
 	ImageType         *string `mapstructure:"image_type" required:"true" cty:"image_type" hcl:"image_type"`
 	ImageName         *string `mapstructure:"image_name" required:"true" cty:"image_name" hcl:"image_name"`
 	ExistingUriTarget *string `mapstructure:"existing_uri_target" required:"false" cty:"existing_uri_target" hcl:"existing_uri_target"`
@@ -36,7 +35,6 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"artifactory_server":  &hcldec.AttrSpec{Name: "artifactory_server", Type: cty.String, Required: false},
 		"source_path":         &hcldec.AttrSpec{Name: "source_path", Type: cty.String, Required: false},
 		"target_path":         &hcldec.AttrSpec{Name: "target_path", Type: cty.String, Required: false},
-		"file_suffix":         &hcldec.AttrSpec{Name: "file_suffix", Type: cty.String, Required: false},
 		"image_type":          &hcldec.AttrSpec{Name: "image_type", Type: cty.String, Required: false},
 		"image_name":          &hcldec.AttrSpec{Name: "image_name", Type: cty.String, Required: false},
 		"existing_uri_target": &hcldec.AttrSpec{Name: "existing_uri_target", Type: cty.String, Required: false},

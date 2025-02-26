@@ -20,12 +20,9 @@ type Config struct {
 	SourcePath			   string `mapstructure:"source_path" required:"true"`
 	// If not provided, then can reference an existing artifact URI to parse for the target
 	TargetPath			   string `mapstructure:"target_path" required:"false"`  // either this or existing uri target
-	// Optional for potential distinguishing values such as version, date, etc where the image name is always the same
-	// Will use '-' as a separator; if blank, will be ignored
-	FileSuffix			   string `mapstructure:"file_suffix" required:"false"`
 	// Valid values are "ova", "ovf", and "vmtx"
 	ImageType              string `mapstructure:"image_type" required:"true"`
-	// Base image name without any file suffix appended (ex: win2022 or rhel9)
+	// Base image name (ex: win2022 or rhel9)
 	ImageName              string `mapstructure:"image_name" required:"true"`
 	ExistingUriTarget	   string `mapstructure:"existing_uri_target" required:"false"`
 }
@@ -84,7 +81,7 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 }
 
 func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source packersdk.Artifact) (packersdk.Artifact, bool, bool, error) {
-	var token, serverApi, sourcePath, targetPath, fileSuffix, imageType, imageName string
+	var token, serverApi, sourcePath, targetPath, imageType, imageName string
 
 	if p.config.ArtifactoryToken == "" {
 		token = os.Getenv("ARTIFACTORY_TOKEN")
@@ -110,12 +107,6 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source
 		targetPath = artifactorysdk.ParseArtifUriForPath(serverApi, p.config.ExistingUriTarget)
 	}
 
-	if p.config.FileSuffix == "" {
-		fileSuffix = ""
-	} else {
-		fileSuffix = p.config.FileSuffix
-	}
-
 	if p.config.ImageType != "" {
 		imageType = p.config.ImageType
 	}
@@ -129,14 +120,13 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source
 	log.Println("Image Type: " + imageType)
 	log.Println("Source Path: " + sourcePath)
 	log.Println("Target Path: " + targetPath)
-	log.Println("File Suffix (if applicable): " + fileSuffix)
 
 	log.Println("Preparing to check and upload image artifact(s)...")
-	result := tasks.UploadArtifacts(serverApi, token, imageType, imageName, sourcePath, targetPath, fileSuffix)
+	result := tasks.UploadArtifacts(serverApi, token, imageType, imageName, sourcePath, targetPath)
 
 	if result != "End of upload process" {
 		log.Println("Unable to upload artifacts - " + result)
-		log.Println("The Artifactory path is CASE SENSITIVE. Please verify the Artifactory path is correct and the image file(s) exist in the source path.")
+		log.Println("The Artifactory path is CASE SENSITIVE. Please verify the Artifactory path is correct, image type is either OVA/OVF/VMTX, and the image file(s) exist in the source path.")
 		err := errors.New("Unable to upload image artifacts.")
 		return source, false, false, err
 

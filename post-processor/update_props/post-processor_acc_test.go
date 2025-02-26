@@ -19,7 +19,6 @@ var statusCode  string
 
 const testDirName      = "test-directory"
 const testArtifactName = "test-artifact.txt"
-const artifactSuffix   = ""
 const artifactContents = "Just some test content."
 var kvProps []string
 var downloadUri string
@@ -44,7 +43,7 @@ func TestAccPostProcessorUpdate_Artifactory(t *testing.T) {
 	testCase := &acctest.PluginTestCase{
 		Name: "artifactory_postprocessor_update_test",
 		Setup: func() error {
-			status, err := tasks.SetupTest(server, token, testArtifactPath, artifactSuffix, kvProps, uploadTestArtifact)
+			status, err := tasks.SetupTest(server, token, testArtifactPath, kvProps, uploadTestArtifact)
 			fmt.Println("Status of setup: " + status)
 
 			if err != nil {
