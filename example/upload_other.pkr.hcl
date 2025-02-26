@@ -37,6 +37,5 @@ build {
 		source_path      = "c:\\lab\\test-dir"
 		file_list        = ["testfile1.txt", "testfile2.txt"]
 		artifactory_path = "/test-libs-local/"
-		folder_name      = "win2022"  //optional
 	}
 }

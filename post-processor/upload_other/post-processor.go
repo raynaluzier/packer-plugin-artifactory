@@ -18,7 +18,6 @@ type Config struct {
 	ArtifactoryServer      string `mapstructure:"artifactory_server" required:"true"`
 	SourcePath			   string `mapstructure:"source_path" required:"true"`
 	ArtifactoryPath		   string `mapstructure:"artifactory_path" required:"true"`
-	FolderName             string `mapstructure:"folder_name" required:"false"`
 	FileList         	   []string `mapstructure:"file_list" required:"true"`
 }
 
@@ -57,11 +56,6 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 		log.Fatal("---> Please provide the Artifactory /repo/folder/path where the artifact(s) should be uploaded to.")
 	}
 
-	if p.config.FolderName == "" {
-		log.Println("---> No folder name was provided. Therefore, artifact(s) will be placed in the root of the Artifactory path provided.")
-		log.Println("If this is not desired, please provide an folder name. To place these with a specific image file, use the image name as the folder name.")
-	}
-
 	if len(p.config.FileList) <= 0 {
 		log.Fatal("---> Please add one or more files to the file_list for upload.")
 	}
@@ -70,7 +64,7 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 }
 
 func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source packersdk.Artifact) (packersdk.Artifact, bool, bool, error) {
-	var token, serverApi, sourcePath, artifPath, folderName, result string
+	var token, serverApi, sourcePath, artifPath, result string
 	var err error
 	var fileList, failList []string
 
@@ -94,18 +88,12 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source
 		artifPath = p.config.ArtifactoryPath
 	}
 
-	if p.config.FolderName == "" {
-		folderName = ""
-	} else {
-		folderName = p.config.FolderName
-	}
-
 	if len(p.config.FileList) > 0 {
 		fileList = p.config.FileList
 	}
 
 	for _, file := range fileList {
-		result, err = tasks.UploadGeneralArtifact(serverApi, token, sourcePath, artifPath, file, folderName)
+		result, err = tasks.UploadGeneralArtifact(serverApi, token, sourcePath, artifPath, file)
 		if result == "Failed" && err == nil {
 			log.Println("File not found: " + file)
 			failList = append(failList, file)

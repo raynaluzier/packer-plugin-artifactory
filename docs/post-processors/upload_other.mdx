@@ -23,8 +23,6 @@ This post-processor differs from the `artifactory-upload` post-processor in that
     * Environment variable: `ARTIFACTORY_TOKEN`	
 - `source_path` (string) - Required; The directory path where the files to be uploaded reside.
 - `artifactory_path` (string) - Required; The repo path within Artifactory where the artifact(s) are to uploaded to (ex: /repo/folder).
-- `folder_name` (string) - Optional; If files are to be uploaded to the same directory as a given image, set this to be the image name; otherwise leave blank.
-  ** You may optionally include the folder name in the Artifactory path above. This was only separated out to specifically draw attention to whether or not to place the file(s) with an image, but handling it with this input is not required.
 - `file_list` ([]string) - Required; The list of file names with extensions to be uploaded; each file should be in quotes.
 
 
@@ -44,7 +42,6 @@ None
 		source_path      = "c:\\lab\\test-dir"
 		file_list        = ["testfile1.txt", "testfile2.txt"]
 		artifactory_path = "/rpt-libs-local/"
-		folder_name      = "win2022"
 	}
 ```
 

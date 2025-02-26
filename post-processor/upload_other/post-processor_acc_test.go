@@ -147,7 +147,6 @@ func SetTemplate(testDirPath string) string {
 			source_path      = "` + newPath + `"
 			file_list        = ["` + testArtifactOne + `", "` + testArtifactTwo + `"]
 			artifactory_path = "/test-packer-plugin"
-			folder_name      = "testing"
 		}
 	}
 	`
