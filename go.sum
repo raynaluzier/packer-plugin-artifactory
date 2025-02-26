@@ -210,8 +210,8 @@ github.com/prometheus/common v0.9.1/go.mod h1:yhUN8i9wzaXS3w1O07YhxHEBxD+W35wd8b
 github.com/prometheus/procfs v0.0.0-20181005140218-185b4288413d/go.mod h1:c3At6R/oaqEKCNdg8wHV1ftS6bRYblBhIjjI8uT2IGk=
 github.com/prometheus/procfs v0.0.2/go.mod h1:TjEm7ze935MbeOT/UhFTIMYKhuLP4wbCsTZCD3I8kEA=
 github.com/prometheus/procfs v0.0.8/go.mod h1:7Qr8sr6344vo1JqZ6HhLceV9o3AJ1Ff+GxbHq6oeK9A=
-github.com/raynaluzier/artifactory-go-sdk v1.0.26 h1:egKyh/pNFMZZx7kk2PzDUIyw9fMbpQNkYpiKK2m1Ixc=
-github.com/raynaluzier/artifactory-go-sdk v1.0.26/go.mod h1:VCpL2xwnMNN7vA4zOD4BeQMQRV6+iAv78q8bSXYcty8=
+github.com/raynaluzier/artifactory-go-sdk v1.0.27 h1:gNAoVIAKGWh+PQMW3hR4biyIZ4R6avqBEHscZO3ySm8=
+github.com/raynaluzier/artifactory-go-sdk v1.0.27/go.mod h1:VCpL2xwnMNN7vA4zOD4BeQMQRV6+iAv78q8bSXYcty8=
 github.com/raynaluzier/vsphere-go-sdk v0.0.11 h1:K/9VU9ZEPUVJcvVRZ91QxzXqf5UaGVB3QsxSEMRoFms=
 github.com/raynaluzier/vsphere-go-sdk v0.0.11/go.mod h1:i4mTPc+1jyHGVX5efmeOFA4ciOiYqh/R2VsClhHepgE=
 github.com/ryanuber/columnize v0.0.0-20160712163229-9b3edd62028f/go.mod h1:sm1tb6uqfes/u+d4ooFouqFdy9/2g9QGwK3SQygK0Ts=
