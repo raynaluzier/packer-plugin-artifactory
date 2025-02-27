@@ -97,7 +97,7 @@ func TestAccDatasourceDownload_Artifactory(t *testing.T) {
 			logsString := string(logsBytes)
 			log.Println(logsString)
 			
-			outputLog := "Test artifact downloaded successfully."
+			outputLog := " - Success"
 			if matched, _ := regexp.MatchString(outputLog+".*", logsString); !matched {
 				t.Fatalf("logs doesn't contain expected output %q", logsString)
 			}

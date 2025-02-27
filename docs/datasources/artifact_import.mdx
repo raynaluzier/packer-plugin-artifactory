@@ -12,10 +12,10 @@ This component is meant to be used in conjunction with the [vSphere-Clone](https
 
 
 ## Advisements
-* When converting an image that was thin provisioned to start, the OVFTOOL automatically converts the image to be thick provisioned. Converting the resulting template back to a virtual machine and attempting to power it on may result in the following error: **"Unsupported or invalid disk type 2 for 'scsi0:0'. Ensure that the disk has been imported."** 
+* When converting an image that was thin provisioned or thick provisioned, eager zeroed to start, the OVFTOOL automatically converts the image to be thick provisioned, lazy zeroed. Converting the resulting template back to a virtual machine and attempting to power it on may result in the following error: **"Unsupported or invalid disk type 2 for 'scsi0:0'. Ensure that the disk has been imported."** 
     ![Unsupported or Invalid Disk Error](https://github.com/raynaluzier/packer-plugin-artifactory/tree/main/docs/datasources/unsupported_disk_error.jpg)
 
-  To resolve this, edit the settings of the virtual machine. Expand the hard disk settings and change the **Virtual Device Node** to **IDE 0**. The machine will then power on successfully.
+  To resolve this, edit the settings of the virtual machine. Expand the hard disk settings and change the **Virtual Device Node** to **IDE 0**. Repeat this for each disk. The machine will then power on successfully.
     ![Edit Settings](https://github.com/raynaluzier/packer-plugin-artifactory/tree/main/docs/datasources/edit_settings_disk.jpg)
 
 

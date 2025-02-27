@@ -40,7 +40,7 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 	}
 
 	if p.config.ArtifactUri == "" {
-		log.Fatal("---> Missing Artifact URI. The new Artifact URI is required to update the artifact's properties.")
+		log.Fatal("---> Missing Artifact URI. The Artifact URI is required to update the artifact's properties.")
 	}
 
 	if len(p.config.ArtifactProperties) == 0 {
