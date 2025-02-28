@@ -63,3 +63,23 @@ None
 		}
 	}
 ```
+
+## FAQ
+* Is the artifact URI case sensitive?
+  - Yes. Artifactory is very particular about casing with regards to paths, artifacts, and properties. If the case does not match, Artifactory will think this is a different artifact and throw an error that it can't find it.
+  - You can use the `artifactory` datasource to locate the artifact within Artifactory, which will then output the artifact_uri as one of it's available outputs. This value can then be used in the `artifactory-upload` component by referencing the schema in dot-notation (for example: `data.artifactory.basic-example.artifact_uri`).
+
+* What happens if I update a property that already exists with the same value?
+  - Nothing. The update will say it completed successfully.
+
+* How do I update a property value for a property key that already exists?
+  - Simply pass the same property key (with correct case) and the new property value.
+
+* Are property keys/values case sensitive?
+  - Yes. Artifactory is very particular about casing with regards to paths, artifacts, and properties. If the property key case does not match, Artifactory will think this is a different property and assign the "new" key/value pair to the artifact. If the property value does not match, Artifactory will update the property value to match what was input.
+
+* Does the property have to exist in Artifactory first before I can assign it?
+  - No. Artifactory will take whatever property key/value you provide and assign it to the artifact.
+
+* What if I want to update properties on multiple artifacts?
+  - Use separate `artifactory-update` blocks for each artifact. Each block can have one or more property key/values provided.

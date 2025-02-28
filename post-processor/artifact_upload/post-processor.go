@@ -55,7 +55,7 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 
 	if p.config.SourcePath == "" {
 		log.Println("---> Please provide the source path to the artifact to upload.")
-		log.Fatal("Source path should be in the form of either 'h:\\lab\\artifact.ext' or '/lab/artifact.ext'")
+		log.Fatal("Source path should be in the form of either 'h:\\lab\\' or '/lab/'")
 	}
 
 	if p.config.TargetPath == "" && p.config.ExistingUriTarget == "" {

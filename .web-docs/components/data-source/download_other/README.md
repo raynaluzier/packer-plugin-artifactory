@@ -2,7 +2,7 @@ Type: `artifactory-download-other`
 
 # JFrog Artifactory Data Source
 
-The Artifactory data source is used to download any supporting artifacts that go with a given image file (type OVA, OVF, or VMTX). This could be scripts, metadata, documents, etc. No files files are converted or imported into vCenter as part of this.
+The Artifactory data source is used to download any supporting artifacts that go with a given image file (type OVA, OVF, or VMTX). This could be scripts, metadata, documents, other image file types, or image files that shouldn't be converted. **No files files are converted or imported into vCenter as part of this.**
 
 This data source differs from the `artifactory-import` data source in that the `artifactory-import` process is used to download OVA, OVF, or VMTX files which are comprised of one or more specific files, depending on the image type. Depending on the image type, the associated files are determined, validated, and optionally downloaded before being converted to VMX, imported into vCenter, and marked as a VM Template.
 
@@ -45,4 +45,27 @@ data "artifactory-download-other" "basic-example" {
 }
 ```
 
+## FAQ
+* What if I want to store these files with the image files?
+  - Specify the output directory of the image files.
+  
+* What if I have existing files with the same name in my output directory?
+  - The downloaded files will overwrite the existing files.
 
+* Can this do single file downloads?
+  - Yes.
+
+* Are the files in the file list case sensitive?
+  - Yes. Artifactory is very particular about casing with regards to paths, artifacts, and properties. If the case does not match, Artifactory will think this is a different artifact and throw an error that it can't find it.
+
+* Is the Artifactory path case sensitive?
+  - Yes. See previous note.
+
+* Is the output directory case sensitive?
+  - No.
+
+* Can I use this component to import my file into vCenter?
+  - No. This component does not do any importing. It simple downloads a defined list of one or more files.
+
+* What if I need to download files from different locations?
+  - Use a separate instance of this component for each location.

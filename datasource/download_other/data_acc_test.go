@@ -114,7 +114,7 @@ func SetTemplate(testDirPath string) string {
 	packer {
 		required_plugins {
 			artifactory = {
-				version = ">= 1.0.26"
+				version = ">= 1.0.44"
 				source  = "github.com/raynaluzier/artifactory"
 			}
 		}

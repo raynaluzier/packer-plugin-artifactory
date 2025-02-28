@@ -148,3 +148,36 @@ data "artifactory-import" "basic-example" {
 	download_uri        = data.artifactory.basic-example.download_uri
 }
 ```
+
+## FAQ
+* How do I separate these image files from other image files in my output directory?
+  - When the image files are downloaded, they are placed into their own image name-based folder. For example:  win2022-25-01-23.ova would be downloaded to `.../win2022-25-01-23/win2022-25-01-23.ova`.
+
+* What if I have existing files with the same name in my output directory?
+  - The downloaded files will overwrite the existing files. If this is not desired, set the 'import_no_download' flag and use the existing image file in your output directory as the source.
+  - Alternatively, specify a different directory.
+
+* Does the output directory I specify have to exist first?
+  - No, the process will create the directory path if it doesn't already exist.
+  - **As this process imports the template into vCenter, you should specify an accessible datastore as the output directory.**
+
+* Is the download URI case sensitive?
+  - It depends on the behavior of the particular Artifactory API. Typically, paths and artifact names are case sensitive. However, it is NOT case sensitive in this instance.
+
+* What if I don't want my OVA converted into a VM Template?
+  - Use the 'artifactory-download-other' component to download the OVA into a desired location. But then you will have to manually add the OVA to vCenter as that functionality is not currently available.
+
+* What if I want to pull down an ISO for use with the 'vsphere-iso' plugin?
+  - Use the 'artifactory-download-other' component to download the OVA into a desired location. Use this location as the ISO source with the 'vsphere-iso' plugin.
+
+* What if I have other files, like scripts or YAML files, that I need for the configuration of the image?
+  - Use the 'artifactory-download-other' component to download the supporting files into a desired location.
+
+* When I try to boot the template machine that was created after converting my OVA/OVF, I get an "Unsupported or invalid disk type 2 for 'scsi0:0'" error. Can you fix this?
+  - Unfortunately, no. This is a known potential behavior when the OVFTool converts from a differing disk format type (like `thin provisioned`) to it's resulting `thick provisioned lazy zeroed` type, and we do not maintain this tool. However, steps to remediate can be found in the **'Advisements'** section above.
+
+* I get an error when trying to use a Windows path like this: 'E:\lab-servs\'. This is the right path. Why is this happening?
+  - Windows-based paths must be properly escaped. Instead, use a path like this: 'E:\\lab-servs\\'. This is not an issue with Linux-based paths.
+
+* Can this component add image files into a Content Library?
+  - No, this component does not work with a Content Library. The Content Library is an entirely different process model with it's own separate set of APIs.

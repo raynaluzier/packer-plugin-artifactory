@@ -52,3 +52,20 @@ None
 		artifactory_path = "/rpt-libs-local/scripts/"
 	}
 ```
+
+## FAQ
+* What if I want to store these additional files with the image?
+  - Include the image name-based folder in the artifactory path. So if the image was uploaded using the `artifactory-upload` post-processor, we know that it will be stored in it's own image name-based folder (Ex: /myrepo/win/**win2022**/win2022.ova). In this case, simply specify `/myrepo/win/win2022/` as the artifactory path for these other files.
+
+* What if I want to store some files in one place and some files in another?
+  - Use multiple `artifactory-upload` blocks.
+
+* Is the Artifactory path case sensitive?
+  - Yes. Artifactory is very particular about casing with regards to paths, artifacts, and properties. If the case does not match, Artifactory will think this is a different artifact and throw an error that it can't find it.
+
+* Are the files in the file list case sensitive?
+  - Yes and no. If you specify the file name in lowercase but the file exists in uppercase in the source directory, the file will still be successfully verified and the file will be uploaded in its original case.
+  - However, if the file already exists in the same path in Artifactory, but in a different case, Artifactory will view it as a different file and upload a separate copy in the differing case.
+
+* Is the source path case sensitive?
+  - No.

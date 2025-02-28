@@ -35,7 +35,7 @@ func TestAccPostProcessorUpload_Artifactory(t *testing.T) {
 	// Returns $HOME_DIR/test-directory/test-artifact.ova
 	testArtifactPath   := common.CreateTestFile(testDirPath, testArtifactName, artifactContents, setAsOva)  // the artifact will be renamed to test-artifact.ova
 	uploadTestArtifact := false  // Don't need to upload artifact as part of test setup; test itself will do this.
-	testArtifactUpload := SetTemplate(testArtifactPath)
+	testArtifactUpload := SetTemplate(testDirPath)
 	kvProps = append(kvProps,"release=latest-stable")
 
 	log.Println("Test Directory Created: " + testDirPath)
@@ -90,8 +90,8 @@ func TestAccPostProcessorUpload_Artifactory(t *testing.T) {
 			logsString := string(logsBytes)
 			log.Println(logsString)
 
-			downloadUriLog := "Download URI for new artifact: " + downloadUri
-			if matched, _ := regexp.MatchString(downloadUriLog+".*", logsString); !matched {
+			uploadLog := "End of upload process - Uploaded image artifacts"
+			if matched, _ := regexp.MatchString(uploadLog+".*", logsString); !matched {
 				t.Fatalf("logs doesn't contain expected output %q", logsString)
 			}
 			return nil
@@ -107,7 +107,7 @@ func SetTemplate(testDirPath string) string {
 	packer {
 		required_plugins {
 			artifactory = {
-				version = ">= 1.0.27"
+				version = ">= 1.0.44"
 				source  = "github.com/raynaluzier/artifactory"
 			}
 		}
