@@ -1,5 +1,7 @@
 # Packer Plugin JFrog Artifactory
-The `Artifactory` plugin can be used with HashiCorp [Packer](https://www.packer.io) to locate, retrieve, import into vCenter as a VM Template, and upload and update custom images into Artifactory. For the list of available functionality for this plugin, see [docs](docs).
+The `Artifactory` plugin can be used with HashiCorp [Packer](https://www.packer.io) to locate, retrieve, import into vCenter as a VM Template, and upload and update custom images into Artifactory. For the list of available functionality for this plugin, see [docs](docs). 
+
+NOTE: The `artifactory-import` component makes use of the VMware OVFTool. This must be installed on the machine where the plugin will be executed from to function properly.
 
 ## Installation
 

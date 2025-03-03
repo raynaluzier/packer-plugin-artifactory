@@ -4,6 +4,8 @@ One data source locates target image artifacts and retrieves information necessa
 
 One post-processor enables the upload of a newly created image artifact into Artifactory and the other enables the assignment of one or more properties to an image artifact.
 
+NOTE: The `artifactory-import` component makes use of the VMware OVFTool. This must be installed on the machine where the plugin will be executed from to function properly.
+
 
 ### Installation
 
