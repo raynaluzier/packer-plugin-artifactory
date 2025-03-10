@@ -22,6 +22,7 @@ type FlatConfig struct {
 	VcenterResourcePool *string `mapstructure:"respool_name" required:"false" cty:"respool_name" hcl:"respool_name"`
 	OutputDir           *string `mapstructure:"output_dir" required:"false" cty:"output_dir" hcl:"output_dir"`
 	DownloadUri         *string `mapstructure:"download_uri" required:"false" cty:"download_uri" hcl:"download_uri"`
+	DsImagePath         *string `mapstructure:"ds_image_path" required:"false" cty:"ds_image_path" hcl:"ds_image_path"`
 	ImportNoDownload    *bool   `mapstructure:"import_no_download" required:"false" cty:"import_no_download" hcl:"import_no_download"`
 	SourceImagePath     *string `mapstructure:"source_path" required:"false" cty:"source_path" hcl:"source_path"`
 }
@@ -50,6 +51,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"respool_name":       &hcldec.AttrSpec{Name: "respool_name", Type: cty.String, Required: false},
 		"output_dir":         &hcldec.AttrSpec{Name: "output_dir", Type: cty.String, Required: false},
 		"download_uri":       &hcldec.AttrSpec{Name: "download_uri", Type: cty.String, Required: false},
+		"ds_image_path":      &hcldec.AttrSpec{Name: "ds_image_path", Type: cty.String, Required: false},
 		"import_no_download": &hcldec.AttrSpec{Name: "import_no_download", Type: cty.Bool, Required: false},
 		"source_path":        &hcldec.AttrSpec{Name: "source_path", Type: cty.String, Required: false},
 	}

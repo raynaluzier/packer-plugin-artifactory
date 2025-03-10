@@ -62,7 +62,15 @@ Ex: If the output directory is H:\\lab-servs, the image file 'win2022.ova' will 
     * Environment variable: `OUTPUTDIR`
 - `download_uri` (string) - Optional; The Artifactory download URI of the image artifact that should be downloaded. The artifact should be either an OVA, OVF, or VMTX file. Any standard vSphere files associated with one of those image types will also be downloaded automatically. 
     **If `import_no_download` is set to FALSE (default), then values for `output_dir` and `download_uri` are required**
-- `source_path` (string) - Optional; Full file path (ex: `/path/folder/image1234/image1234.ova`) to the source image file (should be OVA, OVF, VMTX, or VMX if it's already in that format). As the image files must be in VMX format (essentially a VM) first for this plugin component to do the import, the image files will be examined to determined whether the image needs to be converted to VMX format. If not, the conversion step is skipped and the import will proceed.
+- `ds_image_path` (string) - Optional; Usually for Linux paths; the datastore path of the image without the mount point portion. This is used to build the `vmPathName` that vCenter uses to import the VMX into vCenter before marking it as a VM Template.
+
+  Usually in cases where the Packer machine is a Linux box, it will have a mount point/share to the datastore in the form of (for example) '/mnt/share/dev-servers/' where '/mnt/share' is the mount point seen from the Packer machine and '/dev-servers/' would be a folder on the datastore where different machines/templates live. In our example, the path to the converted image from Packer's perspective is '/mnt/share/dev-servers/rhel9/rhel9.vmx'.  
+
+  Packer needs to be able to access '/mnt/share/dev-servers' (as in our example) to validate that the image files exist before we try to import them. However, when we build the required `vmPathName` that points to the image's VMX file stored on the datastore mounted in vCenter (after conversion), vCenter has no idea where '/mnt/share/dev-servers/rhel9/rhel9.vmx' is because all it sees from the datastore is '/dev-servers/rhel9/rhel9.vmx'. 
+
+  Since mount point/share names and structures can vary wildly depending on individual needs/preferences, there's no way to automate the detection of what this portion of the path would be and edit it out. We don't typically have this issue in Windows because we're mapping a drive letter to the datastore (for example:  E:\\Lab\\dev-servers), drive letters will always be a single character that we can trim off, and the remaining path is a path that should exist on the datastore accessible to vCenter. Therefore, if you are running Packer from a machine that's using a mount point/share where part of this path doesn't exist on the datastore, then please use the `ds_image_path` input to provide the datastore folder path. **This path should NOT include the image folder or image file itself as those will be added as part of the process.** 
+
+- `source_path` (string) - Optional; Full file path (ex: `/mnt/share/folder/image1234/image1234.ova`) to the source image file (should be OVA, OVF, VMTX, or VMX if it's already in that format). As the image files must be in VMX format (essentially a VM) first for this plugin component to do the import, the image files will be examined to determined whether the image needs to be converted to VMX format. If not, the conversion step is skipped and the import will proceed.
     **If `import_no_download` is set to TRUE, then a value for `source_path` is required.**
 
 
@@ -92,6 +100,26 @@ data "artifactory-import" "basic-example" {
 }
 ```
 
+```hcl
+data "artifactory-import" "basic-example" {
+    artifactory_token   = "artifactory_token"
+    artifactory_server  = "https://server.domain.com:8081/artifactory/api"
+
+    vcenter_server      = "vc01.domain.com"
+    vcenter_user        = "jsmith@domain.com"
+    vcenter_password    = "P@ssW0rd!"
+    datacenter_name     = "Lab"
+    datastore_name      = "lab-servs"
+    cluster_name        = "lab-cluster01"
+    folder_name         = "Templates"
+    respool_name        = "cluster01-pool"
+
+    output_dir          = "/mnt/lab/lab-servs
+    download_uri        = "https://server.domain.com:8081/artifactory/api/storage/lab-repo/win/win2022.ova"
+    ds_image_path       = "/lab-servs/"
+}
+```
+
 ## Basic Example Usage, Skipping the Artifact Download Step
 
 ```hcl
@@ -109,7 +137,8 @@ data "artifactory-import" "basic-example" {
     respool_name        = "cluster01-pool"
 
     import_no_download  = true
-    source_path         = "/lab/rhel9/rhel9.ova"
+    source_path         = "/mnt/share/rhel9/rhel9.ova"
+    ds_image_path       = "/"
 }
 ```
 
@@ -180,3 +209,6 @@ data "artifactory-import" "basic-example" {
 
 * Can this component add image files into a Content Library?
   - No, this component does not work with a Content Library. The Content Library is an entirely different process model with it's own separate set of APIs.
+
+* My Packer system runs Linux and I've got a share to the datastore mounted. Everything runs file until it gets to the import process and then it fails. Why is this happening?
+  - The share on Packer is using a mount point which exists soley on the Packer system, but doesn't exist on the datastore itself. Therefore, it's unknown to vCenter. Use the `ds_image_path` input to specify the folder path on the datastore without the mount point portion, AND without the image name-based folder or image file. The process will automatically include those when generating the `vmPathName`. See above for examples.

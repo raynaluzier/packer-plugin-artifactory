@@ -9,6 +9,7 @@ dist/*
 docs.zip
 
 .env
+env.txt
 *null-test*
 *packer-plugin-artifactory*
 data_acc_test-test-ready*

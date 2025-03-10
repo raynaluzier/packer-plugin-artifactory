@@ -113,7 +113,8 @@ data "artifactory-import" "basic-example" {
 	download_uri        = data.artifactory.basic-example.download_uri   // remove if 'import_no_download = true'
 
 	//import_no_download = true
-	//source_path        = "/lab-servs/img22/img22.ova"
+	//source_path        = "/mnt/share/lab-servs/img22/img22.ova"
+	//ds_image_path      = "/lab-servs/"
 }
 
 locals {
