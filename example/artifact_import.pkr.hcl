@@ -109,12 +109,13 @@ data "artifactory-import" "basic-example" {
 	folder_name         = var.vc_folder
 	respool_name        = var.vc_respool
 
-	ouput_dir           = var.output_directory							// remove if 'import_no_download = true'
-	download_uri        = data.artifactory.basic-example.download_uri   // remove if 'import_no_download = true'
+	ouput_dir           = var.output_directory							// Ex: "/mnt/share/lab-servs/"  // remove if 'import_no_download = true'
+	download_uri        = data.artifactory.basic-example.download_uri     								// remove if 'import_no_download = true'
+	//ds_image_path     = "/lab-servs/"
 
 	//import_no_download = true
 	//source_path        = "/mnt/share/lab-servs/img22/img22.ova"
-	//ds_image_path      = "/lab-servs/"
+	//ds_image_path      = "/lab-servs/img22.ova"
 }
 
 locals {
