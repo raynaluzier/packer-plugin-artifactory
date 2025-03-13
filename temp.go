@@ -28,21 +28,18 @@ func loadDotEnv() error {
 		kvp := strings.SplitN(line, "=", 2)
 		if len(kvp) != 2 || kvp[0] == "" || strings.Contains(kvp[0], " ") || strings.Contains(kvp[0], "'") || 
 	strings.Contains(kvp[0], "\"") {
-			fmt.Printf("Warning: invalid line in .env: %s\n", line)
-			continue
+			return fmt.Errorf("Warning: invalid line in .env: %s\n", line)
 		}
 		key := kvp[0]
 		value := kvp[1]
 		if value[0] == '"' {
 			if value[len(value)-1] != '"' {
-				fmt.Printf("Warning: invalid line in .env: %s\n", line)
-				continue
+				return fmt.Errorf("Warning: invalid line in .env: %s\n", line)
 			}
 			value = value[1 : len(value)-1]
 		} else if value[0] == '\'' {
 			if value[len(value)-1] != '\'' {
-				fmt.Printf("Warning: invalid line in .env: %s\n", line)
-				continue
+				return fmt.Errorf("Warning: invalid line in .env: %s\n", line)
 			}
 			value = value[: len(value)-1]
 		}
@@ -54,6 +51,6 @@ func loadDotEnv() error {
 func init() {
 	err := loadDotEnv()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintf(os.Stderr, "%v\n", err)
 	}
 }
