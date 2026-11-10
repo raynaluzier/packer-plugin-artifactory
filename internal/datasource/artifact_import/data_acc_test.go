@@ -23,7 +23,7 @@ func TestAccDatasourceImport_Artifactory(t *testing.T) {
 			return nil
 		},
 		Template: testDatasourceImportHCL2Basic,
-		Type: "basic-example",
+		Type:     "basic-example",
 		Check: func(buildCommand *exec.Cmd, logfile string) error {
 			if buildCommand.ProcessState != nil {
 				if buildCommand.ProcessState.ExitCode() != 0 {
@@ -163,7 +163,6 @@ const testDatasourceImportHCL2Basic = `
 
 		import_no_download  = true
 		source_path         = "E:\\path\\testing\\img2\\img2.ovf"
-		target_path         = "E:\\path\\converted\\img2\\img2.vmx"
 	}
 
 	locals {

@@ -78,30 +78,32 @@ const testDatasourceHCL2Basic = `
 	`
 
 var artifactUri string
-var statusCode  string
+var statusCode string
 
-const testDirName      = "test-directory"
+const testDirName = "test-directory"
 const testArtifactName = "test-artifact.txt"
 const artifactContents = "Just some test content."
-var kvProps []string
-const uploadTestArtifact = true
-const setAsOva           = false
 
-var token = ""    // Update for testing
-var server = ""   // Update for testing
+var kvProps []string
+
+const uploadTestArtifact = true
+const setAsOva = false
+
+var token = os.Getenv("ARTIFACTORY_TOKEN")
+var server = os.Getenv("ARTIFACTORY_SERVER")
 
 // Run with: PACKER_ACC=1 go test -count 1 -v ./... -timeout 120m
 func TestAccDatasource_Artifactory(t *testing.T) {
 
 	// Prep test artifact
-	testDirPath  := common.CreateTestDirectory(testDirName)
+	testDirPath := common.CreateTestDirectory(testDirName)
 	testArtifactPath := common.CreateTestFile(testDirPath, testArtifactName, artifactContents, setAsOva)
-	kvProps = append(kvProps,"release=latest-stable")
+	kvProps = append(kvProps, "release=latest-stable")
 	uploadTestArtifact := true
 
 	log.Println("Test Directory Created: " + testDirPath)
 	log.Println("Test Artifact Created: " + testArtifactPath)
- 
+
 	testCase := &acctest.PluginTestCase{
 		Name: "artifactory_datasource_basic_test",
 		Setup: func() error {
@@ -116,7 +118,7 @@ func TestAccDatasource_Artifactory(t *testing.T) {
 			// Deletes locally created test artifact and test directory
 			common.DeleteTestFile(testArtifactPath)
 			common.DeleteTestDirectory(testDirPath)
-	
+
 			// Deletes test artifact and repo from Artifactory
 			statusCode := tasks.TeardownTest(server, token)
 			if statusCode == "200" {
@@ -129,7 +131,7 @@ func TestAccDatasource_Artifactory(t *testing.T) {
 			return nil
 		},
 		Template: testDatasourceHCL2Basic,
-		Type: "basic-example",
+		Type:     "basic-example",
 		Check: func(buildCommand *exec.Cmd, logfile string) error {
 			if buildCommand.ProcessState != nil {
 				if buildCommand.ProcessState.ExitCode() != 0 {

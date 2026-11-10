@@ -15,31 +15,33 @@ import (
 )
 
 var artifactUri string
-var statusCode  string
+var statusCode string
 
-const testDirName      = "test-directory"
+const testDirName = "test-directory"
 const testArtifactName = "test-artifact.txt"
 const artifactContents = "Just some test content."
+
 var kvProps []string
 var downloadUri string
+
 const setAsOva = false
 
-var token = ""    // Update for testing
-var server = ""   // Update for testing
+var token = os.Getenv("ARTIFACTORY_TOKEN")
+var server = os.Getenv("ARTIFACTORY_SERVER")
 
 // Run with: PACKER_ACC=1 go test -count 1 -v ./... -timeout 120m
 func TestAccPostProcessorUpdate_Artifactory(t *testing.T) {
 
 	// Prep test artifact
-	testDirPath        := common.CreateTestDirectory(testDirName)
-	testArtifactPath   := common.CreateTestFile(testDirPath, testArtifactName, artifactContents, setAsOva)
+	testDirPath := common.CreateTestDirectory(testDirName)
+	testArtifactPath := common.CreateTestFile(testDirPath, testArtifactName, artifactContents, setAsOva)
 	uploadTestArtifact := true
 	testArtifactUpdate := SetTemplate(testArtifactPath)
-	kvProps = append(kvProps,"release=stable")
+	kvProps = append(kvProps, "release=stable")
 
 	log.Println("Test Directory Created: " + testDirPath)
 	log.Println("Test Artifact Created: " + testArtifactPath)
- 
+
 	testCase := &acctest.PluginTestCase{
 		Name: "artifactory_postprocessor_update_test",
 		Setup: func() error {
@@ -55,7 +57,7 @@ func TestAccPostProcessorUpdate_Artifactory(t *testing.T) {
 			// Deletes locally created test artifact and test directory
 			common.DeleteTestFile(testArtifactPath)
 			common.DeleteTestDirectory(testDirPath)
-	
+
 			// Deletes test artifact and repo from Artifactory
 			statusCode := tasks.TeardownTest(server, token)
 			if statusCode == "200" {
@@ -68,7 +70,7 @@ func TestAccPostProcessorUpdate_Artifactory(t *testing.T) {
 			return nil
 		},
 		Template: testArtifactUpdate,
-		Type: "basic-example",
+		Type:     "basic-example",
 		Check: func(buildCommand *exec.Cmd, logfile string) error {
 			if buildCommand.ProcessState != nil {
 				if buildCommand.ProcessState.ExitCode() != 0 {

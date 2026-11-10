@@ -15,36 +15,38 @@ import (
 )
 
 var artifactUri string
-var statusCode  string
+var statusCode string
 
-const testDirName      = "test-directory"
-const testArtifactOne  = "testfile1.txt"
-const testArtifactTwo  = "testfile2.txt"
+const testDirName = "test-directory"
+const testArtifactOne = "testfile1.txt"
+const testArtifactTwo = "testfile2.txt"
 const artifactContents = "Just some test content."
+
 var kvProps []string
 var downloadUri string
+
 const setAsOva = false
 
-var token = ""    // Update for testing
-var server = ""   // Update for testing
+var token = os.Getenv("ARTIFACTORY_TOKEN")
+var server = os.Getenv("ARTIFACTORY_SERVER")
 
 // Run with: PACKER_ACC=1 go test -count 1 -v ./... -timeout 120m
 func TestAccPostProcessorUploadOther_Artifactory(t *testing.T) {
 
 	// Prep test artifact
-	testDirPath        := common.CreateTestDirectory(testDirName)
+	testDirPath := common.CreateTestDirectory(testDirName)
 	// Returns $HOME_DIR/test-directory/testfile1.txt, testfile2.txt
-	testArtifactOnePath   := common.CreateTestFile(testDirPath, testArtifactOne, artifactContents, setAsOva)
-	testArtifactTwoPath   := common.CreateTestFile(testDirPath, testArtifactTwo, artifactContents, setAsOva)
+	testArtifactOnePath := common.CreateTestFile(testDirPath, testArtifactOne, artifactContents, setAsOva)
+	testArtifactTwoPath := common.CreateTestFile(testDirPath, testArtifactTwo, artifactContents, setAsOva)
 
-	uploadTestArtifact := false  // Don't need to upload artifact as part of test setup; test itself will do this.
+	uploadTestArtifact := false // Don't need to upload artifact as part of test setup; test itself will do this.
 	testArtifactUploadOther := SetTemplate(testDirPath)
-	kvProps = append(kvProps,"release=latest-stable")
+	kvProps = append(kvProps, "release=latest-stable")
 
 	log.Println("Test Directory Created: " + testDirPath)
 	log.Println("Test Artifact Created: " + testArtifactOnePath)
 	log.Println("Test Artifact Created: " + testArtifactTwoPath)
- 
+
 	testCase := &acctest.PluginTestCase{
 		Name: "artifactory_postprocessor_upload_other_test",
 		Setup: func() error {
@@ -61,7 +63,7 @@ func TestAccPostProcessorUploadOther_Artifactory(t *testing.T) {
 			common.DeleteTestFile(testArtifactOnePath)
 			common.DeleteTestFile(testArtifactTwoPath)
 			common.DeleteTestDirectory(testDirPath)
-	
+
 			// Deletes test artifact and repo from Artifactory
 			statusCode := tasks.TeardownTest(server, token)
 			if statusCode == "200" {
@@ -74,7 +76,7 @@ func TestAccPostProcessorUploadOther_Artifactory(t *testing.T) {
 			return nil
 		},
 		Template: testArtifactUploadOther,
-		Type: "basic-example",
+		Type:     "basic-example",
 		Check: func(buildCommand *exec.Cmd, logfile string) error {
 			if buildCommand.ProcessState != nil {
 				if buildCommand.ProcessState.ExitCode() != 0 {
@@ -106,7 +108,7 @@ func TestAccPostProcessorUploadOther_Artifactory(t *testing.T) {
 }
 
 func SetTemplate(testDirPath string) string {
-	newPath := common.EscapeSpecialChars(testDirPath)  // $HOME_DIR/test-directory/
+	newPath := common.EscapeSpecialChars(testDirPath) // $HOME_DIR/test-directory/
 
 	template := `
 	packer {

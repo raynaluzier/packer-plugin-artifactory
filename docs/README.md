@@ -1,8 +1,8 @@
-The JFrog Artifactory plugin can be used with HashiCorp Packer to identify, retrieve, and upload artifacts, depending on the strategy you want to use. This plugin comes with two data sources and two post-processors. 
+The JFrog Artifactory plugin can be used with HashiCorp Packer to identify, retrieve, and upload artifacts. It provides three data sources and three post-processors.
 
-One data source locates target image artifacts and retrieves information necessary to work with them. The other allows you to (optionally) download those image artifacts (OVA, OVF, or VMTX) from Artifactory and then import them into vCenter and mark them as VM Template. Prior to importing the image artifact, it will be evaluated, and if necessary converted, to the proper format to enable importing into vCenter.
+The data sources locate artifacts, download supporting files, and optionally download and import OVA, OVF, or VMTX images into vCenter as templates. Image files are checked and converted when necessary before import.
 
-One post-processor enables the upload of a newly created image artifact into Artifactory and the other enables the assignment of one or more properties to an image artifact.
+The post-processors upload image files, upload supporting files, and update artifact properties.
 
 NOTE: The `artifactory-import` component makes use of the VMware OVFTool. This must be installed on the machine where the plugin will be executed from to function properly.
 
@@ -166,10 +166,12 @@ Set the Environment Variables:
 ```
 export ARTIFACTORY_SERVER=https://server.domain.com:8081/artifactory/api
 export ARTIFACTORY_TOKEN=1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t
-export vc_server    = "vc01.domain.com"
-export vc_user      = "auser@domain.com"
-export vc_password  = "MyP@$$w0rd!"
+export VCENTER_SERVER=vc01.domain.com
+export VCENTER_USER=auser@domain.com
+export VCENTER_PASSWORD='MyP@$$w0rd!'
 ```
+
+By default, vCenter TLS certificates are verified. For legacy environments with self-signed certificates, set `VSPHERE_INSECURE_SKIP_TLS_VERIFY=true`; use this only when certificate verification cannot be configured.
 
 **Usage:  .env**
 If using a `.env` file, include it at the root of your configuration. Ensure an entry is added for it to your `.gitignore` file to prevent storing sensitive data in your repository.

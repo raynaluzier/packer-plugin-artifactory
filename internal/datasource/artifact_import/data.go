@@ -2,9 +2,10 @@
 package artifactImport
 
 import (
+	"errors"
+	"fmt"
 	"log"
 	"os"
-	"strings"
 
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/hashicorp/packer-plugin-sdk/hcl2helper"
@@ -17,28 +18,28 @@ import (
 
 // --> If making changes to this section, make sure the hcl2spec gets updated as well!
 type Config struct {
-	ArtifactoryToken       string `mapstructure:"artifactory_token" required:"true"`
-	ArtifactoryServer      string `mapstructure:"artifactory_server" required:"true"`
-	
-	VcenterServer			string `mapstructure:"vcenter_server" required:"true"`
-	VcenterUser				string `mapstructure:"vcenter_user" required:"true"`
-	VcenterPassword			string `mapstructure:"vcenter_password" required:"true"`
-	VcenterDatacenter		string `mapstructure:"datacenter_name" required:"true"`
-	VcenterDatastore		string `mapstructure:"datastore_name" required:"true"`
-	VcenterCluster			string `mapstructure:"cluster_name" required:"true"`
+	ArtifactoryToken  string `mapstructure:"artifactory_token" required:"true"`
+	ArtifactoryServer string `mapstructure:"artifactory_server" required:"true"`
+
+	VcenterServer     string `mapstructure:"vcenter_server" required:"true"`
+	VcenterUser       string `mapstructure:"vcenter_user" required:"true"`
+	VcenterPassword   string `mapstructure:"vcenter_password" required:"true"`
+	VcenterDatacenter string `mapstructure:"datacenter_name" required:"true"`
+	VcenterDatastore  string `mapstructure:"datastore_name" required:"true"`
+	VcenterCluster    string `mapstructure:"cluster_name" required:"true"`
 	// Will use default root folder of datacenter if left blank
-	VcenterFolder			string `mapstructure:"folder_name" required:"false"`
+	VcenterFolder string `mapstructure:"folder_name" required:"false"`
 	// Will use default pool if left blank
-	VcenterResourcePool		string `mapstructure:"respool_name" required:"false"`
+	VcenterResourcePool string `mapstructure:"respool_name" required:"false"`
 
 	// Accessible datastore path for downloaded files
-	OutputDir				string `mapstructure:"output_dir" required:"false"`   // required if using downloading
-	DownloadUri				string `mapstructure:"download_uri" required:"false"` // required if using downloading
-	DsImagePath             string `mapstructure:"ds_image_path" required:"false"`
+	OutputDir   string `mapstructure:"output_dir" required:"false"`   // required if using downloading
+	DownloadUri string `mapstructure:"download_uri" required:"false"` // required if using downloading
+	DsImagePath string `mapstructure:"ds_image_path" required:"false"`
 	// Convert and import to vCenter without first downloading image (i.e. image was already downloaded previously)
 	// Defaults to false
-	ImportNoDownload		bool   `mapstructure:"import_no_download" required:"false"`
-	SourceImagePath			string `mapstructure:"source_path" required:"false"` // required if bool is true
+	ImportNoDownload bool   `mapstructure:"import_no_download" required:"false"`
+	SourceImagePath  string `mapstructure:"source_path" required:"false"` // required if bool is true
 }
 
 type Datasource struct {
@@ -46,10 +47,10 @@ type Datasource struct {
 }
 
 // --> If making changes to this section, make sure the hcl2spec gets updated as well!
-type DatasourceOutput struct {}
+type DatasourceOutput struct{}
 
-func (d *Datasource) ConfigSpec() hcldec.ObjectSpec { 
-	return d.config.FlatMapstructure().HCL2Spec() 
+func (d *Datasource) ConfigSpec() hcldec.ObjectSpec {
+	return d.config.FlatMapstructure().HCL2Spec()
 }
 
 func (d *Datasource) Configure(raws ...interface{}) error {
@@ -61,56 +62,56 @@ func (d *Datasource) Configure(raws ...interface{}) error {
 	if d.config.ArtifactoryToken == "" {
 		token := os.Getenv("ARTIFACTORY_TOKEN")
 		if token == "" {
-			log.Fatal("---> Please provide an Artifactory Identity Token.")
+			return errors.New("please provide an Artifactory identity token")
 		}
 	}
-	
+
 	if d.config.ArtifactoryServer == "" {
 		server := os.Getenv("ARTIFACTORY_SERVER")
 		if server == "" {
-			log.Fatal("---> Please provide the URL to the Artifactory server (ex: https://server.com:8081/artifactory/api).")
+			return errors.New("please provide the Artifactory server API URL (ex: https://server.com:8081/artifactory/api)")
 		}
 	}
 
 	if d.config.VcenterServer == "" {
 		vcServer := os.Getenv("VCENTER_SERVER")
 		if vcServer == "" {
-			log.Fatal("---> Missing the target vCenter Server name.")
+			return errors.New("missing target vCenter server")
 		}
 	}
 
 	if d.config.VcenterUser == "" {
 		vcUser := os.Getenv("VCENTER_USER")
 		if vcUser == "" {
-			log.Fatal("---> Missing the vCenter Server username. This is required for authentication.")
+			return errors.New("missing vCenter username")
 		}
 	}
 
 	if d.config.VcenterPassword == "" {
 		vcPass := os.Getenv("VCENTER_PASSWORD")
 		if vcPass == "" {
-			log.Fatal("---> Missing the vCenter Server password. This is required for authentication.")
+			return errors.New("missing vCenter password")
 		}
 	}
 
 	if d.config.VcenterDatacenter == "" {
 		dcName := os.Getenv("VCENTER_DATACENTER")
 		if dcName == "" {
-			log.Fatal("---> Missing the target vCenter datacenter name.")
+			return errors.New("missing target vCenter datacenter")
 		}
 	}
 
 	if d.config.VcenterDatastore == "" {
 		dsName := os.Getenv("VCENTER_DATASTORE")
 		if dsName == "" {
-			log.Fatal("---> Missing the target vCenter datastore name.")
+			return errors.New("missing target vCenter datastore")
 		}
 	}
 
 	if d.config.VcenterCluster == "" {
 		clusterName := os.Getenv("VCENTER_CLUSTER")
 		if clusterName == "" {
-			log.Fatal("---> Missing the target vCenter cluster.")
+			return errors.New("missing target vCenter cluster")
 		}
 	}
 
@@ -136,19 +137,19 @@ func (d *Datasource) Configure(raws ...interface{}) error {
 		outputDir := os.Getenv("OUTPUTDIR")
 		if outputDir == "" {
 			log.Println("---> No output directory was provided.")
-			log.Fatal("Please provide the directory path to an accessible datastore.")
+			return errors.New("please provide an accessible datastore output directory")
 		}
 	}
 
 	if d.config.DownloadUri == "" && d.config.ImportNoDownload == false {
 		log.Println("---> No download URI for the artifact was provided. This is required if the artifact should be downloaded before importing into vCenter.")
-		log.Fatal("If the image does not need to be downloaded first, please set 'import_no_download' to TRUE, and provide full file path to the source directory where the image file (OVA, OVF, or VMTX) is located.")
+		return errors.New("provide download_uri or set import_no_download to TRUE and provide full path to the source_path where the image file is located")
 	}
 
 	if d.config.ImportNoDownload == true {
 		if d.config.SourceImagePath == "" {
 			log.Println("---> The 'import_no_download' flag is set to TRUE.")
-			log.Fatal("The 'source_path' to the full path for the image file (OVA, OVF, or VMTX) is required. Ex: '/lab/win22/win22.ova' If using a Windows path, ensure it is properly escaped with double-backslashes.")
+			return errors.New("source_path is required when import_no_download is true; must be full path to the image file (e.g., '/lab/win22/win22.ova'); if using Windows path, ensure it's properly escaped with double-backslashes")
 		}
 	}
 	return nil
@@ -168,7 +169,7 @@ func (d *Datasource) Execute() (cty.Value, error) {
 	} else {
 		token = d.config.ArtifactoryToken
 	}
-	
+
 	if d.config.ArtifactoryServer == "" {
 		serverApi = os.Getenv("ARTIFACTORY_SERVER")
 	} else {
@@ -242,7 +243,7 @@ func (d *Datasource) Execute() (cty.Value, error) {
 		dsImagePath = ""
 	}
 
-	var importNoDownload = false  // default; whether we will convert and import the image into vCenter without downloading first (i.e. image already downloaded previously)
+	var importNoDownload = false // default; whether we will convert and import the image into vCenter without downloading first (i.e. image already downloaded previously)
 	if d.config.ImportNoDownload == true {
 		importNoDownload = true
 	}
@@ -256,31 +257,27 @@ func (d *Datasource) Execute() (cty.Value, error) {
 
 	folderId, resPoolId, err := vsTasks.GetResourceIds(vcUser, vcPass, vcServer, dcName, folderName, resPoolName, clusterName)
 	if err != nil {
-		log.Fatal("Error getting folder and resource pool IDs")
+		return cty.NilVal, fmt.Errorf("get vCenter folder and resource pool IDs: %w", err)
 	}
-	
-	// If we are downloading first, parse for needed details, then proceed with download, conversion, import, and templating 
+
+	// If we are downloading first, parse for needed details, then proceed with download, conversion, import, and templating
 	if importNoDownload == false && outputDir != "" && downloadUri != "" {
 		imageFileName := artifCommon.ParseUriForFilename(downloadUri)
-		imageName     := artifCommon.ParseFilenameForImageName(imageFileName)
+		imageName := artifCommon.ParseFilenameForImageName(imageFileName)
 
 		// Download Artifacts
 		downloadResult := artifTasks.DownloadArtifacts(serverApi, token, downloadUri, outputDir)
 		log.Println("Download Result: " + downloadResult)
-		
-		var missingInputsMsg  = "Missing required inputs"
-		var downloadFailedMsg = "File download failed"
 
-		// If the download result doesn't contain one of these msgs, proceed with import
-		if !strings.Contains(downloadResult, missingInputsMsg) || !strings.Contains(downloadResult, downloadFailedMsg) {
+		if downloadResult == "End of download process" {
 			log.Println("Image download completed successfully.")
 			log.Println("Checking image type and converting if necessary. This may time some time...")
 
 			importResult = vsTasks.ConvertImportFromDownload(vcUser, vcPass, vcServer, outputDir, downloadUri, dcName, dsName, dsImagePath, imageName, folderId, resPoolId)
 		} else {
-			log.Fatal("Error: Failures occurred during image download.")
+			return cty.NilVal, fmt.Errorf("download image artifacts: %s", downloadResult)
 		}
-	} else {   // no download flag is true
+	} else { // no download flag is true
 		log.Println("Checking image type and converting if necessary. This may time some time...")
 		importResult = vsTasks.ConvertImportNoDownload(vcUser, vcPass, vcServer, dcName, dsName, sourcePath, dsImagePath, folderId, resPoolId)
 	}
@@ -288,10 +285,10 @@ func (d *Datasource) Execute() (cty.Value, error) {
 
 	if importResult == "Success" {
 		log.Println("Process completed successfully.")
-	} else if importResult == "Failed" || importResult == "" {
-		log.Fatal("Process did not complete successfully.")
+	} else {
+		return cty.NilVal, fmt.Errorf("vCenter import did not complete successfully: %s", importResult)
 	}
-	
+
 	output := DatasourceOutput{}
 
 	return hcl2helper.HCL2ValueFromConfig(output, d.OutputSpec()), nil

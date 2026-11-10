@@ -2,6 +2,7 @@
 package artifactDownloadOther
 
 import (
+	"errors"
 	"log"
 	"os"
 
@@ -15,11 +16,11 @@ import (
 
 // --> If making changes to this section, make sure the hcl2spec gets updated as well!
 type Config struct {
-	ArtifactoryToken       string `mapstructure:"artifactory_token" required:"true"`
-	ArtifactoryServer      string `mapstructure:"artifactory_server" required:"true"`
-	OutputDir			   string `mapstructure:"output_dir" required:"true"`
-	ArtifactoryPath        string `mapstructure:"artifactory_path" required:"true"`
-	FileList               []string `mapstructure:"file_list" required:"true"`
+	ArtifactoryToken  string   `mapstructure:"artifactory_token" required:"true"`
+	ArtifactoryServer string   `mapstructure:"artifactory_server" required:"true"`
+	OutputDir         string   `mapstructure:"output_dir" required:"true"`
+	ArtifactoryPath   string   `mapstructure:"artifactory_path" required:"true"`
+	FileList          []string `mapstructure:"file_list" required:"true"`
 }
 
 type Datasource struct {
@@ -27,10 +28,10 @@ type Datasource struct {
 }
 
 // --> If making changes to this section, make sure the hcl2spec gets updated as well!
-type DatasourceOutput struct {}
+type DatasourceOutput struct{}
 
-func (d *Datasource) ConfigSpec() hcldec.ObjectSpec { 
-	return d.config.FlatMapstructure().HCL2Spec() 
+func (d *Datasource) ConfigSpec() hcldec.ObjectSpec {
+	return d.config.FlatMapstructure().HCL2Spec()
 }
 
 func (d *Datasource) Configure(raws ...interface{}) error {
@@ -42,29 +43,29 @@ func (d *Datasource) Configure(raws ...interface{}) error {
 	if d.config.ArtifactoryToken == "" {
 		token := os.Getenv("ARTIFACTORY_TOKEN")
 		if token == "" {
-			log.Fatal("---> Please provide an Artifactory Identity Token.")
+			return errors.New("please provide an Artifactory identity token")
 		}
 	}
-	
+
 	if d.config.ArtifactoryServer == "" {
 		server := os.Getenv("ARTIFACTORY_SERVER")
 		if server == "" {
-			log.Fatal("---> Please provide the URL to the Artifactory server (ex: https://server.com:8081/artifactory/api).")
+			return errors.New("please provide the Artifactory server API URL")
 		}
 	}
 
 	if d.config.OutputDir == "" {
 		log.Println("---> Please provide the path to the desired output directory for the files being downloaded.")
-		log.Fatal("Path should include proper escape characters where necessary.")
+		return errors.New("output_dir is required")
 	}
 
 	if d.config.ArtifactoryPath == "" {
-		log.Fatal("---> Please provide the repo path in Artifactory where the artifacts reside (ex: /repo/folder/).")
+		return errors.New("please provide the Artifactory repository path")
 	}
 
 	if len(d.config.FileList) <= 0 {
 		log.Println("---> Please provide a list of one or more filenames to be downloaded.")
-		log.Fatal("Ex:  file_list = [\"file1.txt\", \"file2.txt\"]")
+		return errors.New("file_list must contain at least one filename")
 	}
 
 	return nil
@@ -75,9 +76,8 @@ func (d *Datasource) OutputSpec() hcldec.ObjectSpec {
 }
 
 func (d *Datasource) Execute() (cty.Value, error) {
-	var serverApi, token, artifPath, outputDir, result string
+	var serverApi, token, artifPath, outputDir string
 	var fileList []string
-	var err error
 
 	// Environment related
 	if d.config.ArtifactoryToken == "" {
@@ -85,7 +85,7 @@ func (d *Datasource) Execute() (cty.Value, error) {
 	} else {
 		token = d.config.ArtifactoryToken
 	}
-	
+
 	if d.config.ArtifactoryServer == "" {
 		serverApi = os.Getenv("ARTIFACTORY_SERVER")
 	} else {
@@ -117,17 +117,23 @@ func (d *Datasource) Execute() (cty.Value, error) {
 	log.Println("Server API Reformed: " + serverApi)
 	log.Println("Download Path: " + downloadPath)
 
+	var downloadErrors []error
 	for _, file := range fileList {
 		task := "Downloading: " + file
 		log.Println(task)
 		log.Println("Artifact Download URI should be: " + downloadPath + file)
-		result, err = tasks.DownloadGeneralArtifact(serverApi, token, outputDir, artifPath, file, task)
+		result, err := tasks.DownloadGeneralArtifact(serverApi, token, outputDir, artifPath, file, task)
 		log.Println("Result of download: " + file + " - " + result)
+		if err != nil {
+			downloadErrors = append(downloadErrors, err)
+		} else if result != "Success" {
+			downloadErrors = append(downloadErrors, errors.New("download did not complete successfully: "+file))
+		}
 	}
 
-	if err != nil {
+	if len(downloadErrors) > 0 {
 		log.Println("There were errors downloading one or more files")
-		log.Println(err)
+		return cty.NilVal, errors.Join(downloadErrors...)
 	}
 
 	output := DatasourceOutput{}

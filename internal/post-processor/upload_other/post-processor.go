@@ -14,11 +14,11 @@ import (
 )
 
 type Config struct {
-	ArtifactoryToken       string `mapstructure:"artifactory_token" required:"true"`
-	ArtifactoryServer      string `mapstructure:"artifactory_server" required:"true"`
-	SourcePath			   string `mapstructure:"source_path" required:"true"`
-	ArtifactoryPath		   string `mapstructure:"artifactory_path" required:"true"`
-	FileList         	   []string `mapstructure:"file_list" required:"true"`
+	ArtifactoryToken  string   `mapstructure:"artifactory_token" required:"true"`
+	ArtifactoryServer string   `mapstructure:"artifactory_server" required:"true"`
+	SourcePath        string   `mapstructure:"source_path" required:"true"`
+	ArtifactoryPath   string   `mapstructure:"artifactory_path" required:"true"`
+	FileList          []string `mapstructure:"file_list" required:"true"`
 }
 
 type PostProcessor struct {
@@ -36,28 +36,27 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 	if p.config.ArtifactoryToken == "" {
 		token := os.Getenv("ARTIFACTORY_TOKEN")
 		if token == "" {
-			log.Fatal("---> Missing Artifactory identity token. The token is required to complete tasks against Artifactory.")
-		}	
+			return errors.New("missing Artifactory identity token")
+		}
 	}
 
 	if p.config.ArtifactoryServer == "" {
 		serverApi := os.Getenv("ARTIFACTORY_SERVER")
 		if serverApi == "" {
-			log.Fatal("---> Missing Artifactory server API address. The server API address is required to communicate with Artifactory.")	
+			return errors.New("missing Artifactory server API address")
 		}
 	}
 
 	if p.config.SourcePath == "" {
-		log.Fatal("---> Please provide the source path to the artifact(s) to upload.")
-		log.Fatal("Source path should be in the form of either 'h:\\lab\\' or '/lab/'")
+		return errors.New("source_path of the artifact to upload is required; path should be in the form of either 'h:\\directory\\' or '/directory/'")
 	}
 
 	if p.config.ArtifactoryPath == "" {
-		log.Fatal("---> Please provide the Artifactory /repo/folder/path where the artifact(s) should be uploaded to.")
+		return errors.New("artifactory_path where artificts should be uploaded is required; should be in the form of /repo/folder/")
 	}
 
 	if len(p.config.FileList) <= 0 {
-		log.Fatal("---> Please add one or more files to the file_list for upload.")
+		return errors.New("file_list must contain at least one filename for upload")
 	}
 
 	return nil
@@ -73,7 +72,7 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source
 	} else {
 		token = p.config.ArtifactoryToken
 	}
-	
+
 	if p.config.ArtifactoryServer == "" {
 		serverApi = os.Getenv("ARTIFACTORY_SERVER")
 	} else {

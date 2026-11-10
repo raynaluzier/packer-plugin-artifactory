@@ -15,16 +15,16 @@ import (
 )
 
 type Config struct {
-	ArtifactoryToken       string `mapstructure:"artifactory_token" required:"true"`
-	ArtifactoryServer      string `mapstructure:"artifactory_server" required:"true"`
-	SourcePath			   string `mapstructure:"source_path" required:"true"`
+	ArtifactoryToken  string `mapstructure:"artifactory_token" required:"true"`
+	ArtifactoryServer string `mapstructure:"artifactory_server" required:"true"`
+	SourcePath        string `mapstructure:"source_path" required:"true"`
 	// If not provided, then can reference an existing artifact URI to parse for the target
-	TargetPath			   string `mapstructure:"target_path" required:"false"`  // either this or existing uri target
+	TargetPath string `mapstructure:"target_path" required:"false"` // either this or existing uri target
 	// Valid values are "ova", "ovf", and "vmtx"
-	ImageType              string `mapstructure:"image_type" required:"true"`
+	ImageType string `mapstructure:"image_type" required:"true"`
 	// Base image name (ex: win2022 or rhel9)
-	ImageName              string `mapstructure:"image_name" required:"true"`
-	ExistingUriTarget	   string `mapstructure:"existing_uri_target" required:"false"`
+	ImageName         string `mapstructure:"image_name" required:"true"`
+	ExistingUriTarget string `mapstructure:"existing_uri_target" required:"false"`
 }
 
 type PostProcessor struct {
@@ -42,26 +42,26 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 	if p.config.ArtifactoryToken == "" {
 		token := os.Getenv("ARTIFACTORY_TOKEN")
 		if token == "" {
-			log.Fatal("---> Missing Artifactory identity token. The token is required to complete tasks against Artifactory.")
-		}	
+			return errors.New("missing Artifactory identity token")
+		}
 	}
 
 	if p.config.ArtifactoryServer == "" {
 		serverApi := os.Getenv("ARTIFACTORY_SERVER")
 		if serverApi == "" {
-			log.Fatal("---> Missing Artifactory server API address. The server API address is required to communicate with Artifactory.")	
+			return errors.New("missing Artifactory server API address")
 		}
 	}
 
 	if p.config.SourcePath == "" {
 		log.Println("---> Please provide the source path to the artifact to upload.")
-		log.Fatal("Source path should be in the form of either 'h:\\lab\\' or '/lab/'")
+		return errors.New("source_path is required; should be in the form of either 'h:\\directory\\' or '/directory/'")
 	}
 
 	if p.config.TargetPath == "" && p.config.ExistingUriTarget == "" {
 		log.Println("---> Please provide either a target path OR use the 'existing_artifact_uri' input (which can be populated manually or from data source) to reference as a target location.")
 		log.Println("If using an existing artifact URI, the artifact's path will be parsed and used as the target for the new artifact.")
-		log.Fatal("Otherwise, the target path should be in the form of '/repo/folder/path.")
+		return errors.New("provide target_path ('/repo/folder/path') or existing_uri_target")
 	}
 
 	if p.config.TargetPath != "" && p.config.ExistingUriTarget != "" {
@@ -70,11 +70,11 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 	}
 
 	if p.config.ImageType == "" {
-		log.Fatal("---> Please provide the image file type that will be uploaded: 'ova', 'ovf', or 'vmtx'.")
+		return errors.New("image_type for upload is required (valid values are ova, ovf, or vmtx)")
 	}
 
 	if p.config.ImageName == "" {
-		log.Fatal("---> Please provide the name of the image; examples: win2022, rhel9, win22_25_01_25...")
+		return errors.New("image_name is required")
 	}
 
 	return nil
@@ -88,7 +88,7 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, source
 	} else {
 		token = p.config.ArtifactoryToken
 	}
-	
+
 	if p.config.ArtifactoryServer == "" {
 		serverApi = os.Getenv("ARTIFACTORY_SERVER")
 	} else {

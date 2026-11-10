@@ -7,8 +7,8 @@ toolchain go1.24.1
 require (
 	github.com/hashicorp/hcl/v2 v2.19.1
 	github.com/hashicorp/packer-plugin-sdk v0.6.1
-	github.com/raynaluzier/artifactory-go-sdk v1.0.32
-	github.com/raynaluzier/vsphere-go-sdk v0.0.22
+	github.com/raynaluzier/artifactory-go-sdk v1.1.0
+	github.com/raynaluzier/vsphere-go-sdk v0.1.0
 	github.com/zclconf/go-cty v1.13.3
 )
 

@@ -2,6 +2,7 @@
 package artifactImage
 
 import (
+	"errors"
 	"log"
 	"os"
 
@@ -14,16 +15,16 @@ import (
 
 // --> If making changes to this section, make sure the hcl2spec gets updated as well!
 type Config struct {
-	ArtifactoryToken       string `mapstructure:"artifactory_token" required:"true"`
-	ArtifactoryServer      string `mapstructure:"artifactory_server" required:"true"`
+	ArtifactoryToken  string `mapstructure:"artifactory_token" required:"true"`
+	ArtifactoryServer string `mapstructure:"artifactory_server" required:"true"`
 	// Full or partial name of the artifact
-	ArtifactName           string `mapstructure:"artifact_name" required:"true"`
+	ArtifactName string `mapstructure:"artifact_name" required:"true"`
 	// File extension; defaults to '.vmtx' if left blank
-	ArtifactFileType       string `mapstructure:"file_type" required:"true"`
+	ArtifactFileType string `mapstructure:"file_type" required:"true"`
 	// Channel is technically a property; if it exists, will be appended to the kvProperties []string
-	ArtifactChannel        string `mapstructure:"channel" required:"false"`
+	ArtifactChannel string `mapstructure:"channel" required:"false"`
 	// Key/value pairs of properties to filter on
-	ArtifactFilter         map[string]string `mapstructure:"filter" required:"false"`
+	ArtifactFilter map[string]string `mapstructure:"filter" required:"false"`
 }
 
 type Datasource struct {
@@ -34,12 +35,12 @@ type Datasource struct {
 type DatasourceOutput struct {
 	Name        string `mapstructure:"name"`
 	Created     string `mapstructure:"creation_date"`
-	ArtifactUri	string `mapstructure:"artifact_uri"`
+	ArtifactUri string `mapstructure:"artifact_uri"`
 	DownloadUri string `mapstructure:"download_uri"`
 }
 
-func (d *Datasource) ConfigSpec() hcldec.ObjectSpec { 
-	return d.config.FlatMapstructure().HCL2Spec() 
+func (d *Datasource) ConfigSpec() hcldec.ObjectSpec {
+	return d.config.FlatMapstructure().HCL2Spec()
 }
 
 func (d *Datasource) Configure(raws ...interface{}) error {
@@ -51,23 +52,23 @@ func (d *Datasource) Configure(raws ...interface{}) error {
 	if d.config.ArtifactoryToken == "" {
 		token := os.Getenv("ARTIFACTORY_TOKEN")
 		if token == "" {
-			log.Fatal("---> Please provide an Artifactory Identity Token.")
+			return errors.New("please provide an Artifactory identity token")
 		}
 	}
-	
+
 	if d.config.ArtifactoryServer == "" {
 		server := os.Getenv("ARTIFACTORY_SERVER")
 		if server == "" {
-			log.Fatal("---> Please provide the URL to the Artifactory server (ex: https://server.com:8081/artifactory/api).")
+			return errors.New("please provide the Artifactory server API URL (ex: https://server.com:8081/artifactory/api)")
 		}
 	}
 
 	if d.config.ArtifactName == "" {
-		log.Fatal("---> Please provide the full or partial artifact name.")
+		return errors.New("please provide the full or partial artifact name")
 	}
 
 	if d.config.ArtifactFileType == "" {
-		log.Fatal("---> Please provide the source image's extension type; for example '.vmtx' or 'vmtx'.")
+		return errors.New("please provide the source image's file extension")
 	}
 	return nil
 }
@@ -76,7 +77,7 @@ func (d *Datasource) OutputSpec() hcldec.ObjectSpec {
 	return (&DatasourceOutput{}).FlatMapstructure().HCL2Spec()
 }
 
-func BuildPropFilters(kvInput map[string]string) ([]string) {
+func BuildPropFilters(kvInput map[string]string) []string {
 	var filterOptions []string
 	if len(kvInput) > 0 {
 		for key, value := range kvInput {
@@ -132,13 +133,14 @@ func (d *Datasource) Execute() (cty.Value, error) {
 		} else if artifactName == "" || createDate == "" || downloadUri == "" {
 			log.Println("[ERROR] ----> An Artifact URI was returned, however an error was encountered retrieving one or more artifact details.")
 		}
+		return cty.NilVal, err
 	}
-	
+
 	output := DatasourceOutput{
-		Name: 	artifactName,
-		Created: 	createDate,
-		ArtifactUri: 	artifactUri,
-		DownloadUri: 	downloadUri,
+		Name:        artifactName,
+		Created:     createDate,
+		ArtifactUri: artifactUri,
+		DownloadUri: downloadUri,
 	}
 
 	return hcl2helper.HCL2ValueFromConfig(output, d.OutputSpec()), nil
